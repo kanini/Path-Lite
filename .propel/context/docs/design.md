@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-PATH Lite is a cross-platform mobile application (iOS & Android) that transforms manual form-based patient data entry into an AI-driven conversational interface for healthcare professionals. The system enables nurses to complete patient demographic, admission, and Hemodialysis treatment documentation through natural voice interaction, reducing documentation time by 40-60%, minimizing data entry errors, and decreasing cognitive load while maintaining strict HIPAA compliance and validation requirements. This is a prototype phase to validate the AI-driven conversational approach before production deployment.
+PATH Lite is a cross-platform mobile application (iOS & Android) that transforms manual form-based patient data entry into an AI-driven conversational interface for healthcare professionals. The system enables nurses to complete patient demographic, admission, and Hemodialysis treatment documentation through natural voice interaction, reducing documentation time by 40-60%, minimizing data entry errors, and decreasing cognitive load while maintaining strict HIPAA compliance and validation requirements. This is a prototype phase using mock data only (no database) to validate the AI-driven conversational approach before production deployment.
 
 ## Architecture Goals
 
@@ -45,34 +45,36 @@ PATH Lite is a cross-platform mobile application (iOS & Android) that transforms
 - NFR-029: System MUST provide offline capability for partial data storage when network is unavailable
 - NFR-030: System MUST use standardized coding conventions and documentation (ESLint, Prettier, JSDoc)
 - NFR-031: System MUST implement comprehensive error logging for troubleshooting with structured logging format
-- NFR-032: System MUST support version updates without data loss through database migration strategies
+- NFR-032: System MUST support version updates without mock data loss through MMKV storage migration strategies
 
 ## Data Requirements
 
-- DR-001: System MUST store patient demographic data including MRN, First Name, Middle Initial, Last Name, DOB, Gender
-- DR-002: System MUST store admission data including Admission/Encounter Number, Treatment Location, Room Number
-- DR-003: System MUST store clinical intake data including HBsAg (status, date, source), HBsAb (value, date, source)
-- DR-004: System MUST enforce data integrity constraints: MRN (numeric only), DOB (valid date), Email (RFC-compliant format)
-- DR-005: System MUST maintain referential integrity between patient records and treatment sessions
-- DR-006: System MUST implement data retention policy: session data retained for 24 hours, completed forms retained indefinitely in Phase 1
-- DR-007: System MUST support data backup through device-level backup mechanisms (iOS iCloud, Android backup)
-- DR-008: System MUST encrypt sensitive data at rest using MMKV encryption with AES-256
-- DR-009: System MUST support data migration for future production EHR integration with export capability
-- DR-010: System MUST maintain audit log data including timestamp, user ID, action type, before/after values for 6 years per HIPAA
+- DR-001: System MUST store patient demographic mock data including MRN, First Name, Middle Initial, Last Name, DOB, Gender in local MMKV storage
+- DR-002: System MUST store admission mock data including Admission/Encounter Number, Treatment Location, Room Number in local MMKV storage
+- DR-003: System MUST store clinical intake mock data including HBsAg (status, date, source), HBsAb (value, date, source) in local MMKV storage
+- DR-004: System MUST enforce data integrity constraints on mock data: MRN (numeric only), DOB (valid date), Email (RFC-compliant format)
+- DR-005: System MUST maintain referential integrity between mock patient records and treatment sessions in local storage
+- DR-006: System MUST implement data retention policy for mock data: session data retained for 24 hours, completed forms retained indefinitely in Phase 1 prototype
+- DR-007: System MUST support mock data backup through device-level backup mechanisms (iOS iCloud, Android backup)
+- DR-008: System MUST encrypt mock data at rest using MMKV encryption with AES-256
+- DR-009: System MUST support mock data export capability for future production EHR integration validation
+- DR-010: System MUST maintain audit log mock data including timestamp, user ID, action type, before/after values in local MMKV storage
 
-### Domain Entities
+### Domain Entities (Mock Data Models)
 
-- **Patient**: Represents a patient record with demographic information (MRN, name, DOB, gender), admission details (encounter number, location, room), and clinical data (HBsAg, HBsAb). Unique identifier: MRN. Relationships: One-to-many with TreatmentSession.
+**Note:** All entities are mock data structures stored in local MMKV storage. No database is used in Phase 1 prototype.
 
-- **TreatmentSession**: Represents a single Hemodialysis treatment data entry session with form data, completion status, session state (last field index), and timestamps. Unique identifier: SessionID. Relationships: Many-to-one with Patient, one-to-many with AuditLog.
+- **Patient (Mock)**: Represents a mock patient record with demographic information (MRN, name, DOB, gender), admission details (encounter number, location, room), and clinical data (HBsAg, HBsAb). Unique identifier: MRN. Stored as JSON in MMKV.
 
-- **User**: Represents a nurse user with credentials, hospital assignment, and role. Unique identifier: UserID. Relationships: One-to-many with TreatmentSession, one-to-many with AuditLog.
+- **TreatmentSession (Mock)**: Represents a single Hemodialysis treatment data entry session with form data, completion status, session state (last field index), and timestamps. Unique identifier: SessionID. Stored as JSON in MMKV.
 
-- **Hospital**: Represents a hospital facility with name, code, and configuration. Unique identifier: HospitalID. Relationships: One-to-many with User, one-to-many with Patient.
+- **User (Mock)**: Represents a mock nurse user with credentials, hospital assignment, and role. Unique identifier: UserID. Hardcoded mock credentials for prototype authentication.
 
-- **AuditLog**: Represents an audit trail entry with timestamp, user ID, action type, entity type, entity ID, before/after values, and IP address. Unique identifier: LogID. Relationships: Many-to-one with User, many-to-one with TreatmentSession.
+- **Hospital (Mock)**: Represents a mock hospital facility with name, code, and configuration. Unique identifier: HospitalID. Hardcoded mock hospital list for prototype.
 
-- **FormSchema**: Represents the Hemodialysis form structure with field definitions, validation rules, question templates, and field ordering. Unique identifier: SchemaID. Supports extensibility for future treatment types.
+- **AuditLog (Mock)**: Represents an audit trail entry with timestamp, user ID, action type, entity type, entity ID, before/after values, and IP address. Unique identifier: LogID. Stored as JSON array in MMKV.
+
+- **FormSchema (Mock)**: Represents the Hemodialysis form structure with field definitions, validation rules, question templates, and field ordering. Unique identifier: SchemaID. Hardcoded JSON schema for prototype.
 
 ## AI Consideration
 
@@ -112,7 +114,7 @@ PATH Lite is a cross-platform mobile application (iOS & Android) that transforms
 
 - **Decision 1: React Native for Cross-Platform Mobile**: Selected React Native over Flutter/native development to leverage JavaScript ecosystem, enable code reuse across iOS/Android (90%+ shared codebase), and align with organizational technology stack constraint (C-001). Provides mature voice integration libraries (@react-native-voice/voice, expo-speech) and strong community support.
 
-- **Decision 2: MMKV for Local Storage**: Selected react-native-mmkv over AsyncStorage for session persistence and offline storage due to 30x faster performance, synchronous API (eliminates promise overhead), built-in AES-256 encryption for PHI protection, and support for complex data types without serialization. Critical for <500ms validation latency (NFR-004) and HIPAA encryption requirements (NFR-011, DR-008).
+- **Decision 2: MMKV for Mock Data Storage (No Database)**: Selected react-native-mmkv over AsyncStorage for mock data storage and session persistence due to 30x faster performance, synchronous API (eliminates promise overhead), built-in AES-256 encryption for mock PHI protection, and support for complex data types without serialization. All data is mock data stored locally with no database. Critical for <500ms validation latency (NFR-004) and HIPAA encryption requirements (NFR-011, DR-008).
 
 - **Decision 3: Azure OpenAI Structured Outputs**: Selected Azure OpenAI structured outputs over JSON mode for LLM data extraction to guarantee strict schema adherence, eliminate parsing errors, and ensure type safety for medical data. Pydantic integration enables compile-time validation and reduces runtime errors. Azure deployment ensures HIPAA BAA coverage (NFR-011) and data residency compliance.
 
@@ -137,10 +139,10 @@ PATH Lite is a cross-platform mobile application (iOS & Android) that transforms
 | Frontend | React Native | 0.73+ | NFR-017, NFR-018, NFR-019, NFR-020 - Cross-platform mobile with iOS 14+ and Android 10+ support, responsive design for 7-12.9" tablets |
 | Mobile | React Native | 0.73+ | NFR-017, NFR-018, NFR-019 - Native mobile framework for iOS and Android with single codebase |
 | Backend | FastAPI | 0.110+ | NFR-001, NFR-003, AIR-001 - Async Python framework for Azure OpenAI integration with <1s processing latency |
-| Database | MMKV (react-native-mmkv) | 2.12+ | DR-008, NFR-028, NFR-004 - Encrypted local storage with synchronous API for session persistence and offline capability |
+| Local Storage (No Database) | MMKV (react-native-mmkv) | 2.12+ | DR-008, NFR-028, NFR-004 - Encrypted local storage for mock data with synchronous API for session persistence |
 | AI/ML | Azure OpenAI GPT-4o-mini, @react-native-voice/voice (STT), expo-speech (TTS) | GPT-4o-mini-2024-07-18, voice 3.2+, expo-speech 11.7+ | AIR-001, AIR-002, AIR-003, AIR-004, NFR-011 - HIPAA-compliant LLM with structured outputs, native STT/TTS for <2s latency |
 | Testing | Jest, React Native Testing Library, Playwright (future E2E) | Jest 29+, RNTL 12+, Playwright 1.40+ | NFR-030 - Unit testing for React Native components and FastAPI endpoints |
-| Infrastructure | Azure App Service (FastAPI), Azure OpenAI Service, Device Storage (MMKV) | N/A | NFR-011, NFR-026 - Cloud backend with HIPAA BAA, local mobile storage for offline capability |
+| Infrastructure | Azure App Service (FastAPI), Azure OpenAI Service, Device Storage (MMKV - Mock Data Only) | N/A | NFR-011, NFR-026 - Cloud backend with HIPAA BAA, local mobile storage for mock data only (no database) |
 | Security | TLS 1.3, JWT (jsonwebtoken), MMKV Encryption (AES-256) | TLS 1.3, JWT 9.0+, MMKV built-in | NFR-012, NFR-013, DR-008 - End-to-end encryption, token-based auth, encrypted local storage |
 | Deployment | Azure App Service, Apple App Store, Google Play Store | N/A | NFR-018, NFR-019 - Cloud backend deployment, mobile app distribution |
 | Monitoring | Azure Application Insights, React Native Error Boundary | App Insights SDK 2.8+ | NFR-031 - Structured logging, error tracking, performance monitoring |
@@ -194,7 +196,7 @@ PATH Lite is a cross-platform mobile application (iOS & Android) that transforms
 
 - TR-001: System MUST use React Native 0.73+ framework for cross-platform mobile development justified by NFR-017, NFR-018, NFR-019, NFR-020
 - TR-002: System MUST use FastAPI 0.110+ framework for backend API with async/await support justified by NFR-001, NFR-003, AIR-001
-- TR-003: System MUST use MMKV (react-native-mmkv 2.12+) for local encrypted storage justified by DR-008, NFR-028, NFR-004
+- TR-003: System MUST use MMKV (react-native-mmkv 2.12+) for local encrypted mock data storage (no database) justified by DR-008, NFR-028, NFR-004
 - TR-004: System MUST integrate Azure OpenAI GPT-4o-mini (2024-07-18) with structured outputs for LLM processing justified by AIR-001, AIR-002, NFR-011
 - TR-005: System MUST integrate @react-native-voice/voice 3.2+ for Speech-to-Text functionality justified by AIR-004, NFR-002
 - TR-006: System MUST integrate expo-speech 11.7+ for Text-to-Speech functionality justified by AIR-003, NFR-007
@@ -218,16 +220,16 @@ PATH Lite is a cross-platform mobile application (iOS & Android) that transforms
 **Constraints:**
 - **C-001**: Technology stack must use React Native for mobile, FastAPI for backend, and Azure OpenAI GPT-4o-mini for LLM processing per organizational standards
 - **C-002**: Phase 1 limited to Hemodialysis treatment type only; extensible architecture required for future treatment types
-- **C-003**: No production EHR integration in Phase 1; data stored in local MMKV storage with future migration strategy
+- **C-003**: No production EHR integration in Phase 1; all data is mock data stored in local MMKV storage (no database) with future migration strategy
 - **C-004**: AI conversational features require active internet connection for Azure OpenAI API access; manual fallback required for offline scenarios
-- **C-005**: Prototype phase with mock authentication and mock patient data; production-grade security and real data integration deferred to Phase 2
+- **C-005**: Prototype phase with mock authentication, mock patient data, mock hospital data, and mock form submissions only (no database); production-grade security and real data integration deferred to Phase 2
 
 **Assumptions:**
 - **A-001**: Nurses will grant microphone permissions and use devices with functional microphones in acceptable acoustic conditions (validated during pilot deployment)
 - **A-002**: Phase 1 supports English language only for voice interaction (STT and TTS); multi-language support planned for future phases
 - **A-003**: Nurses will use tablets within 7-12.9 inch screen size range with iOS 14+ or Android 10+ operating systems per organizational device standards
 - **A-004**: Azure OpenAI API will maintain 99.9% uptime and respond within <1 second per request per enterprise SLA
-- **A-005**: Mock patient records contain representative MRN, name, DOB, and admission data for effective recall search testing in Phase 1
+- **A-005**: Hardcoded mock patient records contain representative MRN, name, DOB, and admission data for effective recall search testing in Phase 1 (no database queries)
 - **A-006**: Clinical environments will have adequate WiFi connectivity for Azure OpenAI API calls during prototype validation
 - **A-007**: Nurses will complete training on voice interaction patterns and conversational commands before pilot deployment
 
@@ -235,9 +237,9 @@ PATH Lite is a cross-platform mobile application (iOS & Android) that transforms
 
 1. **Environment Setup**: Configure React Native development environment (Node.js 18+, React Native CLI, Xcode for iOS, Android Studio for Android), FastAPI backend environment (Python 3.11+, Poetry for dependency management), and Azure OpenAI service provisioning with HIPAA BAA verification
 
-2. **Backend Development**: Implement FastAPI backend with Azure OpenAI integration (structured outputs, Pydantic models), JWT authentication, validation engine (Pydantic + custom business rules), audit logging middleware, and mock data services (authentication, patient data store)
+2. **Backend Development**: Implement FastAPI backend with Azure OpenAI integration (structured outputs, Pydantic models), JWT authentication with mock credentials, validation engine (Pydantic + custom business rules), audit logging middleware, and hardcoded mock data services (mock authentication, mock patient data, mock hospital data - no database)
 
-3. **Mobile App Foundation**: Build React Native app structure with navigation (React Navigation), MMKV storage setup (encrypted instance for PHI, separate instance for audit logs), authentication flow (login, hospital selection, patient dashboard), and form schema loader (JSON schema parser)
+3. **Mobile App Foundation**: Build React Native app structure with navigation (React Navigation), MMKV storage setup for mock data only (encrypted instance for mock PHI, separate instance for mock audit logs - no database), authentication flow with mock credentials (login, hospital selection, patient dashboard), and hardcoded form schema loader (JSON schema parser)
 
 4. **Voice Integration**: Integrate @react-native-voice/voice for STT (microphone permissions, noise suppression configuration), expo-speech for TTS (voice selection, speech rate configuration), and implement voice UI components (AI voice icon, listening indicator, audio feedback)
 
@@ -245,7 +247,7 @@ PATH Lite is a cross-platform mobile application (iOS & Android) that transforms
 
 6. **Session Management**: Implement session persistence (save on field completion, save on app backgrounding), resume capability (detect incomplete session, load partial data, resume from last field), and session timeout handling (30-minute inactivity, auto-close after 3 no-response retries)
 
-7. **Review & Submission**: Implement review screen (validation summary, error categorization, edit navigation), report generation (structured data formatting), and final submission (save to MMKV, audit log creation, success confirmation)
+7. **Review & Submission**: Implement review screen (validation summary, error categorization, edit navigation), report generation (structured data formatting), and final submission (save mock data to MMKV, mock audit log creation, success confirmation - no database)
 
 8. **Testing & Validation**: Conduct unit testing (Jest for React Native components, pytest for FastAPI endpoints), integration testing (voice flow end-to-end, LLM data extraction accuracy), and user acceptance testing (nurse pilot with actual clinical scenarios, latency measurement, accuracy validation)
 
