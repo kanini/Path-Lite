@@ -52,5 +52,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UIFileSharingEnabled</key>
+	<false/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<false/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>PATH Lite uses Face ID to securely access encrypted patient data stored on your device.</string>
 </dict>
 </plist>
