@@ -1,0 +1,263 @@
+BUSINESS REQUIREMENTS DOCUMENT (BRD)
+
+Project Name:
+PATH Lite – AI-Driven Mobile Conversational Data Entry System
+
+
+1. Problem Statement
+Currently, nurses using the PATH Lite system manually enter patient demographic, admission, and treatment details through structured forms on tablet devices.
+
+Existing Challenges:
+- Manual data entry is time-consuming
+- Increased cognitive load on nurses
+- Higher probability of incomplete documentation
+- Navigation across multiple screens increases workflow friction
+- No voice or AI assistance exists
+- No intelligent validation beyond basic form checks
+- No guided completion mechanism for mandatory fields
+
+This results in:
+- Reduced documentation efficiency
+- Delays in patient processing
+- Increased risk of data errors
+- Lower productivity
+
+There is a need to simplify and automate structured data collection without disrupting existing workflows.
+
+
+2. Proposed Solution
+Develop a Mobile Application (iOS & Android) with an embedded AI Conversational Assistant that enables structured, field-level patient data entry through voice interaction.
+
+The solution will:
+- Guide nurses through sequential AI-driven questions
+- Convert speech to structured data fields
+- Enforce strict validation rules
+- Prevent skipping mandatory fields
+- Allow optional field null handling
+- Provide clarification using NLP
+- Handle no-response scenarios
+- Save partial sessions
+- Resume from first unanswered question
+- Provide confirmation screen before submission
+
+The system will integrate seamlessly into the existing PATH Lite workflow.
+
+
+3. Scope of the Solution
+
+Included in Scope:
+- Mobile application (iOS & Android)
+- Nurse authentication
+- Hospital selection
+- Existing Patient List for Selected Hospital
+- Add New → Hemodialysis workflow (Phase 1)
+- Patient recall search
+- AI voice-based patient details entry
+- Field validation engine
+- Confirmation & edit screen
+- Session resume capability
+- Audit logging
+
+Out of Scope:
+- Production EHR integration
+- Full PATH Lite replacement
+- Integration with live hospital systems
+- Non-Hemodialysis treatments (Phase 1)
+
+
+4. End-to-End User Flow
+
+Step 1: Login
+- Nurse enters credentials
+- Secure authentication performed
+- Redirect to Hospital Selection
+
+Step 2: Hospital Selection
+- Searchable hospital list
+- Nurse selects hospital
+- Redirect to Patient Dashboard
+
+Step 3: Patient Dashboard
+- All Patients (Active / Completed)
+- "Add New" button
+
+Step 4: Add New → Hemodialysis
+- Nurse selects Add New
+- Select Hemodialysis (Phase 1 only)
+- Open Patient Recall Search popup
+
+Step 5: Patient Recall Search
+Fields:
+- Patient First Name
+- Patient Last Name
+- Medical Record Number (MRN)
+- DOB
+- Admission / Encounter Number
+
+Search Button Enable Rule:
+- Minimum two fields entered including MRN
+- MRN is mandatory for search execution
+
+Step 6: Patient Exists Check
+If patient exists:
+- Redirect to treatment page
+- Display patient details with prefilled data
+- Show required forms list
+- Form fields filled using AI solution
+
+If patient does not exist:
+- Nurse adds new treatment
+- Redirect to treatment page for manual/AI entry
+
+
+5. Treatment Page – AI Integration
+
+Patient Details Form:
+
+Section 1: Demographics & Admission
+- MRN (Required)
+- Patient First Name (Required)
+- Patient Middle Initial / Name
+- Patient Last Name (Required)
+- DOB (Required)
+- Admission / Encounter Number
+- Gender (Required: Male / Female)
+- Treatment Location (Required: OR, Bedside, ICU/CCU, ER, Multi-Tx Room)
+- Room Number (Required)
+
+Section 2: Clinical Intake
+- HBsAg (Required: Positive / Negative / Unknown)
+- Date Drawn
+- Source (Hospital / Davita Patient Portal / Non-Davita Source)
+- HBsAb (Required: Immune Value)
+- Date Drawn
+- Source (Hospital / Davita Patient Portal / Non-Davita Source)
+
+An AI Voice Icon must be present to activate conversational mode.
+
+
+6. AI Conversational Workflow
+When AI is activated:
+- AI asks structured question
+- Nurse responds via voice
+- Speech converted to text
+- Text validated
+- Field mapped
+- Next question triggered
+
+Example:
+AI: "Please provide Medical Record Number."
+Nurse: "5000"
+System validates numeric format and fills MRN field.
+
+
+7. Field Validation Requirements
+
+Mandatory Fields:
+- Must not be skipped
+- AI must re-ask until valid input provided
+- Submission blocked if incomplete
+
+Optional Fields:
+- May be skipped
+- Must be stored as NULL or predefined default value
+
+
+8. Post Speech-to-Text Validation Layer
+After speech conversion, system must perform:
+
+1. Schema Validation
+- Ensure field exists in form schema
+
+2. Data Type Validation
+- String
+- Integer
+- Date
+- Enum
+- Boolean
+
+3. Regex Validation
+Examples:
+- MRN → Numeric only
+- Phone → Pattern check
+- ID → Format check
+
+4. Email Format Validation
+- RFC-compliant validation for email fields
+
+If validation fails:
+- AI must request corrected input
+
+
+9. Clarification Handling Using NLP
+If nurse says:
+- "Repeat"
+- "What do you mean?"
+- "I don’t understand"
+
+System must:
+- Detect clarification intent
+- Rephrase or repeat question
+- Continue same field context
+
+
+10. No-Response Handling Protocol
+If nurse does not respond:
+- Wait 5 seconds
+- Repeat question
+- Retry up to 3 times
+
+After 3 failed attempts:
+- Auto-close AI session
+- Save partial data
+- Notify nurse of session closure
+
+
+11. Session Continuity & Resume
+If AI session closes before completion:
+- Save partial data
+- Store last unanswered field index
+- Maintain session state
+
+When reopened:
+- Resume from first unanswered question
+- Do not restart from beginning
+
+
+12. Confirmation & Edit Screen
+After all mandatory fields are filled:
+- Display structured summary page
+- Provide edit option
+- Allow manual edits
+- Re-validate edited fields
+- Save only after confirmation
+
+
+13. Functional Requirements Summary
+- Secure Login (Mock, no database for Phase 1)
+- Hospital Selection
+- Patient Recall Search
+- MRN Mandatory Enforcement
+- AI Sequential Question Flow
+- Speech-to-Text Engine
+- Validation Engine
+- Clarification Intent Detection
+- Retry Mechanism
+- Session Resume
+- Confirmation Screen
+
+
+15. Technical Architecture Overview
+
+Frontend (Mobile App):
+- React Native (cross-platform)
+- Microphone integration
+- Local state management
+- Offline cache for partial sessions
+
+Backend:
+- RESTful API (FastAPI)
+- AI Orchestration Service (Azure OpenAI API gpt-5-mini)
+- Rule Engine
+- Validation Engine
+- Session Management Service
