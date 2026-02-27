@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=768, initial-scale=1.0">
+<title>SCR-008 - Treatment Report Preview | PATH Lite</title>
+<style>
+  :root {
+    --primary: #1566A7; --primary-dark: #0E4F87; --primary-light: #E8F1F9;
+    --neutral-900: #1A1A1A; --neutral-700: #4A4A4A; --neutral-500: #7A7A7A;
+    --neutral-300: #C4C4C4; --neutral-100: #F5F5F5; --white: #FFFFFF;
+    --overlay-scrim: rgba(0,0,0,0.5);
+    --left-panel-width: 200px; --header-height: 56px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Roboto', sans-serif;
+    background: #E0E0E0; min-height: 100vh;
+    display: flex; align-items: flex-start; justify-content: center; padding: 20px;
+  }
+  .device-frame {
+    width: 768px; min-height: 1024px; background: var(--neutral-100);
+    border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .status-bar {
+    height: 28px; background: var(--white); display: flex; align-items: center;
+    justify-content: space-between; padding: 0 16px; font-size: 11px; font-weight: 600;
+    color: var(--neutral-900); flex-shrink: 0; border-bottom: 1px solid var(--neutral-300);
+  }
+  .state-tabs {
+    display: flex; background: var(--neutral-100); border-bottom: 1px solid var(--neutral-300);
+    padding: 8px 16px 0; gap: 4px; flex-shrink: 0;
+  }
+  .state-tab {
+    padding: 7px 14px; font-size: 11px; font-weight: 500; color: var(--neutral-500);
+    cursor: pointer; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none;
+  }
+  .state-tab.active { background: var(--white); color: var(--primary); border-color: var(--neutral-300); }
+  .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; position: relative; }
+  .screen.active { display: flex; }
+
+  /* Header with breadcrumb back pattern */
+  .app-header {
+    height: var(--header-height); background: var(--white);
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.08);
+    display: flex; align-items: center; padding: 0 16px;
+    flex-shrink: 0; position: relative; z-index: 5;
+  }
+  .header-left { flex: 1; display: flex; align-items: center; gap: 6px; }
+  .header-center { flex: 2; text-align: center; font-size: 20px; font-weight: 600; color: var(--neutral-900); }
+  .header-right { flex: 1; display: flex; justify-content: flex-end; }
+  .back-btn { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 500; color: var(--primary); background: none; border: none; cursor: pointer; padding: 8px 4px; }
+  .back-label { font-size: 13px; color: var(--neutral-500); font-weight: 400; }
+  .fullscreen-btn { display: flex; align-items: center; gap: 5px; height: 36px; padding: 0 12px; background: none; color: var(--primary); border: 1.5px solid var(--primary); border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+
+  /* Split Panel */
+  .split-panel { display: flex; flex: 1; overflow: hidden; }
+
+  /* Left Nav */
+  .left-nav {
+    width: var(--left-panel-width); background: var(--neutral-100);
+    border-right: 1px solid var(--neutral-300); flex-shrink: 0;
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .left-nav-hospital { padding: 12px 12px 8px; border-bottom: 1px solid var(--neutral-300); }
+  .hospital-name-label { font-size: 12px; font-weight: 600; color: var(--neutral-900); }
+  .treatment-type-label { font-size: 12px; font-weight: 400; color: var(--neutral-700); margin-top: 2px; }
+  .patient-summary-card { padding: 10px 12px; border-bottom: 1px solid var(--neutral-300); display: flex; flex-direction: column; gap: 3px; }
+  .psc-name { font-size: 14px; font-weight: 600; color: var(--neutral-900); line-height: 1.3; }
+  .psc-detail { font-size: 11px; color: var(--neutral-700); }
+  .psc-mrn { font-size: 11px; color: var(--neutral-500); }
+  .psc-hep { font-size: 10px; color: var(--neutral-500); }
+  .section-group-header { padding: 8px 12px 4px; font-size: 10px; font-weight: 500; color: var(--neutral-500); text-transform: uppercase; letter-spacing: 0.8px; }
+  .nav-item { padding: 10px 12px; font-size: 13px; font-weight: 400; color: var(--neutral-700); cursor: pointer; border-left: 3px solid transparent; min-height: 44px; display: flex; align-items: center; line-height: 1.3; }
+  .nav-item:hover { background: var(--primary-light); }
+  .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; border-left-color: var(--primary); }
+
+  /* Report Viewer Panel */
+  .report-panel { flex: 1; overflow-y: auto; padding: 16px; background: var(--neutral-100); }
+  .report-document {
+    background: var(--white); border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    padding: 24px; font-size: 11px; color: var(--neutral-900);
+    line-height: 1.5;
+  }
+
+  /* Report Header */
+  .report-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--neutral-900); }
+  .report-title-block { display: flex; flex-direction: column; gap: 2px; }
+  .report-title { font-size: 14px; font-weight: 700; color: var(--neutral-900); }
+  .report-subtitle { font-size: 11px; color: var(--neutral-700); }
+  .davita-wordmark { font-size: 18px; font-weight: 700; color: #D32F2F; letter-spacing: -0.5px; }
+  .davita-tagline { font-size: 9px; color: var(--neutral-500); text-align: right; }
+
+  /* Report Patient Info */
+  .report-patient-block { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--neutral-300); }
+  .rp-item { display: flex; flex-direction: column; gap: 1px; }
+  .rp-label { font-size: 9px; font-weight: 600; color: var(--neutral-500); text-transform: uppercase; letter-spacing: 0.4px; }
+  .rp-value { font-size: 11px; font-weight: 500; color: var(--neutral-900); }
+
+  /* Report Section */
+  .report-section { margin-bottom: 12px; }
+  .report-section-title { font-size: 11px; font-weight: 700; color: var(--neutral-900); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--neutral-300); padding-bottom: 4px; margin-bottom: 8px; }
+  .report-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dotted var(--neutral-300); }
+  .report-row:last-child { border-bottom: none; }
+  .report-row-label { font-size: 10px; color: var(--neutral-700); flex: 1; }
+  .report-row-value { font-size: 10px; font-weight: 600; color: var(--neutral-900); text-align: right; min-width: 80px; }
+  .report-row-value.dash { color: var(--neutral-500); font-weight: 400; font-style: italic; }
+
+  /* Checkboxes in report */
+  .checkbox-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; font-size: 10px; color: var(--neutral-700); }
+  .checkbox { width: 12px; height: 12px; border: 1px solid var(--neutral-500); border-radius: 2px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .checkbox.checked { background: var(--neutral-900); color: var(--white); font-size: 8px; }
+
+  /* Report Footer */
+  .report-footer { margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--neutral-300); font-size: 9px; color: var(--neutral-500); line-height: 1.5; }
+  .initials-row { display: flex; gap: 24px; margin-bottom: 8px; }
+  .initials-field { flex: 1; border-bottom: 1px solid var(--neutral-900); padding-bottom: 2px; font-size: 10px; color: var(--neutral-900); }
+  .initials-label { font-size: 9px; color: var(--neutral-500); margin-top: 2px; }
+
+  /* Full Screen Modal */
+  .overlay-scrim { position: absolute; inset: 0; background: var(--overlay-scrim); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .fullscreen-modal { background: var(--white); border-radius: 12px; width: 96%; max-height: 92%; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0px 8px 24px rgba(0,0,0,0.2); }
+  .fs-header { height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--neutral-300); flex-shrink: 0; }
+  .fs-title { font-size: 16px; font-weight: 600; color: var(--neutral-900); }
+  .fs-close { font-size: 20px; color: var(--neutral-500); cursor: pointer; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+  .fs-content { flex: 1; overflow-y: auto; padding: 20px; }
+
+  /* Spec Panel */
+  .spec-panel { background: var(--neutral-100); border-top: 2px solid var(--primary); padding: 10px 16px; font-size: 11px; color: var(--neutral-700); flex-shrink: 0; }
+  .spec-panel h4 { font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .spec-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 3px; }
+  .spec-label { font-weight: 600; color: var(--neutral-900); }
+  .token-chip { display: inline-block; background: var(--white); border: 1px solid var(--neutral-300); border-radius: 3px; padding: 1px 5px; font-size: 10px; font-family: 'Courier New', monospace; color: var(--primary); margin: 1px; }
+</style>
+</head>
+<body>
+<div class="device-frame">
+  <div class="status-bar">
+    <span style="font-weight:700;">12:33 PM</span>
+    <span style="font-size:11px;color:var(--neutral-700);">PATH Lite</span>
+    <div style="display:flex;gap:6px;font-size:11px;"><span>●●●</span><span>WiFi</span><span>89%</span></div>
+  </div>
+  <div class="state-tabs">
+    <div class="state-tab active" onclick="showState('default',this)">Default</div>
+    <div class="state-tab" onclick="showState('fullscreen',this)">Full Screen</div>
+  </div>
+
+  <!-- DEFAULT STATE -->
+  <div class="screen active" id="state-default">
+    <!-- Breadcrumb header: back to "Treatment Report" left / "Treatment Report Preview" center / Full Screen right -->
+    <div class="app-header">
+      <div class="header-left">
+        <button class="back-btn">
+          <span style="font-size:18px;color:var(--primary);">‹</span>
+          <span>Treatment Report</span>
+        </button>
+      </div>
+      <div class="header-center" style="font-size:16px;">Treatment Report Preview</div>
+      <div class="header-right">
+        <button class="fullscreen-btn">
+          <span style="font-size:14px;">⤢</span> Full Screen
+        </button>
+      </div>
+    </div>
+    <div class="split-panel">
+      <!-- Left Nav — Review and Submit active -->
+      <div class="left-nav">
+        <div class="left-nav-hospital">
+          <div class="hospital-name-label">KAISER SUNNYSIDE MEDICAL CENTER</div>
+          <div class="treatment-type-label">Hemodialysis</div>
+        </div>
+        <div class="patient-summary-card">
+          <div class="psc-name">Mathi, Nirai T.</div>
+          <div class="psc-detail">Male · 26 yrs</div>
+          <div class="psc-mrn" style="font-size:10px;">01/01/2000</div>
+          <div class="psc-mrn">MRN: 5000</div>
+          <div class="psc-hep">HBsAg: Unknown (02/24/2026)</div>
+          <div class="psc-hep">HBsAb: Immuno10 (02/24/2026)</div>
+        </div>
+        <div class="section-group-header">HD Billing</div>
+        <div class="nav-item">Patient Details</div>
+        <div class="nav-item">Primary Care Nurse Report (Pre and Post)</div>
+        <div class="nav-item">Order</div>
+        <div class="nav-item">Wait Time (Pre and Post)</div>
+        <div class="nav-item">Treatment</div>
+        <div class="nav-item">ACOI Questions</div>
+        <div class="nav-item">Cancel Billing</div>
+        <!-- Review and Submit active -->
+        <div class="nav-item active">Review and Submit</div>
+      </div>
+
+      <!-- Report Viewer -->
+      <div class="report-panel">
+        <div class="report-document">
+          <!-- Report Header with DaVita wordmark -->
+          <div class="report-header">
+            <div class="report-title-block">
+              <div class="report-title">HD Billing Billing Report</div>
+              <div class="report-subtitle">03/09/1900 9:09 AM</div>
+              <div style="font-size:10px;color:var(--neutral-500);margin-top:2px;">
+                Patient Name: Mathi, Nirai<br>
+                PIN: 5000 1900-1000
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div class="davita-wordmark">DaVita</div>
+              <div class="davita-tagline">kidney care</div>
+            </div>
+          </div>
+
+          <!-- Patient Info Block -->
+          <div class="report-patient-block">
+            <div class="rp-item"><div class="rp-label">Patient Name</div><div class="rp-value">Mathi, Nirai T.</div></div>
+            <div class="rp-item"><div class="rp-label">MRN</div><div class="rp-value">5000</div></div>
+            <div class="rp-item"><div class="rp-label">DOB</div><div class="rp-value">01/01/2000</div></div>
+            <div class="rp-item"><div class="rp-label">Age</div><div class="rp-value">26</div></div>
+            <div class="rp-item"><div class="rp-label">Gender</div><div class="rp-value">Male</div></div>
+            <div class="rp-item"><div class="rp-label">Treatment Location</div><div class="rp-value">OR</div></div>
+            <div class="rp-item"><div class="rp-label">Room Number</div><div class="rp-value">123</div></div>
+            <div class="rp-item"><div class="rp-label">Hospital</div><div class="rp-value">Kaiser Sunnyside Medical Center</div></div>
+          </div>
+
+          <!-- For Billing Purpose Only -->
+          <div class="report-section">
+            <div class="report-section-title">For Billing Purpose Only</div>
+            <div class="report-row"><div class="report-row-label">Admission/Encounter Number</div><div class="report-row-value dash">—</div></div>
+            <div class="report-row"><div class="report-row-label">Facility Name</div><div class="report-row-value">Kaiser Sunnyside Medical Center</div></div>
+            <div class="report-row"><div class="report-row-label">HBsAg Status</div><div class="report-row-value">Unknown</div></div>
+            <div class="report-row"><div class="report-row-label">HBsAg Date Drawn</div><div class="report-row-value">02/24/2026</div></div>
+            <div class="report-row"><div class="report-row-label">HBsAg Source</div><div class="report-row-value">Hospital</div></div>
+            <div class="report-row"><div class="report-row-label">HBsAb Immune Value</div><div class="report-row-value">Immuno10</div></div>
+            <div class="report-row"><div class="report-row-label">HBsAb Date Drawn</div><div class="report-row-value dash">—</div></div>
+            <div class="report-row"><div class="report-row-label">HBsAb Source</div><div class="report-row-value dash">—</div></div>
+          </div>
+
+          <!-- Wait Times -->
+          <div class="report-section">
+            <div class="report-section-title">Wait Time(s)</div>
+            <div style="font-size:10px;color:var(--neutral-500);font-style:italic;margin-bottom:6px;">HEMODIALYSIS WAIT TIME</div>
+            <div class="report-row"><div class="report-row-label">Pre Wait Time Start</div><div class="report-row-value dash">—</div></div>
+            <div class="report-row"><div class="report-row-label">Pre Wait Time End</div><div class="report-row-value dash">—</div></div>
+            <div class="report-row"><div class="report-row-label">Pre Wait Time Reason</div><div class="report-row-value dash">—</div></div>
+            <div class="report-row"><div class="report-row-label">Post Wait Time Start</div><div class="report-row-value dash">—</div></div>
+            <div class="report-row"><div class="report-row-label">Post Wait Time End</div><div class="report-row-value dash">—</div></div>
+            <div class="report-row"><div class="report-row-label">Post Wait Time Reason</div><div class="report-row-value dash">—</div></div>
+            <div class="report-row"><div class="report-row-label">Estimated Wait Time</div><div class="report-row-value dash">N/A (This, Patients, Ac, ount)</div></div>
+          </div>
+
+          <!-- HD Treatment Type -->
+          <div class="report-section">
+            <div class="report-section-title">HD Treatment Type</div>
+            <div style="font-size:10px;color:var(--neutral-500);font-style:italic;margin-bottom:4px;">TREATMENT BILLED (PER SERVICE ENCOUNTER)</div>
+            <div class="checkbox-row"><div class="checkbox checked">✓</div> Hemodialysis (In-Center)</div>
+            <div class="checkbox-row"><div class="checkbox"></div> Home Hemodialysis</div>
+            <div class="checkbox-row"><div class="checkbox"></div> Peritoneal Dialysis</div>
+            <div class="checkbox-row"><div class="checkbox"></div> CAPD</div>
+            <div class="checkbox-row"><div class="checkbox"></div> CCPD</div>
+          </div>
+
+          <!-- Additional Services -->
+          <div class="report-section">
+            <div class="report-section-title">Additional Services</div>
+            <div style="font-size:10px;color:var(--neutral-500);font-style:italic;margin-bottom:4px;">ADDITIONAL SERVICES BILLED (PER SERVICE, PER ENCOUNTER)</div>
+            <div class="checkbox-row"><div class="checkbox"></div> Documented Separate treatment and reported separately</div>
+            <div class="checkbox-row"><div class="checkbox"></div> Documented Separate treatment and reported separately</div>
+            <div class="checkbox-row"><div class="checkbox"></div> Vascular Access Type</div>
+          </div>
+
+          <!-- Initials / Signature -->
+          <div style="margin-bottom:12px;">
+            <div class="report-section-title">Initials</div>
+            <div class="initials-row">
+              <div>
+                <div class="initials-field">MT</div>
+                <div class="initials-label">Nurse Initials</div>
+              </div>
+              <div>
+                <div class="initials-field">02/27/2026</div>
+                <div class="initials-label">Date</div>
+              </div>
+              <div>
+                <div class="initials-field">Kaiser Sunnyside</div>
+                <div class="initials-label">Facility</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Compliance Footer -->
+          <div class="report-footer">
+            <p>By submitting this data you are certifying that the information you have provided is accurate to the best of your knowledge and in compliance with applicable regulatory requirements including, only being submitted by those authorized pursuant to a valid order, and the patient receiving the services documented here has consented to the treatment.</p>
+            <div style="margin-top:6px;display:flex;justify-content:space-between;font-size:9px;color:var(--neutral-500);">
+              <span>DaVita Medical Management · KAISER SUNNYSIDE MEDICAL CENTER</span>
+              <span>Generated: 02/27/2026 13:33 IST</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-008 / Default — Report Preview Spec</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Header</span>: "‹ Treatment Report" back left · "Treatment Report Preview" center · "Full Screen" right</div>
+        <div><span class="spec-label">Left Nav</span>: "Review and Submit" nav item active (UXR-504)</div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">DaVita wordmark</span>: Top-right of report document · Red brand color</div>
+        <div><span class="spec-label">Empty fields</span>: Shown as "—" or "N/A" for optional unpopulated fields</div>
+        <div><span class="spec-label">Report bg</span>: <span class="token-chip">#FFFFFF</span> · <span class="token-chip">radius 4px</span> · <span class="token-chip">shadow card</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL SCREEN STATE -->
+  <div class="screen" id="state-fullscreen">
+    <div class="app-header">
+      <div class="header-left">
+        <button class="back-btn">
+          <span style="font-size:18px;color:var(--primary);">‹</span>
+          <span>Treatment Report</span>
+        </button>
+      </div>
+      <div class="header-center" style="font-size:16px;">Treatment Report Preview</div>
+      <div class="header-right">
+        <button class="fullscreen-btn" style="background:var(--primary);color:var(--white);">
+          <span style="font-size:14px;">⤡</span> Exit Full Screen
+        </button>
+      </div>
+    </div>
+    <div class="split-panel" style="filter:brightness(0.5);pointer-events:none;">
+      <div class="left-nav">
+        <div class="left-nav-hospital"><div class="hospital-name-label">KAISER SUNNYSIDE</div></div>
+        <div class="patient-summary-card"><div class="psc-name">Mathi, Nirai T.</div></div>
+        <div class="section-group-header">HD Billing</div>
+        <div class="nav-item active">Review and Submit</div>
+      </div>
+      <div class="report-panel"></div>
+    </div>
+    <!-- Full Screen Modal -->
+    <div class="overlay-scrim">
+      <div class="fullscreen-modal">
+        <div class="fs-header">
+          <span class="fs-title">HD Billing Report — Full Screen</span>
+          <span class="fs-close">✕</span>
+        </div>
+        <div class="fs-content">
+          <div class="report-document" style="box-shadow:none;padding:16px;">
+            <div class="report-header">
+              <div class="report-title-block">
+                <div class="report-title">HD Billing Billing Report</div>
+                <div class="report-subtitle">02/27/2026 13:33 IST</div>
+                <div style="font-size:10px;color:var(--neutral-500);">Patient Name: Mathi, Nirai · PIN: 5000</div>
+              </div>
+              <div style="text-align:right;"><div class="davita-wordmark">DaVita</div><div class="davita-tagline">kidney care</div></div>
+            </div>
+            <div class="report-patient-block">
+              <div class="rp-item"><div class="rp-label">Patient Name</div><div class="rp-value">Mathi, Nirai T.</div></div>
+              <div class="rp-item"><div class="rp-label">MRN</div><div class="rp-value">5000</div></div>
+              <div class="rp-item"><div class="rp-label">DOB</div><div class="rp-value">01/01/2000</div></div>
+              <div class="rp-item"><div class="rp-label">Age</div><div class="rp-value">26</div></div>
+              <div class="rp-item"><div class="rp-label">Gender</div><div class="rp-value">Male</div></div>
+              <div class="rp-item"><div class="rp-label">Treatment Location</div><div class="rp-value">OR</div></div>
+            </div>
+            <div class="report-section">
+              <div class="report-section-title">For Billing Purpose Only</div>
+              <div class="report-row"><div class="report-row-label">HBsAg Status</div><div class="report-row-value">Unknown</div></div>
+              <div class="report-row"><div class="report-row-label">HBsAb Immune Value</div><div class="report-row-value">Immuno10</div></div>
+            </div>
+            <div class="report-section">
+              <div class="report-section-title">HD Treatment Type</div>
+              <div class="checkbox-row"><div class="checkbox checked">✓</div> Hemodialysis (In-Center)</div>
+            </div>
+            <div class="report-footer">
+              <p>By submitting this data you are certifying that the information you have provided is accurate and in compliance with applicable regulatory requirements.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-008 / Full Screen — UXR-302</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Trigger</span>: Tap "Full Screen" button in header right</div>
+        <div><span class="spec-label">Modal</span>: Full-width modal <span class="token-chip">96% width</span> · <span class="token-chip">92% max-height</span> · scrollable content</div>
+        <div><span class="spec-label">Dismiss</span>: Tap ✕ close or "Exit Full Screen" in header</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showState(id, tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('state-' + id).classList.add('active');
+  tab.classList.add('active');
+}
+</script>
+</body>
+</html>

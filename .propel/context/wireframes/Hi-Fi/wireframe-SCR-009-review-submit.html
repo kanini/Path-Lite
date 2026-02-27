@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=768, initial-scale=1.0">
+<title>SCR-009 - Review and Submit | PATH Lite</title>
+<style>
+  :root {
+    --primary: #1566A7; --primary-dark: #0E4F87; --primary-light: #E8F1F9;
+    --neutral-900: #1A1A1A; --neutral-700: #4A4A4A; --neutral-500: #7A7A7A;
+    --neutral-300: #C4C4C4; --neutral-100: #F5F5F5; --white: #FFFFFF;
+    --warning: #F57C00; --warning-bg: #FFF3E0;
+    --overlay-scrim: rgba(0,0,0,0.5);
+    --left-panel-width: 200px; --header-height: 56px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Roboto', sans-serif;
+    background: #E0E0E0; min-height: 100vh;
+    display: flex; align-items: flex-start; justify-content: center; padding: 20px;
+  }
+  .device-frame {
+    width: 768px; min-height: 1024px; background: var(--neutral-100);
+    border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .status-bar {
+    height: 28px; background: var(--white); display: flex; align-items: center;
+    justify-content: space-between; padding: 0 16px; font-size: 11px; font-weight: 600;
+    color: var(--neutral-900); flex-shrink: 0; border-bottom: 1px solid var(--neutral-300);
+  }
+  .state-tabs {
+    display: flex; background: var(--neutral-100); border-bottom: 1px solid var(--neutral-300);
+    padding: 8px 16px 0; gap: 4px; flex-shrink: 0; flex-wrap: wrap;
+  }
+  .state-tab {
+    padding: 7px 12px; font-size: 11px; font-weight: 500; color: var(--neutral-500);
+    cursor: pointer; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none;
+  }
+  .state-tab.active { background: var(--white); color: var(--primary); border-color: var(--neutral-300); }
+  .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; position: relative; }
+  .screen.active { display: flex; }
+
+  /* Header */
+  .app-header {
+    height: var(--header-height); background: var(--white);
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.08);
+    display: flex; align-items: center; padding: 0 16px;
+    flex-shrink: 0; position: relative; z-index: 5;
+  }
+  .header-left { flex: 1; }
+  .header-center { flex: 2; text-align: center; font-size: 20px; font-weight: 600; color: var(--neutral-900); }
+  .header-right { flex: 1; }
+  .done-btn { font-size: 15px; font-weight: 500; color: var(--primary); background: none; border: none; cursor: pointer; padding: 8px; }
+
+  /* Split Panel */
+  .split-panel { display: flex; flex: 1; overflow: hidden; }
+
+  /* Left Nav */
+  .left-nav {
+    width: var(--left-panel-width); background: var(--neutral-100);
+    border-right: 1px solid var(--neutral-300); flex-shrink: 0;
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .left-nav-hospital { padding: 12px 12px 8px; border-bottom: 1px solid var(--neutral-300); }
+  .hospital-name-label { font-size: 12px; font-weight: 600; color: var(--neutral-900); }
+  .treatment-type-label { font-size: 12px; font-weight: 400; color: var(--neutral-700); margin-top: 2px; }
+  .patient-summary-card { padding: 10px 12px; border-bottom: 1px solid var(--neutral-300); display: flex; flex-direction: column; gap: 3px; }
+  .psc-name { font-size: 14px; font-weight: 600; color: var(--neutral-900); line-height: 1.3; }
+  .psc-detail { font-size: 11px; color: var(--neutral-700); }
+  .psc-mrn { font-size: 11px; color: var(--neutral-500); }
+  .psc-hep { font-size: 10px; color: var(--neutral-500); }
+  .section-group-header { padding: 8px 12px 4px; font-size: 10px; font-weight: 500; color: var(--neutral-500); text-transform: uppercase; letter-spacing: 0.8px; }
+  .nav-item { padding: 10px 12px; font-size: 13px; font-weight: 400; color: var(--neutral-700); cursor: pointer; border-left: 3px solid transparent; min-height: 44px; display: flex; align-items: center; line-height: 1.3; }
+  .nav-item:hover { background: var(--primary-light); }
+  .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; border-left-color: var(--primary); }
+
+  /* Main Content */
+  .main-content { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+  /* Report Ready Banner */
+  .report-ready-banner {
+    background: var(--white); border-radius: 8px; padding: 16px 20px;
+    box-shadow: 0px 1px 4px rgba(0,0,0,0.12);
+    display: flex; align-items: center; gap: 16px;
+    border-left: 4px solid var(--primary);
+  }
+  .banner-icon { font-size: 32px; flex-shrink: 0; }
+  .banner-text { flex: 1; }
+  .banner-title { font-size: 16px; font-weight: 600; color: var(--neutral-900); margin-bottom: 2px; }
+  .banner-sub { font-size: 13px; color: var(--neutral-500); }
+
+  /* Warning Alert */
+  .warning-alert {
+    background: var(--warning-bg); border-radius: 4px; padding: 12px 16px;
+    display: flex; align-items: flex-start; gap: 10px;
+    border-left: 4px solid var(--warning);
+  }
+  .warning-icon { font-size: 20px; color: var(--warning); flex-shrink: 0; margin-top: 1px; }
+  .warning-text { font-size: 14px; color: var(--neutral-900); line-height: 1.5; }
+
+  /* Action Buttons Row */
+  .action-buttons {
+    display: flex; gap: 12px; margin-top: auto; padding-top: 8px;
+  }
+  .btn-secondary {
+    flex: 1; height: 48px; background: var(--white); color: var(--primary);
+    border: 1.5px solid var(--primary); border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+  .btn-primary {
+    flex: 1; height: 48px; background: var(--primary); color: var(--white);
+    border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+  .btn-primary:hover { background: var(--primary-dark); }
+
+  /* Submit Confirmation Dialog */
+  .overlay-scrim { position: absolute; inset: 0; background: var(--overlay-scrim); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .dialog-box { background: var(--white); border-radius: 12px; padding: 24px; width: 86%; max-width: 400px; box-shadow: 0px 8px 24px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 16px; }
+  .dialog-title { font-size: 17px; font-weight: 600; color: var(--neutral-900); text-align: center; }
+  .dialog-body { font-size: 14px; color: var(--neutral-700); text-align: center; line-height: 1.6; }
+  .dialog-actions { display: flex; gap: 12px; }
+  .dialog-btn-no { flex: 1; height: 48px; background: var(--white); color: var(--primary); border: 1.5px solid var(--primary); border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+  .dialog-btn-yes { flex: 1; height: 48px; background: var(--primary); color: var(--white); border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+
+  /* Submission Progress Overlay */
+  .progress-overlay {
+    position: absolute; inset: 0; background: rgba(255,255,255,0.97);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 20px; z-index: 200; padding: 40px;
+  }
+  .logo-area { display: flex; align-items: center; gap: 12px; }
+  .logo-text { font-size: 22px; font-weight: 700; color: var(--primary); letter-spacing: 2px; }
+  .progress-message { font-size: 16px; color: var(--neutral-700); text-align: center; max-width: 320px; line-height: 1.5; }
+  .progress-track { width: 65%; max-width: 320px; height: 4px; background: var(--neutral-300); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--primary); border-radius: 2px; transition: width 0.3s; }
+  .progress-pct { font-size: 14px; color: var(--neutral-700); font-weight: 500; }
+  .progress-sub { font-size: 12px; color: var(--neutral-500); }
+
+  /* Summary section (optional detail view) */
+  .summary-section { background: var(--white); border-radius: 8px; padding: 16px; box-shadow: 0px 1px 4px rgba(0,0,0,0.12); }
+  .summary-header { font-size: 15px; font-weight: 600; color: var(--neutral-700); margin-bottom: 12px; border-bottom: 1px solid var(--neutral-300); padding-bottom: 8px; }
+  .summary-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--neutral-100); font-size: 13px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-label { color: var(--neutral-500); }
+  .summary-value { color: var(--neutral-900); font-weight: 500; text-align: right; }
+
+  /* Spec Panel */
+  .spec-panel { background: var(--neutral-100); border-top: 2px solid var(--primary); padding: 10px 16px; font-size: 11px; color: var(--neutral-700); flex-shrink: 0; }
+  .spec-panel h4 { font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .spec-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 3px; }
+  .spec-label { font-weight: 600; color: var(--neutral-900); }
+  .token-chip { display: inline-block; background: var(--white); border: 1px solid var(--neutral-300); border-radius: 3px; padding: 1px 5px; font-size: 10px; font-family: 'Courier New', monospace; color: var(--primary); margin: 1px; }
+</style>
+</head>
+<body>
+<div class="device-frame">
+  <div class="status-bar">
+    <span style="font-weight:700;">13:33 PM</span>
+    <span style="font-size:11px;color:var(--neutral-700);">PATH Lite</span>
+    <div style="display:flex;gap:6px;font-size:11px;"><span>●●●</span><span>WiFi</span><span>89%</span></div>
+  </div>
+  <div class="state-tabs">
+    <div class="state-tab active" onclick="showState('default',this)">Default</div>
+    <div class="state-tab" onclick="showState('submitdialog',this)">Submit Dialog</div>
+    <div class="state-tab" onclick="showState('loading90',this)">Submission 90%</div>
+    <div class="state-tab" onclick="showState('loading80',this)">Submission 80%</div>
+  </div>
+
+  <!-- DEFAULT STATE -->
+  <div class="screen active" id="state-default">
+    <div class="app-header">
+      <div class="header-left"><button class="done-btn">Done</button></div>
+      <div class="header-center">Review and Submit</div>
+      <div class="header-right"></div>
+    </div>
+    <div class="split-panel">
+      <div class="left-nav">
+        <div class="left-nav-hospital">
+          <div class="hospital-name-label">KAISER SUNNYSIDE MEDICAL CENTER</div>
+          <div class="treatment-type-label">Hemodialysis</div>
+        </div>
+        <div class="patient-summary-card">
+          <div class="psc-name">Mathi, Nirai T.</div>
+          <div class="psc-detail">Male · 26 yrs</div>
+          <div class="psc-mrn" style="font-size:10px;">01/01/2000</div>
+          <div class="psc-mrn">MRN: 5000</div>
+          <div class="psc-hep">HBsAg: Unknown (02/24/2026)</div>
+          <div class="psc-hep">HBsAb: Immuno10</div>
+        </div>
+        <div class="section-group-header">HD Billing</div>
+        <div class="nav-item">Patient Details</div>
+        <div class="nav-item">Primary Care Nurse Report (Pre and Post)</div>
+        <div class="nav-item">Order</div>
+        <div class="nav-item">Wait Time (Pre and Post)</div>
+        <div class="nav-item">Treatment</div>
+        <div class="nav-item">ACOI Questions</div>
+        <div class="nav-item">Cancel Billing</div>
+        <div class="nav-item active">Review and Submit</div>
+      </div>
+      <div class="main-content">
+        <!-- Report Ready Banner -->
+        <div class="report-ready-banner">
+          <div class="banner-icon">📄</div>
+          <div class="banner-text">
+            <div class="banner-title">Treatment Report is ready to view</div>
+            <div class="banner-sub">Generated for Nirai T. Mathi — 02/27/2026 13:33 IST</div>
+          </div>
+        </div>
+
+        <!-- Data Summary -->
+        <div class="summary-section">
+          <div class="summary-header">Submission Summary</div>
+          <div class="summary-row"><div class="summary-label">Patient</div><div class="summary-value">Mathi, Nirai T.</div></div>
+          <div class="summary-row"><div class="summary-label">MRN</div><div class="summary-value">5000</div></div>
+          <div class="summary-row"><div class="summary-label">Treatment Type</div><div class="summary-value">Hemodialysis</div></div>
+          <div class="summary-row"><div class="summary-label">Location</div><div class="summary-value">OR — Room 123</div></div>
+          <div class="summary-row"><div class="summary-label">Hospital</div><div class="summary-value">Kaiser Sunnyside Medical Center</div></div>
+          <div class="summary-row"><div class="summary-label">HBsAg</div><div class="summary-value">Unknown (02/24/2026)</div></div>
+          <div class="summary-row"><div class="summary-label">HBsAb</div><div class="summary-value">Immuno10</div></div>
+          <div class="summary-row"><div class="summary-label">Validation Status</div><div class="summary-value" style="color:#388E3C;font-weight:600;">✓ All fields valid</div></div>
+        </div>
+
+        <!-- Warning Alert (non-dismissable) -->
+        <div class="warning-alert">
+          <span class="warning-icon">⚠</span>
+          <span class="warning-text">Please ensure the treatment report is reviewed, complete and correct before submitting. Once the treatment has been submitted, changes cannot be made.</span>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button class="btn-secondary">View Report</button>
+          <button class="btn-primary">Submit</button>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-009 / Default — UXR-404, FR-077, FR-078, FR-082</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Report Ready Banner</span>: <span class="token-chip">border-left 4px #1566A7</span> · document icon · generated timestamp</div>
+        <div><span class="spec-label">WarningAlert</span>: <span class="token-chip">#FFF3E0 bg</span> · <span class="token-chip">border-left 4px #F57C00</span> · non-dismissable</div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">Action Buttons</span>: "View Report" (Secondary) + "Submit" (Primary) — side by side · <span class="token-chip">48px height</span></div>
+        <div><span class="spec-label">Left Nav</span>: "Review and Submit" nav item active (UXR-504)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT CONFIRMATION DIALOG STATE -->
+  <div class="screen" id="state-submitdialog">
+    <div class="app-header">
+      <div class="header-left"><button class="done-btn">Done</button></div>
+      <div class="header-center">Review and Submit</div>
+      <div class="header-right"></div>
+    </div>
+    <div class="split-panel" style="filter:brightness(0.6);pointer-events:none;">
+      <div class="left-nav">
+        <div class="left-nav-hospital"><div class="hospital-name-label">KAISER SUNNYSIDE MEDICAL CENTER</div><div class="treatment-type-label">Hemodialysis</div></div>
+        <div class="patient-summary-card"><div class="psc-name">Mathi, Nirai T.</div><div class="psc-mrn">MRN: 5000</div></div>
+        <div class="section-group-header">HD Billing</div>
+        <div class="nav-item active">Review and Submit</div>
+      </div>
+      <div class="main-content">
+        <div class="report-ready-banner"><div class="banner-icon">📄</div><div class="banner-text"><div class="banner-title">Treatment Report is ready to view</div></div></div>
+        <div class="warning-alert"><span class="warning-icon">⚠</span><span class="warning-text">Please ensure the treatment report is reviewed, complete and correct before submitting.</span></div>
+        <div class="action-buttons">
+          <button class="btn-secondary">View Report</button>
+          <button class="btn-primary">Submit</button>
+        </div>
+      </div>
+    </div>
+    <!-- Submit Confirmation Dialog (UXR-503, FL-006) -->
+    <div class="overlay-scrim">
+      <div class="dialog-box">
+        <div style="text-align:center;">
+          <div style="font-size:36px;margin-bottom:4px;">📋</div>
+        </div>
+        <div class="dialog-title">Submit Treatment?</div>
+        <div class="dialog-body">
+          You are submitting a treatment for<br>
+          <strong>Nirai T. Mathi</strong><br>
+          at <strong>KAISER SUNNYSIDE MEDICAL CENTER</strong>.<br><br>
+          Do you want to proceed?
+        </div>
+        <div class="dialog-actions">
+          <button class="dialog-btn-no">No</button>
+          <button class="dialog-btn-yes">Yes</button>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-009 / Submit Confirmation Dialog — UXR-503, FL-006</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Trigger</span>: Tap "Submit" button</div>
+        <div><span class="spec-label">Dialog</span>: Patient name + hospital name for context · No (Secondary) / Yes (Primary)</div>
+        <div><span class="spec-label">Yes action</span>: Dismisses dialog → shows Submission Progress Overlay</div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">No action</span>: Dismisses dialog; returns to SCR-009 Default</div>
+        <div><span class="spec-label">Dialog width</span>: <span class="token-chip">86% max 400px</span> · <span class="token-chip">radius 12px</span> · <span class="token-chip">shadow 0px 8px 24px rgba(0,0,0,0.2)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMISSION PROGRESS 90% -->
+  <div class="screen" id="state-loading90">
+    <div class="app-header">
+      <div class="header-left"></div>
+      <div class="header-center">Review and Submit</div>
+      <div class="header-right"></div>
+    </div>
+    <div class="split-panel" style="filter:brightness(0.3);pointer-events:none;">
+      <div class="left-nav"><div class="nav-item active">Review and Submit</div></div>
+      <div class="main-content"></div>
+    </div>
+    <!-- Full-screen Progress Overlay -->
+    <div class="progress-overlay">
+      <div class="logo-area">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <circle cx="26" cy="26" r="26" fill="#E8F1F9"/>
+          <circle cx="26" cy="26" r="5" fill="#1566A7"/>
+          <line x1="26" y1="26" x2="26" y2="8" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+          <line x1="26" y1="26" x2="26" y2="44" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+          <line x1="26" y1="26" x2="10.4" y2="35" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+          <line x1="26" y1="26" x2="41.6" y2="17" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+          <line x1="26" y1="26" x2="10.4" y2="17" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+          <line x1="26" y1="26" x2="41.6" y2="35" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="26" cy="8" r="3.5" fill="#4DB6AC"/>
+          <circle cx="26" cy="44" r="3.5" fill="#4DB6AC"/>
+          <circle cx="10.4" cy="35" r="3.5" fill="#4DB6AC"/>
+          <circle cx="41.6" cy="17" r="3.5" fill="#4DB6AC"/>
+          <circle cx="10.4" cy="17" r="3.5" fill="#4DB6AC"/>
+          <circle cx="41.6" cy="35" r="3.5" fill="#4DB6AC"/>
+        </svg>
+        <span class="logo-text">PATH LITE</span>
+      </div>
+      <p class="progress-message">Submitting this treatment<br><strong>Please wait</strong></p>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:90%;"></div>
+      </div>
+      <span class="progress-pct">90%</span>
+      <span class="progress-sub">Saving patient record to KAISER SUNNYSIDE MEDICAL CENTER...</span>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-009 / Submission Progress (90%) — UXR-503, FR-082</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Overlay bg</span>: <span class="token-chip">rgba(255,255,255,0.97)</span> — near-opaque; covers full screen</div>
+        <div><span class="spec-label">Message</span>: "Submitting this treatment - Please wait" — no Cancel option during submission</div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">Progress bar</span>: <span class="token-chip">#1566A7 fill</span> · <span class="token-chip">#C4C4C4 track</span> · <span class="token-chip">4px height</span> · 65% width max</div>
+        <div><span class="spec-label">On 100%</span>: Overlay dismisses → redirect to SCR-003 Dashboard with "Submitted" status</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMISSION PROGRESS 80% -->
+  <div class="screen" id="state-loading80">
+    <div class="app-header">
+      <div class="header-left"></div>
+      <div class="header-center">Review and Submit</div>
+      <div class="header-right"></div>
+    </div>
+    <div class="split-panel" style="filter:brightness(0.3);pointer-events:none;">
+      <div class="left-nav"><div class="nav-item active">Review and Submit</div></div>
+      <div class="main-content"></div>
+    </div>
+    <!-- Full-screen Progress Overlay at 80% -->
+    <div class="progress-overlay">
+      <div class="logo-area">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <circle cx="26" cy="26" r="26" fill="#E8F1F9"/>
+          <circle cx="26" cy="26" r="5" fill="#1566A7"/>
+          <line x1="26" y1="26" x2="26" y2="8" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+          <line x1="26" y1="26" x2="26" y2="44" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+          <line x1="26" y1="26" x2="10.4" y2="35" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+          <line x1="26" y1="26" x2="41.6" y2="17" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+          <line x1="26" y1="26" x2="10.4" y2="17" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+          <line x1="26" y1="26" x2="41.6" y2="35" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="26" cy="8" r="3.5" fill="#4DB6AC"/>
+          <circle cx="26" cy="44" r="3.5" fill="#4DB6AC"/>
+          <circle cx="10.4" cy="35" r="3.5" fill="#4DB6AC"/>
+          <circle cx="41.6" cy="17" r="3.5" fill="#4DB6AC"/>
+          <circle cx="10.4" cy="17" r="3.5" fill="#4DB6AC"/>
+          <circle cx="41.6" cy="35" r="3.5" fill="#4DB6AC"/>
+        </svg>
+        <span class="logo-text">PATH LITE</span>
+      </div>
+      <p class="progress-message">Submitting this treatment<br><strong>Please wait</strong></p>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:80%;"></div>
+      </div>
+      <span class="progress-pct">80%</span>
+      <span class="progress-sub">Validating submission data...</span>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-009 / Submission Progress (80%) — UXR-503</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Matches reference</span>: Screenshot 2026-02-27 113906.png (80%) and 113554.png (90%)</div>
+        <div><span class="spec-label">Progress increments</span>: Visible percentage counter below bar; sub-message updates with stage</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showState(id, tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('state-' + id).classList.add('active');
+  tab.classList.add('active');
+}
+</script>
+</body>
+</html>

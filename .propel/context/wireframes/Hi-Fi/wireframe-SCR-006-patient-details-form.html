@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=768, initial-scale=1.0">
+<title>SCR-006 - Patient Details Form | PATH Lite</title>
+<style>
+  :root {
+    --primary: #1566A7; --primary-dark: #0E4F87; --primary-light: #E8F1F9;
+    --brand-teal: #4DB6AC;
+    --neutral-900: #1A1A1A; --neutral-700: #4A4A4A; --neutral-500: #7A7A7A;
+    --neutral-300: #C4C4C4; --neutral-100: #F5F5F5; --white: #FFFFFF;
+    --error: #D32F2F; --warning: #F57C00; --warning-bg: #FFF3E0;
+    --overlay-scrim: rgba(0,0,0,0.5);
+    --left-panel-width: 200px;
+    --header-height: 56px;
+    --field-height: 52px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Roboto', sans-serif;
+    background: #E0E0E0; min-height: 100vh;
+    display: flex; align-items: flex-start; justify-content: center; padding: 20px;
+  }
+  .device-frame {
+    width: 768px; min-height: 1024px; background: var(--neutral-100);
+    border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .status-bar {
+    height: 28px; background: var(--white); display: flex; align-items: center;
+    justify-content: space-between; padding: 0 16px; font-size: 11px; font-weight: 600;
+    color: var(--neutral-900); flex-shrink: 0; border-bottom: 1px solid var(--neutral-300);
+  }
+  .state-tabs {
+    display: flex; background: var(--neutral-100); border-bottom: 1px solid var(--neutral-300);
+    padding: 8px 16px 0; gap: 4px; flex-shrink: 0; flex-wrap: wrap;
+  }
+  .state-tab {
+    padding: 7px 11px; font-size: 11px; font-weight: 500; color: var(--neutral-500);
+    cursor: pointer; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none;
+  }
+  .state-tab.active { background: var(--white); color: var(--primary); border-color: var(--neutral-300); }
+  .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; position: relative; }
+  .screen.active { display: flex; }
+
+  /* Header */
+  .app-header {
+    height: var(--header-height); background: var(--white);
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.08);
+    display: flex; align-items: center; padding: 0 16px;
+    flex-shrink: 0; position: relative; z-index: 5;
+  }
+  .header-left { flex: 1; }
+  .header-center { flex: 2; text-align: center; font-size: 20px; font-weight: 600; color: var(--neutral-900); }
+  .header-right { flex: 1; display: flex; justify-content: flex-end; gap: 12px; }
+  .header-btn-ghost { font-size: 15px; font-weight: 500; color: var(--primary); background: none; border: none; cursor: pointer; padding: 8px; }
+  .header-btn-primary { height: 36px; padding: 0 16px; background: var(--primary); color: var(--white); border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+  /* Split Panel Layout */
+  .split-panel { display: flex; flex: 1; overflow: hidden; }
+
+  /* Left Nav Panel */
+  .left-nav {
+    width: var(--left-panel-width); background: var(--neutral-100);
+    border-right: 1px solid var(--neutral-300); flex-shrink: 0;
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .left-nav-hospital {
+    padding: 12px 12px 8px;
+    border-bottom: 1px solid var(--neutral-300);
+  }
+  .hospital-name-label {
+    font-size: 12px; font-weight: 600; color: var(--neutral-900); cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .hospital-name-label::after { content: '›'; font-size: 14px; color: var(--neutral-500); }
+  .treatment-type-label { font-size: 12px; font-weight: 400; color: var(--neutral-700); margin-top: 2px; }
+  .patient-summary-card {
+    padding: 10px 12px; border-bottom: 1px solid var(--neutral-300);
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .psc-name { font-size: 14px; font-weight: 600; color: var(--neutral-900); line-height: 1.3; }
+  .psc-detail { font-size: 11px; color: var(--neutral-700); }
+  .psc-mrn { font-size: 11px; color: var(--neutral-500); }
+  .psc-hep { font-size: 11px; color: var(--neutral-500); }
+  .section-group-header {
+    padding: 8px 12px 4px; font-size: 10px; font-weight: 500; color: var(--neutral-500);
+    text-transform: uppercase; letter-spacing: 0.8px;
+  }
+  .nav-item {
+    padding: 10px 12px; font-size: 13px; font-weight: 400; color: var(--neutral-700);
+    cursor: pointer; border-left: 3px solid transparent; min-height: 44px;
+    display: flex; align-items: center; line-height: 1.3;
+  }
+  .nav-item:hover { background: var(--primary-light); color: var(--primary); }
+  .nav-item.active {
+    background: var(--primary-light); color: var(--primary); font-weight: 500;
+    border-left-color: var(--primary);
+  }
+  .nav-item.warning { color: var(--warning); }
+  .nav-item.warning::after { content: ' ⚠'; font-size: 12px; margin-left: 4px; }
+
+  /* Main Content */
+  .main-content { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; position: relative; }
+
+  /* AI Voice Icon */
+  .ai-voice-area {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    background: var(--white); border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10); flex-shrink: 0;
+  }
+  .ai-icon {
+    width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 22px; flex-shrink: 0; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ai-icon.inactive { background: var(--neutral-100); border: 2px solid var(--neutral-300); }
+  .ai-icon.active { background: var(--primary-light); border: 2px solid var(--primary); }
+  .ai-icon.listening {
+    background: var(--primary-light); border: 3px solid var(--primary);
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(21,102,167,0.3); } 50% { box-shadow: 0 0 0 8px rgba(21,102,167,0); } }
+  .ai-status { display: flex; flex-direction: column; gap: 2px; }
+  .ai-status-label { font-size: 13px; font-weight: 600; color: var(--neutral-900); }
+  .ai-status-sub { font-size: 11px; color: var(--neutral-500); }
+
+  /* Form Section */
+  .form-section {
+    background: var(--white); border-radius: 8px; padding: 16px;
+    box-shadow: 0px 1px 4px rgba(0,0,0,0.12); display: flex; flex-direction: column; gap: 12px;
+  }
+  .section-header-label {
+    font-size: 17px; font-weight: 600; color: var(--neutral-700);
+    border-bottom: 1px solid var(--neutral-300); padding-bottom: 8px; margin-bottom: 4px;
+  }
+
+  /* Fields */
+  .field-row { display: flex; gap: 12px; }
+  .field-wrapper { position: relative; height: var(--field-height); flex: 1; }
+  .field-wrapper.half { flex: 0 0 calc(50% - 6px); }
+  .text-input {
+    width: 100%; height: var(--field-height); border: 1px solid var(--neutral-300);
+    border-radius: 4px; padding: 18px 12px 6px; font-size: 16px;
+    color: var(--neutral-900); background: var(--white); outline: none;
+  }
+  .text-input.focused { border: 2px solid var(--primary); }
+  .text-input.filled { border: 1px solid var(--neutral-300); }
+  .text-input::placeholder { color: var(--neutral-500); font-style: italic; font-size: 14px; }
+  .field-label-float {
+    position: absolute; top: 6px; left: 13px;
+    font-size: 11px; font-weight: 500; color: var(--neutral-500); pointer-events: none;
+  }
+  .field-label-float.active { color: var(--primary); }
+  .req { color: var(--error); }
+
+  /* Select Field */
+  .select-field {
+    width: 100%; height: var(--field-height); border: 1px solid var(--neutral-300);
+    border-radius: 4px; padding: 18px 36px 6px 12px; font-size: 16px;
+    color: var(--neutral-500); background: var(--white); cursor: pointer;
+    font-style: italic; display: flex; align-items: center;
+    position: relative;
+  }
+  .select-field.has-value { color: var(--neutral-900); font-style: normal; }
+  .chevron {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 16px; color: var(--neutral-500);
+  }
+  .history-icon {
+    position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
+    font-size: 16px; color: var(--primary); cursor: pointer; font-style: normal;
+  }
+
+  /* Gender Toggle */
+  .toggle-container { display: flex; flex-direction: column; gap: 4px; }
+  .toggle-label { font-size: 11px; font-weight: 500; color: var(--neutral-500); margin-left: 1px; }
+  .toggle-label .req { color: var(--error); }
+  .gender-toggle {
+    height: 36px; border: 1.5px solid var(--primary); border-radius: 999px;
+    display: flex; overflow: hidden; width: 180px;
+  }
+  .toggle-opt {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 500; cursor: pointer;
+  }
+  .toggle-opt.selected { background: var(--primary); color: var(--white); }
+  .toggle-opt.unselected { background: var(--white); color: var(--primary); }
+
+  /* Import Link */
+  .import-link { font-size: 14px; font-weight: 500; color: var(--primary); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+
+  /* Hep B Popover */
+  .hepb-popover {
+    position: absolute; right: 0; top: 60px; width: 260px;
+    background: var(--white); border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+    z-index: 50; overflow: hidden; border: 1px solid var(--neutral-300);
+  }
+  .popover-header {
+    padding: 10px 12px; font-size: 14px; font-weight: 600; color: var(--neutral-900);
+    border-bottom: 1px solid var(--neutral-300); background: var(--neutral-100);
+  }
+  .popover-entry { padding: 10px 12px; border-bottom: 1px solid var(--neutral-100); }
+  .popover-entry-date { font-size: 11px; color: var(--neutral-700); }
+  .popover-entry-value { font-size: 13px; font-weight: 600; color: var(--neutral-900); }
+  .popover-entry-nurse { font-size: 11px; color: var(--neutral-500); }
+
+  /* Session Resume Modal */
+  .overlay-scrim {
+    position: absolute; inset: 0; background: var(--overlay-scrim);
+    display: flex; align-items: center; justify-content: center; z-index: 100;
+  }
+  .dialog-box {
+    background: var(--white); border-radius: 12px; padding: 24px;
+    width: 86%; max-width: 380px; box-shadow: 0px 8px 24px rgba(0,0,0,0.2);
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .dialog-title { font-size: 17px; font-weight: 600; color: var(--neutral-900); text-align: center; }
+  .dialog-body { font-size: 14px; color: var(--neutral-700); text-align: center; line-height: 1.5; }
+  .dialog-actions { display: flex; gap: 12px; }
+  .btn-secondary { flex: 1; height: 48px; background: var(--white); color: var(--primary); border: 1.5px solid var(--primary); border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn-primary-full { flex: 1; height: 48px; background: var(--primary); color: var(--white); border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+
+  /* Change Hospital Dialog */
+  .change-hosp-dialog {
+    background: var(--white); border-radius: 12px; padding: 24px;
+    width: 86%; max-width: 380px; box-shadow: 0px 8px 24px rgba(0,0,0,0.2);
+    display: flex; flex-direction: column; gap: 16px;
+  }
+
+  /* DaVita attribution */
+  .davita-mpi {
+    padding: 8px 12px; background: var(--neutral-100); border-radius: 4px;
+    border: 1px solid var(--neutral-300); display: flex; flex-direction: column; gap: 2px;
+  }
+  .davita-mpi-label { font-size: 11px; color: var(--neutral-500); }
+  .davita-mpi-value { font-size: 13px; color: var(--neutral-700); font-style: italic; }
+
+  /* Spec Panel */
+  .spec-panel { background: var(--neutral-100); border-top: 2px solid var(--primary); padding: 10px 16px; font-size: 11px; color: var(--neutral-700); flex-shrink: 0; }
+  .spec-panel h4 { font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .spec-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 3px; }
+  .spec-label { font-weight: 600; color: var(--neutral-900); }
+  .token-chip { display: inline-block; background: var(--white); border: 1px solid var(--neutral-300); border-radius: 3px; padding: 1px 5px; font-size: 10px; font-family: 'Courier New', monospace; color: var(--primary); margin: 1px; }
+</style>
+</head>
+<body>
+<div class="device-frame">
+  <div class="status-bar">
+    <span style="font-weight:700;">12:18 PM</span>
+    <span style="font-size:11px;color:var(--neutral-700);">PATH Lite</span>
+    <div style="display:flex;gap:6px;font-size:11px;"><span>●●●</span><span>WiFi</span><span>92%</span></div>
+  </div>
+  <div class="state-tabs">
+    <div class="state-tab active" onclick="showState('empty',this)">Empty Form</div>
+    <div class="state-tab" onclick="showState('populated',this)">Populated</div>
+    <div class="state-tab" onclick="showState('aiactive',this)">AI Active</div>
+    <div class="state-tab" onclick="showState('hepbpopover',this)">Hep B History</div>
+    <div class="state-tab" onclick="showState('changehosp',this)">Change Hospital</div>
+    <div class="state-tab" onclick="showState('sessionresume',this)">Session Resume</div>
+  </div>
+
+  <!-- EMPTY FORM STATE -->
+  <div class="screen active" id="state-empty">
+    <div class="app-header">
+      <div class="header-left"><button class="header-btn-ghost">Done</button></div>
+      <div class="header-center">Patient Details</div>
+      <div class="header-right"><button class="header-btn-primary">Save</button></div>
+    </div>
+    <div class="split-panel">
+      <!-- Left Nav -->
+      <div class="left-nav">
+        <div class="left-nav-hospital">
+          <div class="hospital-name-label">KAISER SUNNYSIDE MEDICAL CENTER</div>
+          <div class="treatment-type-label">Hemodialysis</div>
+        </div>
+        <div class="patient-summary-card">
+          <div class="psc-name">—</div>
+          <div class="psc-detail">—</div>
+          <div class="psc-mrn">MRN: —</div>
+          <div class="psc-hep">HBsAg: — | HBsAb: —</div>
+        </div>
+        <div class="section-group-header">HD Billing</div>
+        <div class="nav-item active">Patient Details</div>
+        <div class="nav-item">Primary Care Nurse Report (Pre and Post)</div>
+        <div class="nav-item">Order</div>
+        <div class="nav-item">Wait Time (Pre and Post)</div>
+        <div class="nav-item">Treatment</div>
+        <div class="nav-item">ACOI Questions</div>
+        <div class="nav-item">Cancel Billing</div>
+        <div class="nav-item">Review and Submit</div>
+      </div>
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- AI Voice Icon (inactive) -->
+        <div class="ai-voice-area">
+          <div class="ai-icon inactive">🎤</div>
+          <div class="ai-status">
+            <div class="ai-status-label">AI Voice — Inactive</div>
+            <div class="ai-status-sub">Tap to activate conversational mode</div>
+          </div>
+        </div>
+        <!-- Demographics & Admission -->
+        <div class="form-section">
+          <div class="section-header-label">Demographics &amp; Admission</div>
+          <div class="field-wrapper">
+            <input class="text-input filled" value="5000" style="padding-top:18px;" readonly/>
+            <span class="field-label-float active">Medical Record Number (MRN)<span class="req">*</span></span>
+          </div>
+          <div class="field-row">
+            <div class="field-wrapper">
+              <input class="text-input" placeholder="[Enter]"/>
+              <span class="field-label-float">Patient First Name<span class="req">*</span></span>
+            </div>
+            <div class="field-wrapper half">
+              <input class="text-input" placeholder="[Enter]"/>
+              <span class="field-label-float">Middle Initial / Name</span>
+            </div>
+          </div>
+          <div class="field-wrapper">
+            <input class="text-input" placeholder="[Enter]"/>
+            <span class="field-label-float">Patient Last Name<span class="req">*</span></span>
+          </div>
+          <div class="field-row">
+            <div class="field-wrapper">
+              <input class="text-input" placeholder="[mm/dd/yyyy]"/>
+              <span class="field-label-float">DOB<span class="req">*</span></span>
+            </div>
+            <div class="field-wrapper">
+              <input class="text-input" placeholder="[Enter]"/>
+              <span class="field-label-float">Admission / Encounter Number</span>
+            </div>
+          </div>
+          <div class="toggle-container">
+            <div class="toggle-label">Gender<span class="req">*</span></div>
+            <div class="gender-toggle">
+              <div class="toggle-opt unselected">Male</div>
+              <div class="toggle-opt unselected">Female</div>
+            </div>
+          </div>
+          <div style="position:relative;" class="field-wrapper">
+            <div class="select-field"><span>[Select]</span><span class="chevron">›</span></div>
+            <span class="field-label-float">Treatment Location<span class="req">*</span></span>
+          </div>
+          <div class="field-wrapper">
+            <input class="text-input" placeholder="[Enter]"/>
+            <span class="field-label-float">Room Number<span class="req">*</span></span>
+          </div>
+        </div>
+        <!-- Clinical Intake -->
+        <div class="form-section">
+          <div class="section-header-label">Clinical Intake</div>
+          <div><span class="import-link">⬇ Import Hepatitis B result from CWOW</span></div>
+          <!-- HBsAg -->
+          <div style="position:relative;" class="field-wrapper">
+            <div class="select-field"><span>[Select]</span><span class="history-icon">↺</span><span class="chevron">›</span></div>
+            <span class="field-label-float">HBsAg<span class="req">*</span></span>
+          </div>
+          <div class="field-row">
+            <div class="field-wrapper">
+              <input class="text-input" placeholder="[mm/dd/yyyy]"/>
+              <span class="field-label-float">Date Drawn</span>
+            </div>
+            <div style="position:relative;" class="field-wrapper">
+              <div class="select-field"><span>[Select]</span><span class="chevron">›</span></div>
+              <span class="field-label-float">Source</span>
+            </div>
+          </div>
+          <!-- HBsAb -->
+          <div style="position:relative;" class="field-wrapper">
+            <div class="select-field"><span>[Select]</span><span class="history-icon">↺</span><span class="chevron">›</span></div>
+            <span class="field-label-float">HBsAb<span class="req">*</span></span>
+          </div>
+          <div class="field-row">
+            <div class="field-wrapper">
+              <input class="text-input" placeholder="[mm/dd/yyyy]"/>
+              <span class="field-label-float">Date Drawn</span>
+            </div>
+            <div style="position:relative;" class="field-wrapper">
+              <div class="select-field"><span>[Select]</span><span class="chevron">›</span></div>
+              <span class="field-label-float">Source</span>
+            </div>
+          </div>
+          <!-- DaVita MPI -->
+          <div class="davita-mpi">
+            <div class="davita-mpi-label">DaVita MPI</div>
+            <div class="davita-mpi-value">Based on imported data from DaVita</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-006 / Empty Form — UXR-002, UXR-004, UXR-104, UXR-105, FR-085, FR-086</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Layout</span>: SplitPanel — <span class="token-chip">200px LeftNavPanel</span> + main content</div>
+        <div><span class="spec-label">Mandatory fields (9)</span>: MRN, First Name, Last Name, DOB, Gender, Treatment Location, Room#, HBsAg, HBsAb — asterisk (*)</div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">LeftNavPanel</span>: Hospital name → treatment type → patient summary → HD Billing nav items (8)</div>
+        <div><span class="spec-label">AI Voice</span>: Inactive state — <span class="token-chip">neutral_100 bg</span> · <span class="token-chip">neutral_300 border</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPULATED STATE -->
+  <div class="screen" id="state-populated">
+    <div class="app-header">
+      <div class="header-left"><button class="header-btn-ghost">Done</button></div>
+      <div class="header-center">Patient Details</div>
+      <div class="header-right"><button class="header-btn-primary">Save</button></div>
+    </div>
+    <div class="split-panel">
+      <div class="left-nav">
+        <div class="left-nav-hospital">
+          <div class="hospital-name-label">KAISER SUNNYSIDE MEDICAL CENTER</div>
+          <div class="treatment-type-label">Hemodialysis</div>
+        </div>
+        <div class="patient-summary-card">
+          <div class="psc-name">Mathi, Nirai T.</div>
+          <div class="psc-detail">Male · 26 yrs</div>
+          <div class="psc-mrn" style="color:var(--neutral-500);font-size:10px;">01/01/2000</div>
+          <div class="psc-mrn">MRN: 5000</div>
+          <div class="psc-hep" style="font-size:10px;">HBsAg: Negative (02/24/2026)</div>
+          <div class="psc-hep" style="font-size:10px;">HBsAb: Immuno10</div>
+        </div>
+        <div class="section-group-header">HD Billing</div>
+        <div class="nav-item active">Patient Details</div>
+        <div class="nav-item">Primary Care Nurse Report (Pre and Post)</div>
+        <div class="nav-item">Order</div>
+        <div class="nav-item">Wait Time (Pre and Post)</div>
+        <div class="nav-item">Treatment</div>
+        <div class="nav-item">ACOI Questions</div>
+        <div class="nav-item">Cancel Billing</div>
+        <div class="nav-item">Review and Submit</div>
+      </div>
+      <div class="main-content">
+        <div class="ai-voice-area">
+          <div class="ai-icon inactive">🎤</div>
+          <div class="ai-status">
+            <div class="ai-status-label">AI Voice — Inactive</div>
+            <div class="ai-status-sub">All fields captured. Tap to restart.</div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="section-header-label">Demographics &amp; Admission</div>
+          <div class="field-wrapper">
+            <input class="text-input filled" value="5000" style="padding-top:18px;" readonly/>
+            <span class="field-label-float active">Medical Record Number (MRN)<span class="req">*</span></span>
+          </div>
+          <div class="field-row">
+            <div class="field-wrapper">
+              <input class="text-input filled" value="Nirai" style="padding-top:18px;"/>
+              <span class="field-label-float active">Patient First Name<span class="req">*</span></span>
+            </div>
+            <div class="field-wrapper half">
+              <input class="text-input filled" value="Test" style="padding-top:18px;"/>
+              <span class="field-label-float active">Middle Initial / Name</span>
+            </div>
+          </div>
+          <div class="field-wrapper">
+            <input class="text-input filled" value="Mathi" style="padding-top:18px;"/>
+            <span class="field-label-float active">Patient Last Name<span class="req">*</span></span>
+          </div>
+          <div class="field-row">
+            <div class="field-wrapper">
+              <input class="text-input filled" value="01/01/2000" style="padding-top:18px;"/>
+              <span class="field-label-float active">DOB<span class="req">*</span></span>
+            </div>
+            <div class="field-wrapper">
+              <input class="text-input" placeholder="[Enter]"/>
+              <span class="field-label-float">Admission / Encounter Number</span>
+            </div>
+          </div>
+          <div class="toggle-container">
+            <div class="toggle-label">Gender<span class="req">*</span></div>
+            <div class="gender-toggle">
+              <div class="toggle-opt selected">Male</div>
+              <div class="toggle-opt unselected">Female</div>
+            </div>
+          </div>
+          <div style="position:relative;" class="field-wrapper">
+            <div class="select-field has-value"><span>OR</span><span class="chevron">›</span></div>
+            <span class="field-label-float active">Treatment Location<span class="req">*</span></span>
+          </div>
+          <div class="field-wrapper">
+            <input class="text-input filled" value="123" style="padding-top:18px;"/>
+            <span class="field-label-float active">Room Number<span class="req">*</span></span>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="section-header-label">Clinical Intake</div>
+          <div><span class="import-link">⬇ Import Hepatitis B result from CWOW</span></div>
+          <div style="position:relative;" class="field-wrapper">
+            <div class="select-field has-value"><span>Negative</span><span class="history-icon">↺</span><span class="chevron">›</span></div>
+            <span class="field-label-float active">HBsAg<span class="req">*</span></span>
+          </div>
+          <div class="field-row">
+            <div class="field-wrapper">
+              <input class="text-input" placeholder="[mm/dd/yyyy]"/>
+              <span class="field-label-float">Date Drawn</span>
+            </div>
+            <div style="position:relative;" class="field-wrapper">
+              <div class="select-field"><span>[Select]</span><span class="chevron">›</span></div>
+              <span class="field-label-float">Source</span>
+            </div>
+          </div>
+          <div style="position:relative;" class="field-wrapper">
+            <div class="select-field has-value"><span>Immuno10</span><span class="history-icon">↺</span><span class="chevron">›</span></div>
+            <span class="field-label-float active">HBsAb<span class="req">*</span></span>
+          </div>
+          <div class="field-row">
+            <div class="field-wrapper">
+              <input class="text-input" placeholder="[mm/dd/yyyy]"/>
+              <span class="field-label-float">Date Drawn</span>
+            </div>
+            <div style="position:relative;" class="field-wrapper">
+              <div class="select-field"><span>[Select]</span><span class="chevron">›</span></div>
+              <span class="field-label-float">Source</span>
+            </div>
+          </div>
+          <div class="davita-mpi">
+            <div class="davita-mpi-label">DaVita MPI</div>
+            <div class="davita-mpi-value">Based on imported data from DaVita</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-006 / Populated — PatientSummaryCard + All Filled Fields</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">PatientSummaryCard</span>: Name → Gender+Age → DOB → MRN → HBsAg → HBsAb in left panel</div>
+        <div><span class="spec-label">SelectField filled</span>: <span class="token-chip">body_lg neutral_900</span> · chevron + history icon visible</div>
+        <div><span class="spec-label">Toggle</span>: Male selected — <span class="token-chip">#1566A7 bg</span> · <span class="token-chip">#FFFFFF text</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI ACTIVE/LISTENING STATE -->
+  <div class="screen" id="state-aiactive">
+    <div class="app-header">
+      <div class="header-left"><button class="header-btn-ghost">Done</button></div>
+      <div class="header-center">Patient Details</div>
+      <div class="header-right"><button class="header-btn-primary">Save</button></div>
+    </div>
+    <div class="split-panel">
+      <div class="left-nav">
+        <div class="left-nav-hospital">
+          <div class="hospital-name-label">KAISER SUNNYSIDE MEDICAL CENTER</div>
+          <div class="treatment-type-label">Hemodialysis</div>
+        </div>
+        <div class="patient-summary-card">
+          <div class="psc-name">—</div>
+          <div class="psc-mrn">MRN: —</div>
+        </div>
+        <div class="section-group-header">HD Billing</div>
+        <div class="nav-item active">Patient Details</div>
+        <div class="nav-item">Primary Care Nurse Report (Pre and Post)</div>
+        <div class="nav-item">Order</div>
+        <div class="nav-item">Wait Time (Pre and Post)</div>
+        <div class="nav-item">Treatment</div>
+        <div class="nav-item">ACOI Questions</div>
+        <div class="nav-item">Cancel Billing</div>
+        <div class="nav-item">Review and Submit</div>
+      </div>
+      <div class="main-content">
+        <!-- AI LISTENING STATE -->
+        <div class="ai-voice-area" style="background:var(--primary-light);border:1.5px solid var(--primary);">
+          <div class="ai-icon listening">🎤</div>
+          <div class="ai-status">
+            <div class="ai-status-label" style="color:var(--primary);">AI Voice — Listening</div>
+            <div class="ai-status-sub" style="color:var(--primary);">"Please provide the patient's first name"</div>
+          </div>
+          <!-- Waveform animation -->
+          <div style="display:flex;align-items:center;gap:3px;margin-left:auto;">
+            <div style="width:3px;background:var(--primary);border-radius:2px;animation:wave 0.6s infinite 0s;height:12px;"></div>
+            <div style="width:3px;background:var(--primary);border-radius:2px;animation:wave 0.6s infinite 0.1s;height:20px;"></div>
+            <div style="width:3px;background:var(--primary);border-radius:2px;animation:wave 0.6s infinite 0.2s;height:16px;"></div>
+            <div style="width:3px;background:var(--primary);border-radius:2px;animation:wave 0.6s infinite 0.3s;height:24px;"></div>
+            <div style="width:3px;background:var(--primary);border-radius:2px;animation:wave 0.6s infinite 0.4s;height:14px;"></div>
+          </div>
+        </div>
+        <style>
+          @keyframes wave { 0%,100%{transform:scaleY(0.5)} 50%{transform:scaleY(1.2)} }
+        </style>
+        <!-- STT captured text preview (UXR-205) -->
+        <div style="padding:10px 14px;background:#FFFDE7;border:1px solid #FDD835;border-radius:8px;font-size:14px;color:var(--neutral-700);">
+          <span style="font-weight:600;color:var(--neutral-900);">Voice captured:</span> "Patient first name is Nirai"
+          <br><span style="font-size:12px;color:var(--neutral-500);">LLM extracting → "Nirai" — confirm before populating field</span>
+        </div>
+        <div class="form-section">
+          <div class="section-header-label">Demographics &amp; Admission</div>
+          <div class="field-wrapper">
+            <input class="text-input filled" value="5000" style="padding-top:18px;" readonly/>
+            <span class="field-label-float active">Medical Record Number (MRN)<span class="req">*</span></span>
+          </div>
+          <div class="field-row">
+            <div class="field-wrapper">
+              <input class="text-input focused" placeholder="Nirai" style="border:2px solid var(--primary);animation:focusPulse 1s infinite;"/>
+              <span class="field-label-float active">Patient First Name<span class="req">*</span></span>
+            </div>
+            <div class="field-wrapper half">
+              <input class="text-input" placeholder="[Enter]"/>
+              <span class="field-label-float">Middle Initial / Name</span>
+            </div>
+          </div>
+          <div class="field-wrapper">
+            <input class="text-input" placeholder="[Enter]"/>
+            <span class="field-label-float">Patient Last Name<span class="req">*</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-006 / AI Listening — UXR-003, UXR-501, UXR-205, FR-016–FR-023</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">AIVoiceIcon</span>: Listening state — <span class="token-chip">pulse animation</span> · <span class="token-chip">#1566A7 border 3px</span> · <span class="token-chip">waveform bars</span></div>
+        <div><span class="spec-label">STT Preview (UXR-205)</span>: Captured text shown before field population</div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">Active field</span>: Focused border <span class="token-chip">2px #1566A7</span> · auto-scrolled into view</div>
+        <div><span class="spec-label">State change</span>: ≤ 200ms (UXR-501)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEP B HISTORY POPOVER -->
+  <div class="screen" id="state-hepbpopover">
+    <div class="app-header">
+      <div class="header-left"><button class="header-btn-ghost">Done</button></div>
+      <div class="header-center">Patient Details</div>
+      <div class="header-right"><button class="header-btn-primary">Save</button></div>
+    </div>
+    <div class="split-panel">
+      <div class="left-nav">
+        <div class="left-nav-hospital"><div class="hospital-name-label">KAISER SUNNYSIDE MEDICAL CENTER</div><div class="treatment-type-label">Hemodialysis</div></div>
+        <div class="patient-summary-card">
+          <div class="psc-name">Mathi, Nirai T.</div>
+          <div class="psc-detail">Male · 26 yrs</div>
+          <div class="psc-mrn">MRN: 5000</div>
+          <div class="psc-hep" style="font-size:10px;">HBsAg: Negative (02/24/2026)</div>
+        </div>
+        <div class="section-group-header">HD Billing</div>
+        <div class="nav-item active">Patient Details</div>
+        <div class="nav-item">Primary Care Nurse Report (Pre and Post)</div>
+        <div class="nav-item">Review and Submit</div>
+      </div>
+      <div class="main-content">
+        <div class="ai-voice-area"><div class="ai-icon inactive">🎤</div><div class="ai-status"><div class="ai-status-label">AI Voice — Inactive</div></div></div>
+        <div class="form-section">
+          <div class="section-header-label">Clinical Intake</div>
+          <div><span class="import-link">⬇ Import Hepatitis B result from CWOW</span></div>
+          <!-- HBsAg with popover visible -->
+          <div style="position:relative;" class="field-wrapper">
+            <div class="select-field has-value" style="border:2px solid var(--primary);"><span>Negative</span><span class="history-icon" style="color:var(--primary-dark);">↺</span><span class="chevron">›</span></div>
+            <span class="field-label-float active">HBsAg<span class="req">*</span></span>
+            <!-- Popover -->
+            <div class="hepb-popover" style="right:0;top:58px;">
+              <div class="popover-header">Hep B Change History</div>
+              <div class="popover-entry">
+                <div class="popover-entry-date">02/24/2026</div>
+                <div class="popover-entry-value">Negative</div>
+                <div class="popover-entry-nurse">Mounisha Tanadars, RN</div>
+              </div>
+              <div class="popover-entry">
+                <div class="popover-entry-date">01/15/2026</div>
+                <div class="popover-entry-value">Unknown</div>
+                <div class="popover-entry-nurse">Swati Gore, RN</div>
+              </div>
+              <div class="popover-entry" style="border-bottom:none;">
+                <div class="popover-entry-date">11/20/2025</div>
+                <div class="popover-entry-value">Positive</div>
+                <div class="popover-entry-nurse">Mounisha Tanadars, RN</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-006d / Hep B Change History Popover — UXR-107</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Trigger</span>: Tap ↺ history icon beside HBsAg or HBsAb field</div>
+        <div><span class="spec-label">Popover</span>: <span class="token-chip">width 260px</span> · <span class="token-chip">max-height 200px scroll</span> · <span class="token-chip">shadow 0px 4px 12px rgba(0,0,0,0.15)</span></div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">Entries</span>: Date (body_sm/neutral_700) + Value (body_md/neutral_900) + Nurse name (body_sm/neutral_500)</div>
+        <div><span class="spec-label">Sort</span>: Date descending (most recent first) — appears within 200ms (UXR-107)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANGE HOSPITAL DIALOG -->
+  <div class="screen" id="state-changehosp">
+    <div class="app-header">
+      <div class="header-left"><button class="header-btn-ghost">Done</button></div>
+      <div class="header-center">Patient Details</div>
+      <div class="header-right"><button class="header-btn-primary">Save</button></div>
+    </div>
+    <div class="split-panel" style="filter:brightness(0.7);pointer-events:none;">
+      <div class="left-nav">
+        <div class="left-nav-hospital" style="background:var(--primary-light);">
+          <div class="hospital-name-label" style="color:var(--primary);">KAISER SUNNYSIDE MEDICAL CENTER</div>
+          <div class="treatment-type-label">Hemodialysis</div>
+        </div>
+        <div class="patient-summary-card"><div class="psc-name">Mathi, Nirai T.</div><div class="psc-mrn">MRN: 5000</div></div>
+        <div class="section-group-header">HD Billing</div>
+        <div class="nav-item active">Patient Details</div>
+      </div>
+      <div class="main-content">
+        <div class="form-section"><div class="section-header-label">Demographics &amp; Admission</div></div>
+      </div>
+    </div>
+    <!-- Dialog Overlay -->
+    <div class="overlay-scrim">
+      <div class="change-hosp-dialog">
+        <div style="text-align:center;font-size:32px;">🏥</div>
+        <div class="dialog-title">Change Hospital?</div>
+        <div class="dialog-body">Changing the hospital will clear all procedure code data entered so far. This action cannot be undone. Do you want to continue?</div>
+        <div class="dialog-actions">
+          <button class="btn-secondary">Cancel</button>
+          <button class="btn-primary-full">Change</button>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-006 / Change Hospital Dialog — UXR-505</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Trigger</span>: Tap hospital name in LeftNavPanel top section</div>
+        <div><span class="spec-label">Warning</span>: "Changing the hospital will clear all procedure code data entered so far"</div>
+        <div><span class="spec-label">Actions</span>: Cancel (stays) · Change (clears data → SCR-011)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION RESUME MODAL -->
+  <div class="screen" id="state-sessionresume">
+    <div class="app-header">
+      <div class="header-left"><button class="header-btn-ghost">Done</button></div>
+      <div class="header-center">Patient Details</div>
+      <div class="header-right"><button class="header-btn-primary">Save</button></div>
+    </div>
+    <div class="split-panel" style="filter:brightness(0.7);pointer-events:none;">
+      <div class="left-nav">
+        <div class="left-nav-hospital"><div class="hospital-name-label">KAISER SUNNYSIDE MEDICAL CENTER</div><div class="treatment-type-label">Hemodialysis</div></div>
+        <div class="patient-summary-card"><div class="psc-name">Mathi, Nirai T.</div><div class="psc-mrn">MRN: 5000</div></div>
+        <div class="section-group-header">HD Billing</div>
+        <div class="nav-item active">Patient Details</div>
+      </div>
+      <div class="main-content">
+        <div class="form-section">
+          <div class="section-header-label">Demographics &amp; Admission</div>
+          <div class="field-wrapper"><input class="text-input filled" value="5000" style="padding-top:18px;" readonly/><span class="field-label-float active">MRN<span class="req">*</span></span></div>
+          <div class="field-wrapper"><input class="text-input filled" value="Nirai" style="padding-top:18px;"/><span class="field-label-float active">First Name<span class="req">*</span></span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Session Resume Modal (non-dismissable) -->
+    <div class="overlay-scrim">
+      <div class="dialog-box">
+        <div style="text-align:center;font-size:32px;">⏸️</div>
+        <div class="dialog-title">Incomplete Session</div>
+        <div class="dialog-body">You have an incomplete session for Nirai Mathi (MRN: 5000). Would you like to resume from where you left off?</div>
+        <div class="dialog-actions">
+          <button class="btn-secondary">Start Over</button>
+          <button class="btn-primary-full">Resume</button>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-010 / Session Resume Prompt — FR-052–FR-057, UXR-604</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Non-dismissable</span>: Must tap Resume or Start Over — no background tap dismiss</div>
+        <div><span class="spec-label">Resume</span>: Loads partial data; AI resumes from first unanswered field</div>
+        <div><span class="spec-label">Start Over</span>: Clears partial data; fresh empty form</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showState(id, tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('state-' + id).classList.add('active');
+  tab.classList.add('active');
+}
+</script>
+</body>
+</html>

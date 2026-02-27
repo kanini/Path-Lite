@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=768, initial-scale=1.0">
+<title>SCR-002 - Hospital Selection | PATH Lite</title>
+<style>
+  :root {
+    --primary: #1566A7;
+    --primary-dark: #0E4F87;
+    --primary-light: #E8F1F9;
+    --neutral-900: #1A1A1A;
+    --neutral-700: #4A4A4A;
+    --neutral-500: #7A7A7A;
+    --neutral-300: #C4C4C4;
+    --neutral-100: #F5F5F5;
+    --white: #FFFFFF;
+    --shadow-header: 0px 2px 4px rgba(0,0,0,0.08);
+    --header-height: 56px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Roboto', sans-serif;
+    background: #E0E0E0;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px;
+    gap: 24px;
+  }
+  .device-frame {
+    width: 768px;
+    min-height: 1024px;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .status-bar {
+    height: 28px;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--neutral-900);
+    flex-shrink: 0;
+  }
+
+  /* State Tabs */
+  .state-tabs {
+    display: flex;
+    background: var(--neutral-100);
+    border-bottom: 1px solid var(--neutral-300);
+    padding: 8px 16px 0;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .state-tab {
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--neutral-500);
+    cursor: pointer;
+    border-radius: 6px 6px 0 0;
+    border: 1px solid transparent;
+    border-bottom: none;
+    background: transparent;
+  }
+  .state-tab.active { background: var(--white); color: var(--primary); border-color: var(--neutral-300); }
+
+  .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+  .screen.active { display: flex; }
+
+  /* Header */
+  .app-header {
+    height: var(--header-height);
+    background: var(--white);
+    box-shadow: var(--shadow-header);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 5;
+  }
+  .header-left { flex: 1; display: flex; align-items: center; }
+  .header-center { flex: 2; text-align: center; font-size: 20px; font-weight: 600; color: var(--neutral-900); }
+  .header-right { flex: 1; display: flex; justify-content: flex-end; }
+  .nurse-name-btn {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 4px;
+  }
+  .nurse-name-btn::after { content: ' ▾'; font-size: 10px; }
+
+  /* User Menu Dropdown */
+  .user-menu {
+    position: absolute;
+    top: calc(var(--header-height) + 4px);
+    left: 16px;
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    min-width: 220px;
+    z-index: 100;
+    overflow: hidden;
+    border: 1px solid var(--neutral-300);
+  }
+  .user-menu-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--neutral-300);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--neutral-900);
+    background: var(--neutral-100);
+  }
+  .user-menu-item {
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--neutral-900);
+    cursor: pointer;
+    border-bottom: 1px solid var(--neutral-100);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .user-menu-item:hover { background: var(--primary-light); }
+  .user-menu-item.logout { color: #D32F2F; }
+
+  /* Search Bar */
+  .search-container {
+    padding: 12px 16px;
+    background: var(--white);
+    border-bottom: 1px solid var(--neutral-300);
+    flex-shrink: 0;
+  }
+  .search-bar {
+    height: 44px;
+    background: var(--neutral-100);
+    border: 1px solid var(--neutral-300);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .search-bar.focused { border: 2px solid var(--primary); }
+  .search-icon { font-size: 16px; color: var(--neutral-500); flex-shrink: 0; }
+  .search-input {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--neutral-500);
+    background: transparent;
+    border: none;
+    outline: none;
+  }
+  .search-input.has-value { color: var(--neutral-900); }
+  .clear-btn { font-size: 14px; color: var(--neutral-500); cursor: pointer; flex-shrink: 0; }
+
+  /* Column Headers */
+  .list-col-header {
+    display: flex;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--neutral-300);
+    background: var(--neutral-100);
+    flex-shrink: 0;
+  }
+  .col-hosp { flex: 1; font-size: 12px; font-weight: 600; color: var(--neutral-700); text-transform: uppercase; letter-spacing: 0.5px; }
+  .col-addr { width: 240px; font-size: 12px; font-weight: 600; color: var(--neutral-700); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Hospital List */
+  .hospital-list {
+    flex: 1;
+    overflow-y: auto;
+    position: relative;
+  }
+  .section-header {
+    padding: 4px 16px;
+    background: var(--neutral-100);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--neutral-500);
+    border-bottom: 1px solid var(--neutral-300);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .hospital-row {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--neutral-100);
+    cursor: pointer;
+    min-height: 52px;
+  }
+  .hospital-row:hover { background: var(--primary-light); }
+  .hospital-row:active { background: var(--primary-light); }
+  .hosp-name {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--neutral-900);
+    padding-right: 16px;
+  }
+  .hosp-addr {
+    width: 240px;
+    font-size: 14px;
+    color: var(--neutral-500);
+  }
+
+  /* Section index */
+  .section-index {
+    position: absolute;
+    right: 8px;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    z-index: 10;
+  }
+  .index-letter {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 1px 4px;
+    text-align: center;
+    min-width: 16px;
+    border-radius: 3px;
+  }
+  .index-letter:hover { background: var(--primary-light); }
+  .index-letter.active { background: var(--primary); color: var(--white); border-radius: 50%; }
+
+  /* Spec panel */
+  .spec-panel {
+    background: var(--neutral-100);
+    border-top: 2px solid var(--primary);
+    padding: 12px 16px;
+    font-size: 11px;
+    color: var(--neutral-700);
+    flex-shrink: 0;
+  }
+  .spec-panel h4 { font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .spec-row { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 4px; }
+  .spec-item { display: flex; flex-direction: column; gap: 2px; }
+  .spec-label { font-weight: 600; color: var(--neutral-900); }
+  .spec-value { color: var(--neutral-700); }
+  .token-chip {
+    display: inline-block;
+    background: var(--white);
+    border: 1px solid var(--neutral-300);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-family: 'Courier New', monospace;
+    color: var(--primary);
+    margin: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="device-frame">
+  <div class="status-bar">
+    <span style="font-weight:700;">12:06 PM</span>
+    <span style="font-size:12px;color:var(--neutral-700);">PATH Lite</span>
+    <div style="display:flex;gap:6px;align-items:center;font-size:11px;">
+      <span>●●●</span><span>WiFi</span><span>96%</span>
+    </div>
+  </div>
+
+  <div class="state-tabs">
+    <div class="state-tab active" onclick="showState('default',this)">Default</div>
+    <div class="state-tab" onclick="showState('usermenu',this)">User Menu Open</div>
+    <div class="state-tab" onclick="showState('search',this)">Search Active</div>
+    <div class="state-tab" onclick="showState('empty',this)">Empty Search</div>
+  </div>
+
+  <!-- DEFAULT STATE -->
+  <div class="screen active" id="state-default">
+    <div class="app-header">
+      <div class="header-left">
+        <button class="nurse-name-btn">Tanadars, RN</button>
+      </div>
+      <div class="header-center">Hospital Selection</div>
+      <div class="header-right"></div>
+    </div>
+    <div class="search-container">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <span class="search-input">Search Hospitals</span>
+      </div>
+    </div>
+    <div class="list-col-header">
+      <span class="col-hosp">Hospital</span>
+      <span class="col-addr">Address</span>
+    </div>
+    <div class="hospital-list">
+      <div class="section-header">C</div>
+      <div class="hospital-row"><span class="hosp-name">CONFLUENCE HEALTH</span><span class="hosp-addr">WENATCHEE, WA</span></div>
+      <div class="hospital-row"><span class="hosp-name">CORPUS CHRISTI MEDICAL CENTER - DOCTORS REGIONAL</span><span class="hosp-addr">CORPUS CHRISTI, TX</span></div>
+      <div class="hospital-row"><span class="hosp-name">CORPUS CHRISTI MEDICAL CENTER - THE HEART HOSPITAL</span><span class="hosp-addr">CORPUS CHRISTI, TX</span></div>
+      <div class="section-header">E</div>
+      <div class="hospital-row"><span class="hosp-name">EL PASO CHILDREN'S HOSPITAL</span><span class="hosp-addr">EL PASO, TX</span></div>
+      <div class="section-header">K</div>
+      <div class="hospital-row" style="background:var(--primary-light);border-left:3px solid var(--primary);"><span class="hosp-name" style="color:var(--primary);">KAISER SUNNYSIDE MEDICAL CENTER</span><span class="hosp-addr">PORTLAND, OR</span></div>
+      <div class="section-header">S</div>
+      <div class="hospital-row"><span class="hosp-name">SAINT LOUISE REGIONAL HOSPITAL</span><span class="hosp-addr">SAN JOSE, CA</span></div>
+      <div class="hospital-row"><span class="hosp-name">SAN ANTONIO REGIONAL HOSPITAL</span><span class="hosp-addr">UPLAND, CA</span></div>
+      <div class="hospital-row"><span class="hosp-name">SOUTH TEXAS REHABILITATION HOSPITAL</span><span class="hosp-addr">BROWNSVILLE, TX</span></div>
+      <div class="section-header">T</div>
+      <div class="hospital-row"><span class="hosp-name">TEXAS NEURO REHAB CENTER</span><span class="hosp-addr">AUSTIN, TX</span></div>
+      <div class="section-header">U</div>
+      <div class="hospital-row"><span class="hosp-name">UF HEALTH FLAGLER HOSPITAL INC</span><span class="hosp-addr">ST AUGUSTINE, FL</span></div>
+      <div class="section-header">W</div>
+      <div class="hospital-row"><span class="hosp-name">WEST GEORGIA MEDICAL CENTER, INC</span><span class="hosp-addr">LAGRANGE, GA</span></div>
+
+      <!-- Section Index -->
+      <div class="section-index">
+        <span class="index-letter">A</span><span class="index-letter">B</span>
+        <span class="index-letter active">C</span><span class="index-letter">D</span>
+        <span class="index-letter">E</span><span class="index-letter">F</span>
+        <span class="index-letter">G</span><span class="index-letter">H</span>
+        <span class="index-letter">I</span><span class="index-letter">J</span>
+        <span class="index-letter active">K</span><span class="index-letter">L</span>
+        <span class="index-letter">M</span><span class="index-letter">N</span>
+        <span class="index-letter">O</span><span class="index-letter">P</span>
+        <span class="index-letter">Q</span><span class="index-letter">R</span>
+        <span class="index-letter active">S</span><span class="index-letter active">T</span>
+        <span class="index-letter active">U</span><span class="index-letter">V</span>
+        <span class="index-letter active">W</span><span class="index-letter">X</span>
+        <span class="index-letter">Y</span><span class="index-letter">Z</span>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-002 / Default — Component Specs</h4>
+      <div class="spec-row">
+        <div class="spec-item"><span class="spec-label">Header</span><span class="spec-value">Nurse name left (tappable) · "Hospital Selection" center · height 56px</span></div>
+        <div class="spec-item"><span class="spec-label">SearchBar</span><span><span class="token-chip">#F5F5F5 bg</span><span class="token-chip">44px height</span><span class="token-chip">radius 8px</span></span></div>
+        <div class="spec-item"><span class="spec-label">List Row</span><span><span class="token-chip">body_lg 600</span><span class="token-chip">min 52px height</span></span></div>
+      </div>
+      <div class="spec-row" style="margin-top:6px;">
+        <div class="spec-item"><span class="spec-label">Section Index</span><span class="spec-value">Right edge; A–Z fast scroll (UXR-101 real-time filter)</span></div>
+        <div class="spec-item"><span class="spec-label">Active/Tapped row</span><span><span class="token-chip">#E8F1F9 bg</span><span class="token-chip">border-left 3px #1566A7</span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER MENU STATE -->
+  <div class="screen" id="state-usermenu">
+    <div class="app-header" style="position:relative;">
+      <div class="header-left">
+        <button class="nurse-name-btn" style="color:var(--primary-dark);">Tanadars, RN</button>
+      </div>
+      <div class="header-center">Hospital Selection</div>
+      <div class="header-right"></div>
+      <!-- User menu dropdown -->
+      <div class="user-menu">
+        <div class="user-menu-header">Mounisha Tanadars, RN</div>
+        <div class="user-menu-item">🏥 Hospital Selection</div>
+        <div class="user-menu-item logout">⎋ Logout</div>
+      </div>
+    </div>
+    <div class="search-container">
+      <div class="search-bar"><span class="search-icon">🔍</span><span class="search-input">Search Hospitals</span></div>
+    </div>
+    <div class="list-col-header">
+      <span class="col-hosp">Hospital</span><span class="col-addr">Address</span>
+    </div>
+    <div class="hospital-list" style="opacity:0.4;">
+      <div class="section-header">C</div>
+      <div class="hospital-row"><span class="hosp-name">CONFLUENCE HEALTH</span><span class="hosp-addr">WENATCHEE, WA</span></div>
+      <div class="hospital-row"><span class="hosp-name">CORPUS CHRISTI MEDICAL CENTER - DOCTORS REGIONAL</span><span class="hosp-addr">CORPUS CHRISTI, TX</span></div>
+      <div class="section-header">K</div>
+      <div class="hospital-row"><span class="hosp-name">KAISER SUNNYSIDE MEDICAL CENTER</span><span class="hosp-addr">PORTLAND, OR</span></div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-002 / User Menu Open</h4>
+      <div class="spec-row">
+        <div class="spec-item"><span class="spec-label">Trigger</span><span class="spec-value">Tap nurse name "Tanadars, RN" in header left</span></div>
+        <div class="spec-item"><span class="spec-label">Dropdown</span><span><span class="token-chip">#FFFFFF bg</span><span class="token-chip">radius 8px</span><span class="token-chip">shadow popover</span></span></div>
+        <div class="spec-item"><span class="spec-label">Items</span><span class="spec-value">Hospital Selection · Logout (red)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH ACTIVE STATE -->
+  <div class="screen" id="state-search">
+    <div class="app-header">
+      <div class="header-left"><button class="nurse-name-btn">Tanadars, RN</button></div>
+      <div class="header-center">Hospital Selection</div>
+      <div class="header-right"></div>
+    </div>
+    <div class="search-container">
+      <div class="search-bar focused">
+        <span class="search-icon" style="color:var(--primary);">🔍</span>
+        <span class="search-input has-value">kaiser</span>
+        <span class="clear-btn">✕</span>
+      </div>
+    </div>
+    <div class="list-col-header">
+      <span class="col-hosp">Hospital</span><span class="col-addr">Address</span>
+    </div>
+    <div class="hospital-list">
+      <div class="section-header">K — 1 result</div>
+      <div class="hospital-row" style="background:var(--primary-light);">
+        <span class="hosp-name">
+          <span style="background:#FFF176;border-radius:2px;padding:0 2px;">KAISER</span> SUNNYSIDE MEDICAL CENTER
+        </span>
+        <span class="hosp-addr">PORTLAND, OR</span>
+      </div>
+      <div class="section-index">
+        <span class="index-letter active">K</span>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-002 / Search Active — UXR-101</h4>
+      <div class="spec-row">
+        <div class="spec-item"><span class="spec-label">Real-time Filter</span><span class="spec-value">Min 1 character trigger; results filter within 300ms</span></div>
+        <div class="spec-item"><span class="spec-label">SearchBar</span><span><span class="token-chip">border 2px #1566A7 focused</span><span class="token-chip">✕ clear button visible</span></span></div>
+        <div class="spec-item"><span class="spec-label">Match highlight</span><span class="spec-value">Search term highlighted in result</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMPTY SEARCH STATE -->
+  <div class="screen" id="state-empty">
+    <div class="app-header">
+      <div class="header-left"><button class="nurse-name-btn">Tanadars, RN</button></div>
+      <div class="header-center">Hospital Selection</div>
+      <div class="header-right"></div>
+    </div>
+    <div class="search-container">
+      <div class="search-bar focused">
+        <span class="search-icon" style="color:var(--primary);">🔍</span>
+        <span class="search-input has-value">xyz hospital</span>
+        <span class="clear-btn">✕</span>
+      </div>
+    </div>
+    <div class="list-col-header">
+      <span class="col-hosp">Hospital</span><span class="col-addr">Address</span>
+    </div>
+    <div class="hospital-list" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:40px;">
+      <div style="font-size:40px;color:var(--neutral-300);">🏥</div>
+      <div style="font-size:16px;font-weight:600;color:var(--neutral-700);">No hospitals found</div>
+      <div style="font-size:14px;color:var(--neutral-500);text-align:center;">No hospitals match "xyz hospital". Please check your search or contact your administrator.</div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-002 / Empty Search State</h4>
+      <div class="spec-row">
+        <div class="spec-item"><span class="spec-label">Empty Message</span><span class="spec-value">"No hospitals found" + support guidance</span></div>
+        <div class="spec-item"><span class="spec-label">Clear search</span><span class="spec-value">Tap ✕ restores full list</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showState(id, tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('state-' + id).classList.add('active');
+  tab.classList.add('active');
+}
+</script>
+</body>
+</html>

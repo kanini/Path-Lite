@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=768, initial-scale=1.0">
+<title>SCR-004 - Patient Recall Search | PATH Lite</title>
+<style>
+  :root {
+    --primary: #1566A7; --primary-dark: #0E4F87; --primary-light: #E8F1F9;
+    --neutral-900: #1A1A1A; --neutral-700: #4A4A4A; --neutral-500: #7A7A7A;
+    --neutral-300: #C4C4C4; --neutral-100: #F5F5F5; --white: #FFFFFF;
+    --error: #D32F2F; --warning: #F57C00; --overlay-scrim: rgba(0,0,0,0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Roboto', sans-serif;
+    background: #E0E0E0; min-height: 100vh;
+    display: flex; align-items: flex-start; justify-content: center; padding: 20px;
+  }
+  .device-frame {
+    width: 768px; min-height: 1024px; background: var(--neutral-100);
+    border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    overflow: hidden; position: relative; display: flex; flex-direction: column;
+  }
+  .status-bar {
+    height: 28px; background: var(--white); display: flex; align-items: center;
+    justify-content: space-between; padding: 0 16px; font-size: 11px; font-weight: 600;
+    color: var(--neutral-900); flex-shrink: 0; border-bottom: 1px solid var(--neutral-300);
+    z-index: 1;
+  }
+  .state-tabs {
+    display: flex; background: var(--neutral-100); border-bottom: 1px solid var(--neutral-300);
+    padding: 8px 16px 0; gap: 4px; flex-shrink: 0; flex-wrap: wrap; z-index: 1;
+  }
+  .state-tab {
+    padding: 7px 12px; font-size: 11px; font-weight: 500; color: var(--neutral-500);
+    cursor: pointer; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none;
+  }
+  .state-tab.active { background: var(--white); color: var(--primary); border-color: var(--neutral-300); }
+  .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; position: relative; }
+  .screen.active { display: flex; }
+
+  /* Dashboard backdrop */
+  .dashboard-backdrop {
+    flex: 1; background: var(--neutral-100); padding: 16px;
+    filter: brightness(0.65); pointer-events: none;
+  }
+  .backdrop-header {
+    height: 56px; background: var(--white); border-radius: 8px; margin-bottom: 10px;
+    display: flex; align-items: center; padding: 0 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  }
+  .backdrop-search { height: 44px; background: var(--white); border-radius: 8px; margin-bottom: 10px; }
+  .backdrop-card {
+    background: var(--white); border-radius: 8px; height: 72px; margin-bottom: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  /* Modal Overlay */
+  .modal-overlay {
+    position: absolute; inset: 0; background: var(--overlay-scrim);
+    display: flex; align-items: center; justify-content: center; z-index: 50;
+  }
+  .modal-container {
+    background: var(--white); border-radius: 12px;
+    width: 90%; max-width: 520px;
+    box-shadow: 0px 8px 24px rgba(0,0,0,0.2);
+    display: flex; flex-direction: column; overflow: hidden;
+    max-height: 90vh;
+  }
+
+  /* Modal Header */
+  .modal-header {
+    height: 56px; display: flex; align-items: center; padding: 0 16px;
+    border-bottom: 1px solid var(--neutral-300); flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  }
+  .modal-header-left { flex: 1; }
+  .modal-header-center { flex: 2; text-align: center; font-size: 18px; font-weight: 600; color: var(--neutral-900); }
+  .modal-header-right { flex: 1; display: flex; justify-content: flex-end; }
+  .cancel-btn { font-size: 15px; font-weight: 500; color: var(--primary); background: none; border: none; cursor: pointer; padding: 8px; }
+  .create-new-btn { font-size: 13px; font-weight: 600; color: var(--primary); background: none; border: none; cursor: pointer; padding: 8px 4px; white-space: nowrap; }
+
+  /* Modal Body */
+  .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+  .modal-instruction { font-size: 14px; color: var(--neutral-700); line-height: 1.5; }
+
+  /* Text Field */
+  .field-group { display: flex; flex-direction: column; gap: 4px; }
+  .field-wrapper { position: relative; height: 52px; }
+  .text-input {
+    width: 100%; height: 52px; border: 1px solid var(--neutral-300);
+    border-radius: 4px; padding: 18px 12px 6px; font-size: 16px;
+    color: var(--neutral-900); background: var(--white); outline: none;
+  }
+  .text-input.focused { border: 2px solid var(--primary); }
+  .text-input.filled { border: 1px solid var(--neutral-300); }
+  .text-input.error-field { border: 2px solid var(--error); }
+  .text-input::placeholder { color: var(--neutral-500); font-style: italic; font-size: 14px; }
+  .field-label-float {
+    position: absolute; top: 6px; left: 13px;
+    font-size: 11px; font-weight: 500; color: var(--neutral-500); pointer-events: none;
+    background: var(--white); padding: 0 2px;
+  }
+  .field-label-float.active { color: var(--primary); }
+  .field-label-float.error-color { color: var(--error); }
+  .required-star { color: var(--error); margin-left: 1px; }
+
+  /* Modal Actions */
+  .modal-actions { padding: 16px 24px; border-top: 1px solid var(--neutral-300); display: flex; gap: 12px; flex-shrink: 0; }
+  .btn-ghost { height: 36px; padding: 0 16px; background: none; color: var(--primary); border: none; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .btn-primary {
+    flex: 1; height: 48px; background: var(--primary); color: var(--white);
+    border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+  .btn-primary.disabled { background: #EEEEEE; color: #9E9E9E; cursor: not-allowed; }
+
+  /* Progress Overlay */
+  .progress-overlay {
+    position: absolute; inset: 0; background: rgba(255,255,255,0.96);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 20px; z-index: 200; padding: 40px;
+  }
+  .logo-small { display: flex; align-items: center; gap: 10px; }
+  .logo-svg-sm { width: 48px; height: 48px; }
+  .logo-text-sm { font-size: 20px; font-weight: 700; color: var(--primary); letter-spacing: 2px; }
+  .progress-message { font-size: 16px; color: var(--neutral-700); text-align: center; max-width: 320px; line-height: 1.5; }
+  .progress-track { width: 60%; max-width: 300px; height: 4px; background: var(--neutral-300); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--primary); border-radius: 2px; }
+  .progress-pct { font-size: 12px; color: var(--neutral-700); }
+  .btn-cancel-ghost { height: 36px; padding: 0 20px; background: none; color: var(--primary); border: none; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: underline; }
+
+  /* Empty State */
+  .empty-state { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px 24px; text-align: center; }
+  .empty-icon { font-size: 48px; color: var(--neutral-300); }
+  .empty-title { font-size: 16px; font-weight: 600; color: var(--neutral-700); }
+  .empty-sub { font-size: 14px; color: var(--neutral-500); line-height: 1.5; }
+
+  /* Results List */
+  .results-list { display: flex; flex-direction: column; gap: 0; }
+  .result-row {
+    padding: 14px 16px; border-bottom: 1px solid var(--neutral-100); cursor: pointer;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .result-row:hover { background: var(--primary-light); }
+  .result-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+  .result-name { font-size: 15px; font-weight: 600; color: var(--neutral-900); }
+  .result-meta { font-size: 13px; color: var(--neutral-500); }
+  .result-chevron { font-size: 18px; color: var(--neutral-500); }
+
+  /* Spec Panel */
+  .spec-panel { background: var(--neutral-100); border-top: 2px solid var(--primary); padding: 10px 16px; font-size: 11px; color: var(--neutral-700); flex-shrink: 0; }
+  .spec-panel h4 { font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .spec-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 3px; }
+  .spec-label { font-weight: 600; color: var(--neutral-900); }
+  .token-chip { display: inline-block; background: var(--white); border: 1px solid var(--neutral-300); border-radius: 3px; padding: 1px 5px; font-size: 10px; font-family: 'Courier New', monospace; color: var(--primary); margin: 1px; }
+</style>
+</head>
+<body>
+<div class="device-frame">
+  <div class="status-bar">
+    <span style="font-weight:700;">12:06 PM</span>
+    <span style="font-size:11px;color:var(--neutral-700);">PATH Lite</span>
+    <div style="display:flex;gap:6px;font-size:11px;"><span>●●●</span><span>WiFi</span><span>96%</span></div>
+  </div>
+  <div class="state-tabs">
+    <div class="state-tab active" onclick="showState('default',this)">Default</div>
+    <div class="state-tab" onclick="showState('filled',this)">Fields Entered</div>
+    <div class="state-tab" onclick="showState('loading',this)">Loading</div>
+    <div class="state-tab" onclick="showState('empty',this)">No Match Found</div>
+    <div class="state-tab" onclick="showState('results',this)">Match Found</div>
+  </div>
+
+  <!-- DEFAULT STATE (modal overlay on dashboard) -->
+  <div class="screen active" id="state-default">
+    <!-- Blurred dashboard backdrop -->
+    <div class="dashboard-backdrop">
+      <div class="backdrop-header"><span style="font-size:14px;color:#999;">Billing Only - KAISER SUNNYSIDE MEDICAL CENTER</span></div>
+      <div class="backdrop-search"></div>
+      <div class="backdrop-card"></div>
+      <div class="backdrop-card"></div>
+      <div class="backdrop-card"></div>
+    </div>
+    <!-- Modal overlay -->
+    <div class="modal-overlay">
+      <div class="modal-container">
+        <div class="modal-header">
+          <div class="modal-header-left"><button class="cancel-btn">Cancel</button></div>
+          <div class="modal-header-center">Recall Patient Data</div>
+          <div class="modal-header-right"></div>
+        </div>
+        <div class="modal-body">
+          <p class="modal-instruction">Enter search criteria to recall patient data.</p>
+          <div class="field-wrapper">
+            <input class="text-input" placeholder="[Enter]"/>
+            <span class="field-label-float">Patient First Name</span>
+          </div>
+          <div class="field-wrapper">
+            <input class="text-input" placeholder="[Enter]"/>
+            <span class="field-label-float">Patient Last Name</span>
+          </div>
+          <div class="field-wrapper">
+            <input class="text-input" placeholder="[Enter]"/>
+            <span class="field-label-float">Medical Record Number (MRN)<span class="required-star">*</span></span>
+          </div>
+          <div class="field-wrapper">
+            <input class="text-input" placeholder="[mm/dd/yyyy]"/>
+            <span class="field-label-float">DOB</span>
+          </div>
+          <div class="field-wrapper">
+            <input class="text-input" placeholder="[Enter]"/>
+            <span class="field-label-float">Admission / Encounter Number</span>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-ghost">Clear</button>
+          <button class="btn-primary disabled">Search</button>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-004 / Default — UXR-102, FR-011, FR-012</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Search Gate</span>: Button disabled until MRN + 1 additional field entered</div>
+        <div><span class="spec-label">MRN</span>: Mandatory field — asterisk (*) indicator</div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">Modal</span>: <span class="token-chip">width 90% max 520px</span> · <span class="token-chip">radius 12px</span> · <span class="token-chip">shadow modal</span></div>
+        <div><span class="spec-label">Disabled Search</span>: <span class="token-chip">#EEEEEE bg</span> · <span class="token-chip">#9E9E9E text</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIELDS ENTERED STATE -->
+  <div class="screen" id="state-filled">
+    <div class="dashboard-backdrop">
+      <div class="backdrop-header"></div>
+      <div class="backdrop-card"></div>
+      <div class="backdrop-card"></div>
+    </div>
+    <div class="modal-overlay">
+      <div class="modal-container">
+        <div class="modal-header">
+          <div class="modal-header-left"><button class="cancel-btn">Cancel</button></div>
+          <div class="modal-header-center">Recall Patient Data</div>
+          <div class="modal-header-right"></div>
+        </div>
+        <div class="modal-body">
+          <p class="modal-instruction">Enter search criteria to recall patient data.</p>
+          <div class="field-wrapper">
+            <input class="text-input filled" value="Nirai" style="padding-top:18px;"/>
+            <span class="field-label-float active">Patient First Name</span>
+          </div>
+          <div class="field-wrapper">
+            <input class="text-input filled" value="Mathi" style="padding-top:18px;"/>
+            <span class="field-label-float active">Patient Last Name</span>
+          </div>
+          <div class="field-wrapper">
+            <input class="text-input filled focused" value="5000" style="padding-top:18px;"/>
+            <span class="field-label-float active">Medical Record Number (MRN)<span class="required-star">*</span></span>
+          </div>
+          <div class="field-wrapper">
+            <input class="text-input" placeholder="[mm/dd/yyyy]"/>
+            <span class="field-label-float">DOB</span>
+          </div>
+          <div class="field-wrapper">
+            <input class="text-input" placeholder="[Enter]"/>
+            <span class="field-label-float">Admission / Encounter Number</span>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-ghost">Clear</button>
+          <button class="btn-primary">Search</button>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-004 / Fields Entered — Search Gate Met</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Search button</span>: Enabled — MRN (5000) + First Name entered ✓</div>
+        <div><span class="spec-label">Search button</span>: <span class="token-chip">#1566A7 bg</span> · <span class="token-chip">#FFFFFF text</span></div>
+        <div><span class="spec-label">Filled fields</span>: <span class="token-chip">label floated top</span> · <span class="token-chip">border #C4C4C4</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING STATE -->
+  <div class="screen" id="state-loading">
+    <div class="dashboard-backdrop">
+      <div class="backdrop-header"></div>
+      <div class="backdrop-card"></div>
+      <div class="backdrop-card"></div>
+    </div>
+    <div class="modal-overlay">
+      <div class="modal-container" style="position:relative;min-height:400px;">
+        <div class="modal-header">
+          <div class="modal-header-left"><button class="cancel-btn">Cancel</button></div>
+          <div class="modal-header-center">Recall Patient Data</div>
+          <div class="modal-header-right"></div>
+        </div>
+        <div class="modal-body" style="filter:blur(2px);pointer-events:none;min-height:200px;">
+          <p class="modal-instruction">Enter search criteria to recall patient data.</p>
+          <div class="field-wrapper"><input class="text-input filled" value="Nirai" style="padding-top:18px;"/><span class="field-label-float active">Patient First Name</span></div>
+          <div class="field-wrapper"><input class="text-input filled" value="5000" style="padding-top:18px;"/><span class="field-label-float active">MRN<span class="required-star">*</span></span></div>
+        </div>
+        <!-- Progress Overlay inside modal -->
+        <div class="progress-overlay" style="position:absolute;inset:0;border-radius:0 0 12px 12px;">
+          <div class="logo-small">
+            <svg class="logo-svg-sm" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="24" fill="#E8F1F9"/>
+              <circle cx="24" cy="24" r="4" fill="#1566A7"/>
+              <line x1="24" y1="24" x2="24" y2="6" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+              <line x1="24" y1="24" x2="24" y2="42" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+              <line x1="24" y1="24" x2="8.6" y2="33" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+              <line x1="24" y1="24" x2="39.4" y2="15" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+              <line x1="24" y1="24" x2="8.6" y2="15" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+              <line x1="24" y1="24" x2="39.4" y2="33" stroke="#1566A7" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="24" cy="6" r="3" fill="#4DB6AC"/>
+              <circle cx="24" cy="42" r="3" fill="#4DB6AC"/>
+              <circle cx="8.6" cy="33" r="3" fill="#4DB6AC"/>
+              <circle cx="39.4" cy="15" r="3" fill="#4DB6AC"/>
+              <circle cx="8.6" cy="15" r="3" fill="#4DB6AC"/>
+              <circle cx="39.4" cy="33" r="3" fill="#4DB6AC"/>
+            </svg>
+            <span class="logo-text-sm">PATH LITE</span>
+          </div>
+          <p class="progress-message">PATH is retrieving data for matching patient</p>
+          <div class="progress-track"><div class="progress-fill" style="width:65%;"></div></div>
+          <span class="progress-pct">65%</span>
+          <button class="btn-cancel-ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-004 / Loading — UXR-502, ProgressOverlay Spec</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Overlay bg</span>: <span class="token-chip">rgba(255,255,255,0.96)</span></div>
+        <div><span class="spec-label">Progress bar</span>: <span class="token-chip">#1566A7 fill</span> · <span class="token-chip">#C4C4C4 track</span> · <span class="token-chip">4px height</span></div>
+        <div><span class="spec-label">Message</span>: "PATH is retrieving data for matching patient"</div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">Cancel button</span>: Ghost/underline link — dismisses search, returns to form</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NO MATCH FOUND STATE -->
+  <div class="screen" id="state-empty">
+    <div class="dashboard-backdrop">
+      <div class="backdrop-header"></div>
+      <div class="backdrop-card"></div>
+    </div>
+    <div class="modal-overlay">
+      <div class="modal-container">
+        <div class="modal-header">
+          <div class="modal-header-left"><button class="cancel-btn">Cancel</button></div>
+          <div class="modal-header-center">Recall Patient Data</div>
+          <div class="modal-header-right"><button class="create-new-btn">Create New Treatment</button></div>
+        </div>
+        <div class="modal-body" style="align-items:center;justify-content:center;">
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <div class="empty-title">No matching patients found</div>
+            <div class="empty-sub">No patient records match MRN "9999" with the provided criteria. You can create a new treatment record for this patient.</div>
+            <button style="height:48px;padding:0 24px;background:var(--primary);color:var(--white);border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;">
+              Create New Treatment
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-004 / No Match Found — UXR-103, FR-015</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Empty State</span>: "No matching patients found. Create new treatment" message (UXR-103)</div>
+        <div><span class="spec-label">CTA</span>: "Create New Treatment" — appears in modal header right AND as primary button in body</div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">Result</span>: Tapping CTA opens SCR-006 with empty form; MRN prefilled from search</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATCH FOUND STATE -->
+  <div class="screen" id="state-results">
+    <div class="dashboard-backdrop">
+      <div class="backdrop-header"></div>
+      <div class="backdrop-card"></div>
+    </div>
+    <div class="modal-overlay">
+      <div class="modal-container">
+        <div class="modal-header">
+          <div class="modal-header-left"><button class="cancel-btn">Cancel</button></div>
+          <div class="modal-header-center">Recall Patient Data</div>
+          <div class="modal-header-right"></div>
+        </div>
+        <div class="modal-body" style="padding:0;">
+          <div style="padding:16px 24px;border-bottom:1px solid var(--neutral-300);">
+            <p style="font-size:13px;color:var(--neutral-500);">1 patient found for MRN "5000". Select to prefill form.</p>
+          </div>
+          <div class="results-list">
+            <div class="result-row">
+              <div style="width:40px;height:40px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--primary);flex-shrink:0;">M</div>
+              <div class="result-info">
+                <div class="result-name">Mathi, Nirai T.</div>
+                <div class="result-meta">MRN: 5000 · DOB: 01/01/2000 · Male · 26 yrs</div>
+                <div class="result-meta">Kaiser Sunnyside Medical Center</div>
+              </div>
+              <span class="result-chevron">›</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-004 / Match Found — FR-014</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Result count</span>: "1 patient found for MRN [X]"</div>
+        <div><span class="spec-label">Row tap</span>: Dismisses modal → opens SCR-006 with patient data prefilled</div>
+        <div><span class="spec-label">Multiple matches</span>: List shows all matches; nurse selects one</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showState(id, tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('state-' + id).classList.add('active');
+  tab.classList.add('active');
+}
+</script>
+</body>
+</html>
