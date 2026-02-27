@@ -1,0 +1,438 @@
+BUSINESS REQUIREMENTS DOCUMENT (BRD)
+
+Project Name:
+PATH Lite – AI-Driven Mobile Conversational Data Entry System
+
+
+1. Problem Statement
+Currently, nurses using the PATH Lite system manually enter patient demographic, admission, and treatment details through structured forms on tablet devices.
+
+Existing Challenges:
+- Manual data entry is time-consuming
+- Increased cognitive load on nurses
+- Higher probability of incomplete documentation
+- Navigation across multiple screens increases workflow friction
+- No voice or AI assistance exists
+- No intelligent validation beyond basic form checks
+- No guided completion mechanism for mandatory fields
+
+This results in:
+- Reduced documentation efficiency
+- Delays in patient processing
+- Increased risk of data errors
+- Lower productivity
+
+There is a need to simplify and automate structured data collection without disrupting existing workflows.
+
+
+2. Proposed Solution
+Develop a Mobile Application (iOS & Android) with an embedded AI Conversational Assistant that enables structured, field-level patient data entry through voice interaction.
+
+The solution will:
+- Guide nurses through sequential AI-driven questions
+- Convert speech to structured data fields
+- Enforce strict validation rules
+- Prevent skipping mandatory fields
+- Allow optional field null handling
+- Provide clarification using NLP
+- Handle no-response scenarios
+- Save partial sessions
+- Resume from first unanswered question
+- Provide confirmation screen before submission
+
+The system will integrate seamlessly into the existing PATH Lite workflow.
+
+
+3. Scope of the Solution
+
+Included in Scope:
+- Mobile application (iOS & Android)
+- Nurse authentication
+- Hospital selection
+- Existing Patient List for Selected Hospital
+- Add New → Hemodialysis workflow (Phase 1)
+- Patient recall search
+- AI voice-based patient details entry
+- Field validation engine
+- Confirmation & edit screen
+- Session resume capability
+- Audit logging
+
+Out of Scope:
+- Production EHR integration
+- Full PATH Lite replacement
+- Integration with live hospital systems
+- Non-Hemodialysis treatments (Phase 1)
+
+
+4. End-to-End User Flow
+
+Step 1: Login
+- Nurse enters credentials
+- Secure authentication performed
+- Redirect to Hospital Selection
+
+Step 2: Hospital Selection
+- Searchable hospital list
+- Nurse selects hospital
+- Redirect to Patient Dashboard
+
+Step 3: Patient Dashboard
+- All Patients (Active / Completed)
+- "Add New" button
+
+Step 4: Add New → Hemodialysis
+- Nurse selects Add New
+- Select Hemodialysis (Phase 1 only)
+- Open Patient Recall Search popup
+
+Step 5: Patient Recall Search
+Fields:
+- Patient First Name
+- Patient Last Name
+- Medical Record Number (MRN)
+- DOB
+- Admission / Encounter Number
+
+Search Button Enable Rule:
+- Minimum two fields entered including MRN
+- MRN is mandatory for search execution
+
+Step 6: Patient Exists Check
+If patient exists:
+- Redirect to treatment page
+- Display patient details with prefilled data
+- Show required forms list
+- Form fields filled using AI solution
+
+If patient does not exist:
+- Nurse can add new patient with MRN and other details
+- Redirect to treatment page for manual/AI entry
+
+
+5. Treatment Page – AI Integration
+
+Patient Details Form:
+
+Section 1: Demographics & Admission
+- MRN (Required)
+- Patient First Name (Required)
+- Patient Middle Initial / Name
+- Patient Last Name (Required)
+- DOB (Required)
+- Admission / Encounter Number
+- Gender (Required: Male / Female)
+- Treatment Location (Required: OR, Bedside, ICU/CCU, ER, Multi-Tx Room)
+- Room Number (Required)
+
+Section 2: Clinical Intake
+- HBsAg (Required: Positive / Negative / Unknown)
+- Date Drawn
+- Source (Hospital / Davita Patient Portal / Non-Davita Source)
+- HBsAb (Required: Immune Value)
+- Date Drawn
+- Source (Hospital / Davita Patient Portal / Non-Davita Source)
+
+An AI Voice Icon must be present to activate conversational mode.
+
+Section 3: UI/UX Requirements
+- Application MUST be responsive across different screen sizes (tablets: 7-inch to 12.9-inch)
+- Application MUST support both portrait and landscape orientations
+- Primary theme color: #1566A7 (Blue)
+- Consistent color scheme throughout the application
+- Touch-friendly UI elements with minimum 44x44pt tap targets
+- Clear visual hierarchy and readability in clinical lighting conditions
+
+6. AI Conversational Workflow
+
+Form Entry Flow:
+1. Form opens and Text-to-Speech (TTS) is automatically activated
+2. AI asks first structured question using TTS
+3. Nurse responds via voice
+4. Speech-to-Text (STT) converts voice to text
+5. LLM cleans and extracts relevant data from response
+6. Cleaned data is validated
+7. Field is mapped and filled
+8. Next question is triggered
+
+Detailed Workflow:
+When AI is activated:
+- Text-to-Speech reads question aloud
+- Nurse responds via voice
+- Speech-to-Text converts response to text
+- LLM processes response to extract clean data
+- Cleaned text is validated against field rules
+- Field is mapped with extracted value
+- Next question is triggered
+
+Example 1 - Simple Response:
+AI (TTS): "Please provide Medical Record Number."
+Nurse: "5000"
+STT Output: "5000"
+LLM Cleaning: "5000" (no cleaning needed)
+System validates numeric format and fills MRN field.
+
+Example 2 - Conversational Response:
+AI (TTS): "What is the patient's first name?"
+Nurse: "Patient name is Chaman"
+STT Output: "Patient name is Chaman"
+LLM Cleaning: "Chaman" (extracts only the name)
+System validates alphabetic format and fills First Name field.
+
+Example 3 - Complex Response:
+AI (TTS): "What is the patient's date of birth?"
+Nurse: "The patient was born on January 15th, 1980"
+STT Output: "The patient was born on January 15th, 1980"
+LLM Cleaning: "01/15/1980" (extracts and formats date)
+System validates date format and fills DOB field.
+
+LLM Data Cleaning Rules:
+- Extract only the relevant answer from conversational responses
+- Remove filler words: "the", "is", "was", "patient", "name", etc.
+- Standardize date formats to MM/DD/YYYY
+- Normalize text casing (proper case for names)
+- Remove punctuation except where required (dates, decimals)
+- Preserve numeric values exactly as spoken
+- Handle common speech patterns: "uh", "um", "like"
+
+7. Field Validation Requirements
+
+Mandatory Fields:
+- Must not be skipped
+- AI must re-ask until valid input provided
+- Submission blocked if incomplete
+
+Optional Fields:
+- May be skipped
+- Must be stored as NULL or predefined default value
+
+8. Post Speech-to-Text Validation Layer
+After speech conversion, system must perform:
+
+1. Schema Validation
+- Ensure field exists in form schema
+
+2. Data Type Validation
+- String
+- Integer
+- Date
+- Enum
+- Boolean
+
+3. Regex Validation
+Examples:
+- MRN → Numeric only
+- Phone → Pattern check
+- ID → Format check
+
+4. Email Format Validation
+- RFC-compliant validation for email fields
+
+If validation fails:
+- AI must request corrected input
+
+9. Clarification Handling Using NLP
+If nurse says:
+- "Repeat"
+- "What do you mean?"
+- "I don’t understand"
+
+System must:
+- Detect clarification intent
+- Rephrase or repeat question
+- Continue same field context
+
+10. No-Response Handling Protocol
+If nurse does not respond:
+- Wait 5 seconds
+- Repeat question
+- Retry up to 3 times
+
+After 3 failed attempts:
+- Auto-close AI session
+- Save partial data
+- Notify nurse of session closure
+
+11. Session Continuity & Resume
+If AI session closes before completion:
+- Save partial data
+- Store last unanswered field index
+- Maintain session state
+
+When reopened:
+- Resume from first unanswered question
+- Do not restart from beginning
+
+12. Review & Continue Flow
+
+Button Behavior:
+Initially:
+- Review button – Enabled
+- Continue button – Disabled
+
+Continue should only be enabled after:
+- Review passes
+- Validation errors resolved
+
+13. AI-Driven Review Flow
+
+When nurse says:
+- "Please review the form"
+
+System Should:
+- Trigger the same backend logic as Review button
+
+Perform:
+- Schema validation
+- Data type validation
+- Regex validation
+- Required field validation
+
+Identify:
+- Field-level errors
+- Warning messages
+- Mismatched values
+
+AI Should:
+- Verbally summarize errors
+- Indicate which section contains errors
+- Ask nurse if they want to edit
+
+Example:
+Nurse: "Please review the form"
+AI (TTS): "I found 2 errors. In Demographics section, Date of Birth format is invalid. In Clinical Intake section, HBsAb value is missing. Would you like to edit these fields?"
+
+14. Error Correction Flow
+
+If nurse responds:
+- "Yes, edit"
+
+System should:
+- Navigate to first erroneous field
+- Auto-focus that field
+- AI should re-ask only that specific question
+- Nurse provides corrected answer
+- Speech → Text → LLM Cleaning → Validation → Update field
+
+After corrections:
+- Automatically return to Review screen
+- Trigger validation again
+
+Example:
+Nurse: "Yes, edit"
+AI (TTS): "Let's correct the Date of Birth. What is the patient's date of birth?"
+Nurse: "January 15th, 1980"
+STT Output: "January 15th, 1980"
+LLM Cleaning: "01/15/1980"
+System validates and updates DOB field.
+AI (TTS): "Date of Birth updated. Moving to next error. What is the HBsAb immune value?"
+
+15. Validation Success Flow
+
+If all validations pass:
+AI should say:
+- "All fields are valid. Do you want to submit?"
+- Wait for response
+
+If nurse says:
+- "Submit"
+
+System should:
+- Save form
+- Generate report
+
+Example:
+AI (TTS): "All fields are valid. Do you want to submit?"
+Nurse: "Submit"
+System saves form and generates report.
+AI (TTS): "Form submitted successfully. Report is being generated."
+
+16. Continue Button Logic
+
+After review:
+AI should ask:
+- "Do you want to continue?"
+
+If nurse says:
+- "Continue"
+
+System should:
+- Enable Continue button
+- Trigger Continue action
+
+After Continue:
+- Show two buttons:
+  - View Report
+  - Submit
+
+Example:
+AI (TTS): "Review complete. Do you want to continue?"
+Nurse: "Continue"
+System enables Continue button and shows View Report and Submit buttons.
+
+17. Report & Final Submission Flow
+
+View Report:
+- Opens generated report based on submitted form data
+- AI should wait for user instruction
+
+If nurse says:
+- "Report looks fine, submit"
+
+System should:
+- Trigger final submission action
+- Save to database
+- Generate confirmation
+
+Example:
+Nurse: "View report"
+System displays generated report.
+AI (TTS): "Report is displayed. Please review and let me know if you want to submit."
+Nurse: "Report looks fine, submit"
+System triggers final submission.
+AI (TTS): "Form submitted successfully. Patient record has been saved."
+
+18. Functional Requirements Summary
+- Secure Login (Mock, no database for Phase 1)
+- Hospital Selection
+- Patient Recall Search
+- MRN Mandatory Enforcement
+- AI Sequential Question Flow
+- Speech-to-Text Engine
+- Validation Engine
+- Clarification Intent Detection
+- Retry Mechanism
+- Session Resume
+- Confirmation Screen
+
+15. Technical Architecture Overview
+
+Frontend (Mobile App - Android / IOS):
+- React Native (cross-platform responsive)
+- Responsive design for screen sizes: 7-inch to 12.9-inch tablets
+- Portrait and landscape orientation support
+- Theme: Primary color #1566A7 (Blue)
+- Text-to-Speech: react-native-tts
+- Speech-to-Text: @react-native-voice/voice
+- Microphone integration
+- Local state management
+- Offline cache for partial sessions
+
+Frontend (Web Application):
+- React.js (responsive design for tablets and iPads)
+- Web Speech API for microphone integration
+- State management (Redux/Context API)
+- Browser session storage for partial sessions
+
+Backend:
+- RESTful API (FastAPI)
+- AI Orchestration Service (Azure OpenAI API gpt-5-mini)
+- LLM Data Cleaning Service (extracts clean answers from conversational responses)
+- Rule Engine
+- Validation Engine
+- Session Management Service
+
+AI Services:
+- Text-to-Speech: react-native-tts (device-native)
+- Speech-to-Text: @react-native-voice/voice (device-native)
+- LLM Processing: Azure OpenAI GPT-5-mini for data extraction and cleaning
