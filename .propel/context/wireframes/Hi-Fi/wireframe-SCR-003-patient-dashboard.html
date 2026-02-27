@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=768, initial-scale=1.0">
+<title>SCR-003 - Patient Dashboard | PATH Lite</title>
+<style>
+  :root {
+    --primary: #1566A7; --primary-dark: #0E4F87; --primary-light: #E8F1F9;
+    --neutral-900: #1A1A1A; --neutral-700: #4A4A4A; --neutral-500: #7A7A7A;
+    --neutral-300: #C4C4C4; --neutral-100: #F5F5F5; --white: #FFFFFF;
+    --error: #D32F2F; --warning: #F57C00; --warning-bg: #FFF3E0; --success: #388E3C; --success-bg: #E8F5E9;
+    --status-ns: #757575; --status-ns-bg: #EEEEEE;
+    --status-ip: #1566A7; --status-ip-bg: #E8F1F9;
+    --status-recv: #388E3C; --status-recv-bg: #E8F5E9;
+    --status-sub: #0E4F87; --status-sub-bg: #D0E4F5;
+    --status-amend: #E65100; --status-amend-bg: #FBE9E7;
+    --overlay-scrim: rgba(0,0,0,0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Roboto', sans-serif;
+    background: #E0E0E0; min-height: 100vh;
+    display: flex; align-items: flex-start; justify-content: center; padding: 20px;
+  }
+  .device-frame {
+    width: 768px; min-height: 1024px; background: var(--white);
+    border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    overflow: hidden; position: relative; display: flex; flex-direction: column;
+  }
+  .status-bar {
+    height: 28px; background: var(--white); display: flex; align-items: center;
+    justify-content: space-between; padding: 0 16px; font-size: 11px; font-weight: 600;
+    color: var(--neutral-900); flex-shrink: 0; border-bottom: 1px solid var(--neutral-300);
+  }
+  .state-tabs {
+    display: flex; background: var(--neutral-100); border-bottom: 1px solid var(--neutral-300);
+    padding: 8px 16px 0; gap: 4px; flex-shrink: 0; flex-wrap: wrap;
+  }
+  .state-tab {
+    padding: 7px 12px; font-size: 11px; font-weight: 500; color: var(--neutral-500);
+    cursor: pointer; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none;
+  }
+  .state-tab.active { background: var(--white); color: var(--primary); border-color: var(--neutral-300); }
+  .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+  .screen.active { display: flex; }
+
+  /* Header */
+  .app-header {
+    height: 56px; background: var(--white);
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.08);
+    display: flex; align-items: center; padding: 0 16px; flex-shrink: 0; position: relative; z-index: 5;
+  }
+  .header-left { flex: 1; }
+  .header-center { flex: 2; text-align: center; font-size: 20px; font-weight: 600; color: var(--neutral-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .header-right { flex: 1; display: flex; justify-content: flex-end; }
+  .nurse-btn { font-size: 14px; font-weight: 500; color: var(--primary); background: none; border: none; cursor: pointer; }
+  .btn-primary-sm {
+    height: 36px; padding: 0 16px; background: var(--primary); color: var(--white);
+    border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+
+  /* Search */
+  .search-container { padding: 10px 16px; background: var(--white); border-bottom: 1px solid var(--neutral-300); flex-shrink: 0; }
+  .search-bar {
+    height: 44px; background: var(--neutral-100); border: 1px solid var(--neutral-300);
+    border-radius: 8px; display: flex; align-items: center; padding: 0 12px; gap: 8px;
+  }
+  .search-input-placeholder { font-size: 14px; font-weight: 500; color: var(--neutral-500); }
+
+  /* Tabs */
+  .tab-bar {
+    display: flex; border-bottom: 1px solid var(--neutral-300);
+    background: var(--white); height: 44px; flex-shrink: 0;
+  }
+  .tab {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 500; color: var(--neutral-500); cursor: pointer;
+    border-bottom: 2px solid transparent; position: relative; top: 1px;
+  }
+  .tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+
+  /* Patient List */
+  .patient-list { flex: 1; overflow-y: auto; background: var(--neutral-100); }
+  .section-header {
+    padding: 8px 16px; background: var(--neutral-100);
+    font-size: 12px; font-weight: 600; color: var(--neutral-700);
+    text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--neutral-300);
+    border-top: 1px solid var(--neutral-300);
+  }
+  .patient-card {
+    background: var(--white); padding: 12px 16px; border-bottom: 1px solid var(--neutral-300);
+    display: flex; align-items: flex-start; gap: 8px; cursor: pointer; min-height: 72px;
+    position: relative;
+  }
+  .patient-card:hover { background: var(--primary-light); }
+  .patient-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+  .patient-name { font-size: 16px; font-weight: 600; color: var(--neutral-900); }
+  .patient-meta { font-size: 13px; color: var(--neutral-700); }
+  .patient-meta-sm { font-size: 12px; color: var(--neutral-500); }
+  .patient-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .status-badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 500; white-space: nowrap;
+  }
+  .badge-ns { color: var(--status-ns); background: var(--status-ns-bg); }
+  .badge-ip { color: var(--status-ip); background: var(--status-ip-bg); }
+  .badge-recv { color: var(--status-recv); background: var(--status-recv-bg); }
+  .badge-sub { color: var(--status-sub); background: var(--status-sub-bg); }
+  .badge-amend { color: var(--status-amend); background: var(--status-amend-bg); }
+  .three-dot-btn {
+    width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: var(--neutral-500); cursor: pointer; border-radius: 8px;
+    background: none; border: none; flex-shrink: 0;
+  }
+  .three-dot-btn:hover { background: var(--neutral-100); }
+
+  /* Context Menu Dropdown */
+  .context-menu {
+    position: absolute; right: 60px; top: 8px;
+    background: var(--white); border: 1px solid var(--neutral-300);
+    border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 50; min-width: 180px; overflow: hidden;
+  }
+  .context-menu-item {
+    padding: 14px 16px; font-size: 14px; color: var(--neutral-900);
+    cursor: pointer; border-bottom: 1px solid var(--neutral-100);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .context-menu-item:hover { background: var(--primary-light); }
+  .context-menu-item:last-child { border-bottom: none; }
+
+  /* Dialog / Modal overlay */
+  .overlay-scrim {
+    position: absolute; inset: 0; background: var(--overlay-scrim); z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dialog-box {
+    background: var(--white); border-radius: 12px; padding: 24px;
+    width: 90%; max-width: 380px;
+    box-shadow: 0px 8px 24px rgba(0,0,0,0.2);
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .dialog-title { font-size: 17px; font-weight: 600; color: var(--neutral-900); text-align: center; }
+  .dialog-body { font-size: 14px; color: var(--neutral-700); text-align: center; line-height: 1.5; }
+  .dialog-actions { display: flex; gap: 12px; }
+  .btn-secondary {
+    flex: 1; height: 48px; background: var(--white); color: var(--primary);
+    border: 1.5px solid var(--primary); border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+  .btn-primary-full {
+    flex: 1; height: 48px; background: var(--primary); color: var(--white);
+    border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+
+  /* Action Sheet */
+  .action-sheet {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--white); border-radius: 12px 12px 0 0;
+    box-shadow: 0px -4px 16px rgba(0,0,0,0.15); z-index: 110;
+    overflow: hidden;
+  }
+  .action-sheet-header {
+    padding: 14px 16px; border-bottom: 1px solid var(--neutral-300);
+    font-size: 15px; font-weight: 600; color: var(--neutral-900); text-align: center;
+  }
+  .action-sheet-item {
+    padding: 16px 20px; font-size: 16px; color: var(--neutral-900);
+    border-bottom: 1px solid var(--neutral-100); cursor: pointer;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .action-sheet-item:hover { background: var(--primary-light); }
+  .action-sheet-cancel {
+    padding: 16px 20px; font-size: 16px; font-weight: 600;
+    color: var(--error); text-align: center; cursor: pointer;
+  }
+
+  /* Not Connected Dialog */
+  .error-dialog-icon {
+    width: 48px; height: 48px; background: #FFEBEE; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin: 0 auto;
+  }
+
+  /* Spec Panel */
+  .spec-panel {
+    background: var(--neutral-100); border-top: 2px solid var(--primary);
+    padding: 10px 16px; font-size: 11px; color: var(--neutral-700); flex-shrink: 0;
+  }
+  .spec-panel h4 { font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .spec-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 3px; }
+  .spec-label { font-weight: 600; color: var(--neutral-900); }
+  .token-chip { display: inline-block; background: var(--white); border: 1px solid var(--neutral-300); border-radius: 3px; padding: 1px 5px; font-size: 10px; font-family: 'Courier New', monospace; color: var(--primary); margin: 1px; }
+</style>
+</head>
+<body>
+<div class="device-frame">
+  <div class="status-bar">
+    <span style="font-weight:700;">12:04 PM</span>
+    <span style="font-size:11px;color:var(--neutral-700);">PATH Lite</span>
+    <div style="display:flex;gap:6px;font-size:11px;"><span>●●●</span><span>WiFi</span><span>96%</span></div>
+  </div>
+
+  <div class="state-tabs">
+    <div class="state-tab active" onclick="showState('default',this)">Default</div>
+    <div class="state-tab" onclick="showState('contextmenu',this)">Context Menu</div>
+    <div class="state-tab" onclick="showState('reusewarn',this)">Reuse Warning</div>
+    <div class="state-tab" onclick="showState('amendpicker',this)">Amend Picker</div>
+    <div class="state-tab" onclick="showState('notconnected',this)">Not Connected</div>
+    <div class="state-tab" onclick="showState('postsubmit',this)">Post-Submit</div>
+  </div>
+
+  <!-- DEFAULT STATE -->
+  <div class="screen active" id="state-default">
+    <div class="app-header">
+      <div class="header-left"><button class="nurse-btn">Tanadars, RN</button></div>
+      <div class="header-center" style="font-size:16px;">Billing Only - KAISER SUNNYSIDE MEDICAL CENTER</div>
+      <div class="header-right"><button class="btn-primary-sm">+ Add New</button></div>
+    </div>
+    <div class="search-container">
+      <div class="search-bar">
+        <span style="font-size:16px;color:var(--neutral-500);">🔍</span>
+        <span class="search-input-placeholder">Search Patients by Last Name, First Name or MRN</span>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab">My Patients</div>
+      <div class="tab active">All Patients</div>
+    </div>
+    <div class="patient-list">
+      <div class="section-header">Active</div>
+
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Cooper, KJ</div>
+          <div class="patient-meta">1001 · Hemodialysis · Created: 01/02/2026 16:07 IST · Tx Start: 01/02/2026 16:55 IST</div>
+          <div class="patient-meta-sm">Mounisha Tanadars, RN</div>
+        </div>
+        <div class="patient-right">
+          <span class="status-badge badge-ip">Tx In Progress</span>
+        </div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Gore, Mahesh</div>
+          <div class="patient-meta">987 · Hemodialysis · Created: 10/21/2025 15:56 IST</div>
+          <div class="patient-meta-sm">Mounisha Tanadars, RN</div>
+        </div>
+        <div class="patient-right">
+          <span class="status-badge badge-ns">Not Started</span>
+        </div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Grost, Fivad</div>
+          <div class="patient-meta">36742 · Non-Treatment Service(s) · Created: 01/29/2026 12:55 IST</div>
+          <div class="patient-meta-sm">Swati Gore, RN</div>
+        </div>
+        <div class="patient-right">
+          <span class="status-badge badge-ns">Not Started</span>
+        </div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Hea I, Hea</div>
+          <div class="patient-meta">100 · Apheresis · Created: 01/29/2026 15:59 IST</div>
+          <div class="patient-meta-sm">Mounisha Tanadars, RN</div>
+        </div>
+        <div class="patient-right">
+          <span class="status-badge badge-ns">Not Started</span>
+        </div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Henry col, Henry</div>
+          <div class="patient-meta">MRN101 · Hemodialysis · Created: 01/28/2026 12:19 IST</div>
+          <div class="patient-meta-sm">Mounisha Tanadars, RN</div>
+        </div>
+        <div class="patient-right">
+          <span class="status-badge badge-ns">Not Started</span>
+        </div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Stest, Mtest</div>
+          <div class="patient-meta">MRN101 · Peritoneal Dialysis - Treatment Initiation · Created: 02/10/2026 13:45 IST</div>
+          <div class="patient-meta-sm">Krishnakumar Swaminathan, RN</div>
+        </div>
+        <div class="patient-right">
+          <span class="status-badge badge-ns">Not Started</span>
+        </div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Test 1, Tils 1</div>
+          <div class="patient-meta">1234 · Apheresis · Created: 01/28/2026 12:26 IST</div>
+          <div class="patient-meta-sm">Mounisha Tanadars, RN</div>
+        </div>
+        <div class="patient-right">
+          <span class="status-badge badge-ns">Not Started</span>
+        </div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+
+      <div class="section-header">Completed</div>
+
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Crrt, Crrt</div>
+          <div class="patient-meta">200 · CRRT - Therapy Initiation &amp; Rounding Visit · Created: 02/17/2026 10:19 IST</div>
+          <div class="patient-meta-sm">Tx Start: 02/17/2026 10:20 IST · Mounisha Tanadars, RN</div>
+        </div>
+        <div class="patient-right">
+          <span class="status-badge badge-recv">Received</span>
+        </div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Crrt, Crrt</div>
+          <div class="patient-meta">200 · CRRT - Therapy End (No Rounding) · Created: 02/17/2026 10:22 IST</div>
+          <div class="patient-meta-sm">Tx Start: 02/17/2026 10:20 IST · Mounisha Tanadars, RN</div>
+        </div>
+        <div class="patient-right">
+          <span class="status-badge badge-sub">Submitted</span>
+        </div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-003 / Default — Component Specs</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Header</span>: Nurse name · "Billing Only - [HOSPITAL]" · "Add New" button</div>
+        <div><span class="spec-label">Tabs</span>: My Patients / All Patients · <span class="token-chip">44px height</span></div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">PatientCard</span>: <span class="token-chip">min 72px</span> · name bold body_lg · status badge right · 3-dot menu far right <span class="token-chip">44×44pt</span></div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">Status Badges</span>: Not Started <span class="token-chip">#EEEEEE</span> · Tx In Progress <span class="token-chip">#E8F1F9</span> · Received <span class="token-chip">#E8F5E9</span> · Submitted <span class="token-chip">#D0E4F5</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTEXT MENU STATE -->
+  <div class="screen" id="state-contextmenu">
+    <div class="app-header">
+      <div class="header-left"><button class="nurse-btn">Tanadars, RN</button></div>
+      <div class="header-center" style="font-size:16px;">Billing Only - KAISER SUNNYSIDE MEDICAL CENTER</div>
+      <div class="header-right"><button class="btn-primary-sm">+ Add New</button></div>
+    </div>
+    <div class="search-container">
+      <div class="search-bar"><span style="font-size:16px;color:var(--neutral-500);">🔍</span><span class="search-input-placeholder">Search Patients by Last Name, First Name or MRN</span></div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab">My Patients</div>
+      <div class="tab active">All Patients</div>
+    </div>
+    <div class="patient-list">
+      <div class="section-header">Active</div>
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Cooper, KJ</div>
+          <div class="patient-meta">1001 · Hemodialysis · Created: 01/02/2026 16:07 IST</div>
+          <div class="patient-meta-sm">Mounisha Tanadars, RN</div>
+        </div>
+        <div class="patient-right"><span class="status-badge badge-ip">Tx In Progress</span></div>
+        <button class="three-dot-btn" style="color:var(--primary);">⋮</button>
+        <!-- Context Menu -->
+        <div class="context-menu">
+          <div class="context-menu-item">Hemodialysis</div>
+        </div>
+      </div>
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Gore, Mahesh</div>
+          <div class="patient-meta">987 · Hemodialysis · Created: 10/21/2025 15:56 IST</div>
+        </div>
+        <div class="patient-right"><span class="status-badge badge-ns">Not Started</span></div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+      <div class="section-header">Completed</div>
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Crrt, Crrt</div>
+          <div class="patient-meta">200 · CRRT - Therapy End (No Rounding)</div>
+        </div>
+        <div class="patient-right"><span class="status-badge badge-sub">Submitted</span></div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-003 / Context Menu (Active Patient) — UXR-506, UXR-507</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Trigger</span>: Tap ⋮ three-dot button per row</div>
+        <div><span class="spec-label">Active patient options</span>: "Hemodialysis" → opens treatment form</div>
+        <div><span class="spec-label">Submitted patient</span>: "Amend" option (see Amend Picker state)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TREATMENT REUSE WARNING -->
+  <div class="screen" id="state-reusewarn">
+    <div class="app-header">
+      <div class="header-left"><button class="nurse-btn">Tanadars, RN</button></div>
+      <div class="header-center" style="font-size:16px;">Billing Only - KAISER SUNNYSIDE MEDICAL CENTER</div>
+      <div class="header-right"><button class="btn-primary-sm">+ Add New</button></div>
+    </div>
+    <div class="search-container">
+      <div class="search-bar"><span style="font-size:16px;color:var(--neutral-500);">🔍</span><span class="search-input-placeholder">Search Patients...</span></div>
+    </div>
+    <div class="tab-bar"><div class="tab">My Patients</div><div class="tab active">All Patients</div></div>
+    <div class="patient-list" style="filter:brightness(0.6);">
+      <div class="section-header">Completed</div>
+      <div class="patient-card"><div class="patient-info"><div class="patient-name">Crrt, Crrt</div><div class="patient-meta">200 · CRRT</div></div><div class="patient-right"><span class="status-badge badge-sub">Submitted</span></div><button class="three-dot-btn">⋮</button></div>
+    </div>
+    <!-- Scrim + Dialog -->
+    <div class="overlay-scrim">
+      <div class="dialog-box">
+        <div style="text-align:center;font-size:32px;">⚠️</div>
+        <div class="dialog-title">Treatment Already Submitted</div>
+        <div class="dialog-body">Treatments from the completed section can only be initiated once. This treatment has already been submitted and cannot be reused.</div>
+        <div class="dialog-actions">
+          <button class="btn-secondary">Cancel</button>
+          <button class="btn-primary-full">OK</button>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-003 / Treatment Reuse Warning — UXR-506</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Trigger</span>: Tap completed-section treatment row</div>
+        <div><span class="spec-label">Dialog</span>: <span class="token-chip">width 70% max 400px</span> · <span class="token-chip">radius 12px</span> · <span class="token-chip">shadow modal</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AMEND REASON PICKER (Action Sheet) -->
+  <div class="screen" id="state-amendpicker">
+    <div class="app-header">
+      <div class="header-left"><button class="nurse-btn">Tanadars, RN</button></div>
+      <div class="header-center" style="font-size:16px;">Billing Only - KAISER SUNNYSIDE MEDICAL CENTER</div>
+      <div class="header-right"><button class="btn-primary-sm">+ Add New</button></div>
+    </div>
+    <div class="search-container"><div class="search-bar"><span style="font-size:16px;color:var(--neutral-500);">🔍</span><span class="search-input-placeholder">Search Patients...</span></div></div>
+    <div class="tab-bar"><div class="tab">My Patients</div><div class="tab active">All Patients</div></div>
+    <div class="patient-list" style="position:relative;">
+      <div class="section-header">Completed</div>
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Crrt, Crrt</div>
+          <div class="patient-meta">200 · CRRT - Therapy End (No Rounding) · Submitted</div>
+        </div>
+        <div class="patient-right"><span class="status-badge badge-sub">Submitted</span></div>
+        <button class="three-dot-btn" style="color:var(--primary);">⋮</button>
+        <div class="context-menu" style="right:60px;">
+          <div class="context-menu-item">Amend</div>
+        </div>
+      </div>
+      <!-- Action Sheet overlay -->
+      <div style="position:absolute;inset:0;background:var(--overlay-scrim);">
+        <div class="action-sheet" style="bottom:0;position:absolute;">
+          <div class="action-sheet-header">Select Amend Reason</div>
+          <div class="action-sheet-item">
+            <span style="font-size:18px;">📝</span>
+            <div>
+              <div style="font-size:15px;font-weight:600;">Entered in Error</div>
+              <div style="font-size:12px;color:var(--neutral-500);">Data was entered incorrectly</div>
+            </div>
+          </div>
+          <div class="action-sheet-item">
+            <span style="font-size:18px;">📋</span>
+            <div>
+              <div style="font-size:15px;font-weight:600;">Omitted in Error</div>
+              <div style="font-size:12px;color:var(--neutral-500);">Required data was omitted</div>
+            </div>
+          </div>
+          <div class="action-sheet-cancel">Cancel</div>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-003 / Amend Reason Picker — UXR-507</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Trigger</span>: Tap "Amend" from ⋮ context menu on submitted patient</div>
+        <div><span class="spec-label">ActionSheet</span>: <span class="token-chip">slides from bottom</span> · <span class="token-chip">radius 12px top</span></div>
+        <div><span class="spec-label">Options</span>: "Entered in Error" · "Omitted in Error" · Cancel</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOT CONNECTED ERROR DIALOG -->
+  <div class="screen" id="state-notconnected">
+    <div class="app-header">
+      <div class="header-left"><button class="nurse-btn">Tanadars, RN</button></div>
+      <div class="header-center" style="font-size:16px;">Billing Only - KAISER SUNNYSIDE MEDICAL CENTER</div>
+      <div class="header-right"><button class="btn-primary-sm">+ Add New</button></div>
+    </div>
+    <div class="search-container"><div class="search-bar"><span style="font-size:16px;color:var(--neutral-500);">🔍</span><span class="search-input-placeholder">Search Patients...</span></div></div>
+    <div class="tab-bar"><div class="tab">My Patients</div><div class="tab active">All Patients</div></div>
+    <div class="patient-list" style="filter:brightness(0.6);">
+      <div class="section-header">Completed</div>
+      <div class="patient-card"><div class="patient-info"><div class="patient-name">Crrt, Crrt</div></div><div class="patient-right"><span class="status-badge badge-sub">Submitted</span></div><button class="three-dot-btn">⋮</button></div>
+    </div>
+    <div class="overlay-scrim">
+      <div class="dialog-box">
+        <div class="error-dialog-icon">📡</div>
+        <div class="dialog-title">Not Connected</div>
+        <div class="dialog-body" style="color:var(--error);">You need to be online to amend. Try again when you are connected.</div>
+        <div class="dialog-actions">
+          <button class="btn-primary-full">OK</button>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-003 / Not Connected Error — UXR-603</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Trigger</span>: Tap Amend without network connectivity</div>
+        <div><span class="spec-label">Message</span>: "Not Connected - You need to be online to amend. Try again when you are connected."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST-SUBMIT STATE -->
+  <div class="screen" id="state-postsubmit">
+    <div class="app-header">
+      <div class="header-left"><button class="nurse-btn">Tanadars, RN</button></div>
+      <div class="header-center" style="font-size:16px;">Billing Only - KAISER SUNNYSIDE MEDICAL CENTER</div>
+      <div class="header-right"><button class="btn-primary-sm">+ Add New</button></div>
+    </div>
+    <div class="search-container"><div class="search-bar"><span style="font-size:16px;color:var(--neutral-500);">🔍</span><span class="search-input-placeholder">Search Patients...</span></div></div>
+    <div class="tab-bar"><div class="tab">My Patients</div><div class="tab active">All Patients</div></div>
+    <div class="patient-list">
+      <div class="section-header">Completed</div>
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Mathi, Nirai T.</div>
+          <div class="patient-meta">5000 · Hemodialysis · Created: 02/27/2026 13:35 IST · Tx Start: 02/27/2026 13:35 IST</div>
+          <div class="patient-meta-sm">Mounisha Tanadars, RN</div>
+        </div>
+        <div class="patient-right"><span class="status-badge badge-sub">Submitted</span></div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Mathi, Nirai T.</div>
+          <div class="patient-meta">5000 · Hemodialysis · Amended · Created: 02/27/2026 14:10 IST</div>
+          <div class="patient-meta-sm">Mounisha Tanadars, RN</div>
+        </div>
+        <div class="patient-right"><span class="status-badge badge-amend">Submitted (Amended)</span></div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+      <div class="patient-card">
+        <div class="patient-info">
+          <div class="patient-name">Crrt, Crrt</div>
+          <div class="patient-meta">200 · CRRT - Therapy Initiation · Created: 02/17/2026</div>
+        </div>
+        <div class="patient-right"><span class="status-badge badge-recv">Received</span></div>
+        <button class="three-dot-btn">⋮</button>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-003 / Post-Submit — UXR-405 Status Badge Variants</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Submitted badge</span>: <span class="token-chip">#0E4F87 text</span><span class="token-chip">#D0E4F5 bg</span></div>
+        <div><span class="spec-label">Amended badge</span>: <span class="token-chip">#E65100 text</span><span class="token-chip">#FBE9E7 bg</span></div>
+        <div><span class="spec-label">Received badge</span>: <span class="token-chip">#388E3C text</span><span class="token-chip">#E8F5E9 bg</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showState(id, tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('state-' + id).classList.add('active');
+  tab.classList.add('active');
+}
+</script>
+</body>
+</html>

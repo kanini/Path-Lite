@@ -1,0 +1,655 @@
+{
+  "fileName": "PATH_Lite_Design_System_v1.fig",
+  "version": "1.0.0",
+  "platform": "iOS & Android (React Native) - Tablet",
+  "lastUpdated": "2026-02-27",
+  "pages": [
+    {
+      "id": "page-00",
+      "name": "00_Cover",
+      "frames": [
+        {
+          "name": "Project Metadata",
+          "width": 1024,
+          "height": 768,
+          "content": {
+            "projectName": "PATH Lite",
+            "version": "v1.0 - Phase 1 Prototype",
+            "platform": "iOS & Android (React Native) - Tablet-optimized (7-12.9 inch)",
+            "primaryColor": "#1566A7 (DaVita Blue)",
+            "stakeholders": ["Product Team", "Design Team", "Development Team"],
+            "lastUpdated": "February 27, 2026",
+            "scope": "Hemodialysis patient data entry with AI voice assistance"
+          }
+        }
+      ]
+    },
+    {
+      "id": "page-01",
+      "name": "01_Foundations",
+      "description": "Design tokens from designsystem.md",
+      "sections": [
+        {
+          "name": "Color Tokens",
+          "tokens": {
+            "primary": "#1566A7",
+            "primary_dark": "#0E4F87",
+            "primary_light": "#E8F1F9",
+            "brand_teal": "#4DB6AC",
+            "neutral_900": "#1A1A1A",
+            "neutral_700": "#4A4A4A",
+            "neutral_500": "#7A7A7A",
+            "neutral_300": "#C4C4C4",
+            "neutral_100": "#F5F5F5",
+            "white": "#FFFFFF",
+            "error": "#D32F2F",
+            "warning": "#F57C00",
+            "warning_bg": "#FFF3E0",
+            "success": "#388E3C",
+            "success_bg": "#E8F5E9",
+            "status_not_started": "#757575",
+            "status_not_started_bg": "#EEEEEE",
+            "status_in_progress": "#1566A7",
+            "status_in_progress_bg": "#E8F1F9",
+            "status_submitted": "#0E4F87",
+            "status_submitted_bg": "#D0E4F5",
+            "status_amended": "#E65100",
+            "status_amended_bg": "#FBE9E7",
+            "overlay_scrim": "rgba(0,0,0,0.5)"
+          }
+        },
+        {
+          "name": "Typography Tokens",
+          "fontFamily": "System (SF Pro Display / Roboto)",
+          "scale": {
+            "heading_xl": {"size": "24px", "weight": "700", "lineHeight": "32px"},
+            "heading_lg": {"size": "20px", "weight": "600", "lineHeight": "28px"},
+            "heading_md": {"size": "17px", "weight": "600", "lineHeight": "24px"},
+            "body_lg": {"size": "16px", "weight": "400", "lineHeight": "24px"},
+            "body_md": {"size": "14px", "weight": "400", "lineHeight": "20px"},
+            "body_sm": {"size": "12px", "weight": "400", "lineHeight": "16px"},
+            "label_md": {"size": "14px", "weight": "500", "lineHeight": "20px"},
+            "label_sm": {"size": "12px", "weight": "500", "lineHeight": "16px"},
+            "button_label": {"size": "16px", "weight": "600", "lineHeight": "24px"},
+            "caption": {"size": "11px", "weight": "400", "lineHeight": "14px"}
+          }
+        },
+        {
+          "name": "Spacing Tokens",
+          "baseUnit": "8px",
+          "scale": {
+            "xs": "4px",
+            "sm": "8px",
+            "md": "12px",
+            "lg": "16px",
+            "xl": "20px",
+            "xxl": "24px",
+            "xxxl": "32px",
+            "huge": "48px"
+          },
+          "layout": {
+            "left_panel_width": "200px",
+            "left_panel_width_lg": "240px",
+            "header_height": "56px",
+            "form_field_height": "52px",
+            "list_row_height": "72px",
+            "tab_height": "44px",
+            "button_height": "48px",
+            "button_height_sm": "36px"
+          }
+        },
+        {
+          "name": "Border Radius Tokens",
+          "values": {
+            "none": "0px",
+            "xs": "4px",
+            "sm": "8px",
+            "md": "12px",
+            "lg": "16px",
+            "full": "999px"
+          }
+        },
+        {
+          "name": "Elevation Tokens",
+          "shadows": {
+            "card": "0px 1px 4px rgba(0,0,0,0.12)",
+            "modal": "0px 8px 24px rgba(0,0,0,0.2)",
+            "popover": "0px 4px 12px rgba(0,0,0,0.15)",
+            "header": "0px 2px 4px rgba(0,0,0,0.08)"
+          }
+        },
+        {
+          "name": "Grid System",
+          "columns": 12,
+          "gutter": "16px",
+          "margin": "16px",
+          "margin_lg": "24px",
+          "breakpoints": {
+            "tablet_sm_portrait": "600dp",
+            "tablet_sm_landscape": "960dp",
+            "tablet_lg_portrait": "1024dp",
+            "tablet_lg_landscape": "1366dp"
+          }
+        },
+        {
+          "name": "Frame Sizes",
+          "platforms": {
+            "tablet_portrait_7": {"width": "600px", "height": "960px"},
+            "tablet_landscape_7": {"width": "960px", "height": "600px"},
+            "tablet_portrait_12": {"width": "1024px", "height": "1366px"},
+            "tablet_landscape_12": {"width": "1366px", "height": "1024px"}
+          }
+        }
+      ]
+    },
+    {
+      "id": "page-02",
+      "name": "02_Components",
+      "description": "Component library with variants",
+      "categories": [
+        {
+          "name": "C/Actions",
+          "components": [
+            {
+              "name": "Button",
+              "variants": {
+                "type": ["Primary", "Secondary", "Destructive", "Ghost"],
+                "state": ["Default", "Hover", "Focus", "Active", "Disabled", "Loading"]
+              },
+              "specs": {
+                "height": "48px",
+                "minTouchTarget": "44x44pt",
+                "cornerRadius": "8px",
+                "typography": "button_label"
+              }
+            }
+          ]
+        },
+        {
+          "name": "C/Inputs",
+          "components": [
+            {
+              "name": "TextField",
+              "variants": {
+                "state": ["Default", "Focused", "Filled", "Error", "Disabled"]
+              },
+              "specs": {
+                "height": "52px",
+                "padding": "12px",
+                "cornerRadius": "4px",
+                "floatingLabel": true,
+                "mandatoryMarker": "*"
+              }
+            },
+            {
+              "name": "SelectField",
+              "type": "Drill-down picker",
+              "specs": {
+                "height": "52px",
+                "chevron": "16px right",
+                "navigatesToFullScreen": true
+              }
+            },
+            {
+              "name": "Toggle",
+              "usage": "Gender selection",
+              "specs": {
+                "height": "36px",
+                "cornerRadius": "full",
+                "type": "Segmented control"
+              }
+            },
+            {
+              "name": "SearchBar",
+              "specs": {
+                "height": "44px",
+                "background": "neutral_100",
+                "cornerRadius": "8px"
+              }
+            }
+          ]
+        },
+        {
+          "name": "C/Navigation",
+          "components": [
+            {
+              "name": "Header",
+              "specs": {
+                "height": "56px",
+                "background": "white",
+                "shadow": "header",
+                "zones": ["left (user context)", "center (title)", "right (action)"]
+              }
+            },
+            {
+              "name": "LeftNavPanel",
+              "specs": {
+                "width": "200px (portrait) / 240px (landscape)",
+                "background": "neutral_100",
+                "sections": ["Hospital", "Patient Summary", "Nav Items"]
+              }
+            },
+            {
+              "name": "Tabs",
+              "usage": "My Patients / All Patients",
+              "specs": {
+                "height": "44px",
+                "activeIndicator": "bottom border 3px primary"
+              }
+            }
+          ]
+        },
+        {
+          "name": "C/Content",
+          "components": [
+            {
+              "name": "PatientCard",
+              "specs": {
+                "minHeight": "72px",
+                "layout": "vertical stack",
+                "elements": ["name", "MRN", "treatment summary", "date", "nurse", "status badge", "3-dot menu"]
+              }
+            },
+            {
+              "name": "StatusBadge",
+              "variants": ["Not Started", "Tx In Progress", "Received", "Submitted", "Submitted (Amended)"],
+              "specs": {
+                "typography": "body_sm weight 500",
+                "padding": "4px 8px",
+                "cornerRadius": "full"
+              }
+            },
+            {
+              "name": "FormSection",
+              "specs": {
+                "background": "white",
+                "shadow": "card",
+                "cornerRadius": "8px",
+                "padding": "16px",
+                "fieldGap": "12px",
+                "sectionGap": "20px"
+              }
+            }
+          ]
+        },
+        {
+          "name": "C/Feedback",
+          "components": [
+            {
+              "name": "Modal",
+              "specs": {
+                "backdrop": "overlay_scrim",
+                "background": "white",
+                "cornerRadius": "12px",
+                "shadow": "modal",
+                "width": "90% max 480px",
+                "padding": "24px"
+              }
+            },
+            {
+              "name": "Dialog",
+              "specs": {
+                "background": "white",
+                "cornerRadius": "12px",
+                "shadow": "modal",
+                "width": "70% max 400px",
+                "alignment": "center"
+              }
+            },
+            {
+              "name": "AIVoiceIcon",
+              "states": ["Inactive (grey)", "Active (blue)", "Listening (animated)"],
+              "specs": {
+                "size": "48x48pt",
+                "transitionDuration": "200ms"
+              }
+            },
+            {
+              "name": "ProgressOverlay",
+              "specs": {
+                "background": "rgba(255,255,255,0.95)",
+                "logo": "PATH Lite centered",
+                "progressBar": "primary on neutral_300, 4px height"
+              }
+            },
+            {
+              "name": "InlineError",
+              "specs": {
+                "icon": "⚠ 14px warning",
+                "typography": "body_sm",
+                "position": "below field, 4px gap"
+              }
+            },
+            {
+              "name": "HepBHistoryPopover",
+              "specs": {
+                "width": "260px",
+                "maxHeight": "200px scroll",
+                "background": "white",
+                "shadow": "popover",
+                "cornerRadius": "8px"
+              }
+            },
+            {
+              "name": "WarningAlert",
+              "specs": {
+                "background": "warning_bg",
+                "borderLeft": "4px warning",
+                "icon": "⚠ 20px",
+                "padding": "12px 16px",
+                "cornerRadius": "4px"
+              }
+            }
+          ]
+        },
+        {
+          "name": "C/Branding",
+          "components": [
+            {
+              "name": "PathLiteLogo",
+              "elements": ["Snowflake icon (teal/blue)", "PATH LITE wordmark"],
+              "usage": "Login screen, loading overlays"
+            },
+            {
+              "name": "DaVitaWordmark",
+              "usage": "Treatment Report Preview top-right"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "page-03",
+      "name": "03_Patterns",
+      "description": "Reusable layout patterns",
+      "patterns": [
+        {
+          "name": "Auth Form Pattern",
+          "usage": "SCR-001 Login",
+          "layout": "Centered vertical stack",
+          "components": ["Logo", "TextField x2", "Button", "Link"]
+        },
+        {
+          "name": "Split Panel Form Pattern",
+          "usage": "SCR-006, 007, 008, 009",
+          "layout": "LeftNavPanel (200-240px) + Main content",
+          "components": ["LeftNavPanel", "Header", "FormSection", "Buttons"]
+        },
+        {
+          "name": "Search + List Pattern",
+          "usage": "SCR-002, 003, 004",
+          "layout": "Header + SearchBar + SectionList",
+          "components": ["Header", "SearchBar", "SectionList", "ListRow"]
+        },
+        {
+          "name": "Drill-down Picker Pattern",
+          "usage": "SCR-006a, 006b, 006c",
+          "layout": "Full-screen NavigationHeader + RadioList",
+          "components": ["NavigationHeader (back)", "RadioList", "Checkmark"]
+        },
+        {
+          "name": "Error/Empty/Loading States",
+          "variants": ["Loading (skeleton/spinner)", "Empty (message + CTA)", "Error (message + retry)"],
+          "usage": "All screens"
+        }
+      ]
+    },
+    {
+      "id": "page-04",
+      "name": "04_Screens",
+      "description": "All screens with required states",
+      "screens": [
+        {
+          "id": "SCR-001",
+          "name": "Login Screen",
+          "states": ["Default", "Error", "Loading"],
+          "priority": "P0",
+          "persona": "Nurse",
+          "components": ["PathLiteLogo", "TextField x2", "Button (Primary)", "Link (Need Help?)"]
+        },
+        {
+          "id": "SCR-002",
+          "name": "Hospital Selection",
+          "states": ["Default", "Loading", "Empty", "Search Active"],
+          "priority": "P0",
+          "persona": "Nurse",
+          "components": ["Header", "SearchBar", "SectionList", "ListRow", "UserMenu"]
+        },
+        {
+          "id": "SCR-003",
+          "name": "Patient Dashboard",
+          "states": ["Default", "Loading", "Empty", "Error (offline)", "My Patients tab", "All Patients tab"],
+          "priority": "P0",
+          "persona": "Nurse",
+          "components": ["Header", "SearchBar", "Tabs", "SectionList", "PatientCard", "StatusBadge", "ContextMenu", "Dialog"]
+        },
+        {
+          "id": "SCR-004",
+          "name": "Patient Recall Search",
+          "states": ["Default", "Loading", "Empty", "Results", "Validation"],
+          "priority": "P0",
+          "persona": "Nurse",
+          "components": ["Modal", "TextField x5", "Button (Search, Cancel, Create New)", "ProgressOverlay"]
+        },
+        {
+          "id": "SCR-005",
+          "name": "Treatment Type Selection",
+          "states": ["Default"],
+          "priority": "P0",
+          "persona": "Nurse",
+          "components": ["Dropdown overlay"]
+        },
+        {
+          "id": "SCR-006",
+          "name": "Patient Details Form",
+          "states": ["Default", "Loading", "AI Active", "Validation Error", "Session Resume"],
+          "priority": "P0",
+          "persona": "Nurse",
+          "components": ["SplitPanel", "LeftNavPanel", "PatientSummaryCard", "FormSection x2", "TextField x9", "SelectField x5", "Toggle", "DatePicker x3", "AIVoiceIcon"]
+        },
+        {
+          "id": "SCR-006a",
+          "name": "Treatment Location Picker",
+          "states": ["Default"],
+          "priority": "P0",
+          "persona": "Nurse",
+          "components": ["NavigationHeader", "RadioList"]
+        },
+        {
+          "id": "SCR-006b",
+          "name": "HBsAg Picker",
+          "states": ["Default"],
+          "priority": "P0",
+          "persona": "Nurse",
+          "components": ["NavigationHeader", "RadioList"]
+        },
+        {
+          "id": "SCR-006c",
+          "name": "Source Picker",
+          "states": ["Default"],
+          "priority": "P0",
+          "persona": "Nurse",
+          "components": ["NavigationHeader", "RadioList"]
+        },
+        {
+          "id": "SCR-006d",
+          "name": "Hep B Change History Popover",
+          "states": ["Default"],
+          "priority": "P1",
+          "persona": "Nurse",
+          "components": ["HepBHistoryPopover"]
+        },
+        {
+          "id": "SCR-007",
+          "name": "Patient Details Edit Mode",
+          "states": ["Default", "Validation Error", "Confirm Change Dialog"],
+          "priority": "P0",
+          "persona": "Nurse",
+          "components": ["Same as SCR-006", "InlineError", "WarningIcon", "Dialog"]
+        },
+        {
+          "id": "SCR-008",
+          "name": "Treatment Report Preview",
+          "states": ["Default", "Loading"],
+          "priority": "P0",
+          "persona": "Nurse",
+          "components": ["SplitPanel", "LeftNavPanel", "NavigationHeader", "ReportViewer", "DaVitaWordmark"]
+        },
+        {
+          "id": "SCR-009",
+          "name": "Review and Submit Screen",
+          "states": ["Default", "Submission Loading", "Submission Confirmation"],
+          "priority": "P0",
+          "persona": "Nurse",
+          "components": ["SplitPanel", "LeftNavPanel", "WarningAlert", "Button x2", "Dialog", "ProgressOverlay"]
+        },
+        {
+          "id": "SCR-010",
+          "name": "Session Resume Prompt",
+          "states": ["Default"],
+          "priority": "P0",
+          "persona": "Nurse",
+          "components": ["Modal", "Button x2 (Resume, Start Over)"]
+        },
+        {
+          "id": "SCR-011",
+          "name": "Change Hospital Screen",
+          "states": ["Default", "Change Confirmation"],
+          "priority": "P1",
+          "persona": "Nurse",
+          "components": ["NavigationHeader", "PatientSummary", "SearchBar", "RadioList"]
+        }
+      ]
+    },
+    {
+      "id": "page-05",
+      "name": "05_Prototype",
+      "description": "Interactive flows wired end-to-end",
+      "flows": [
+        {
+          "id": "FL-001",
+          "name": "Nurse Authentication",
+          "personas": ["Nurse"],
+          "sequence": [
+            "SCR-001/Default",
+            "Decision: Valid → SCR-002/Default | Invalid → SCR-001/Error"
+          ]
+        },
+        {
+          "id": "FL-002",
+          "name": "Hospital Selection and Patient Dashboard",
+          "personas": ["Nurse"],
+          "sequence": [
+            "SCR-002/Default",
+            "Optional: Search",
+            "Tap hospital → SCR-003/Default"
+          ]
+        },
+        {
+          "id": "FL-003",
+          "name": "New Patient Entry via Recall Search",
+          "personas": ["Nurse"],
+          "sequence": [
+            "SCR-003/Default",
+            "Tap Add New → SCR-005/Default",
+            "Select Hemodialysis → SCR-004/Default",
+            "Enter fields + Search → SCR-004/Loading",
+            "Decision: Found → SCR-006/Default (prefilled) | Not Found → SCR-004/Empty → SCR-006/Default (empty)"
+          ]
+        },
+        {
+          "id": "FL-004",
+          "name": "AI-Driven Patient Data Entry",
+          "personas": ["Nurse"],
+          "sequence": [
+            "SCR-006/Default",
+            "AI voice activates → SCR-006/AI Active",
+            "Voice responses populate fields",
+            "Complete → SCR-009/Default"
+          ]
+        },
+        {
+          "id": "FL-005",
+          "name": "Form Review and Error Correction",
+          "personas": ["Nurse"],
+          "sequence": [
+            "SCR-009/Default",
+            "Tap Review → Validation",
+            "Decision: Errors → SCR-007/Validation Error | No Errors → Submit enabled",
+            "Correct errors → SCR-009/Default"
+          ]
+        },
+        {
+          "id": "FL-006",
+          "name": "Report Generation and Final Submission",
+          "personas": ["Nurse"],
+          "sequence": [
+            "SCR-009/Default",
+            "Tap View Report → SCR-008/Default",
+            "Review → Return to SCR-009",
+            "Tap Submit → Dialog → Confirm → SCR-009/Submission Loading → SCR-003/Default (status updated)"
+          ]
+        },
+        {
+          "id": "FL-007",
+          "name": "Session Resume After Interruption",
+          "personas": ["Nurse"],
+          "sequence": [
+            "SCR-003/Default",
+            "Tap incomplete treatment → SCR-010/Default",
+            "Decision: Resume → SCR-006/AI Active (partial data) | Start Over → SCR-006/Default"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "page-06",
+      "name": "06_Handoff",
+      "description": "Developer documentation",
+      "sections": [
+        {
+          "name": "Token Usage Rules",
+          "content": "All color, typography, spacing, and radius values MUST use tokens from 01_Foundations. No hard-coded values."
+        },
+        {
+          "name": "Component Usage",
+          "content": "Components defined in 02_Components with variants, props, and usage guidelines."
+        },
+        {
+          "name": "Responsive Behavior",
+          "breakpoints": {
+            "7-inch portrait (600dp)": "Single panel, collapsible left nav",
+            "7-inch landscape (960dp)": "Split panel, persistent left nav 200px",
+            "12.9-inch portrait (1024dp)": "Split panel, persistent left nav 200px",
+            "12.9-inch landscape (1366dp)": "Split panel, persistent left nav 240px"
+          }
+        },
+        {
+          "name": "Edge Cases",
+          "cases": [
+            "Long hospital/patient names: truncate with ellipsis",
+            "HBsAg history multiple entries: scrollable popover",
+            "MRN-only search: button disabled",
+            "AI session auto-close: partial data saved",
+            "Report incomplete fields: show dashes or N/A"
+          ]
+        },
+        {
+          "name": "Accessibility Notes",
+          "requirements": [
+            "WCAG 2.2 AA compliance",
+            "Color contrast ≥4.5:1 (text), ≥3:1 (UI)",
+            "Touch targets ≥44×44pt",
+            "Focus states on all interactive elements",
+            "ARIA labels for screen readers",
+            "Dynamic type support up to 2 stops"
+          ]
+        },
+        {
+          "name": "Screen-to-Code Mapping",
+          "reference": "figma_spec.md screen IDs (SCR-001 through SCR-011) map to component structure"
+        }
+      ]
+    }
+  ]
+}

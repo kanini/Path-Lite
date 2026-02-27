@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=768, initial-scale=1.0">
+<title>SCR-007 - Patient Details Edit Mode | PATH Lite</title>
+<style>
+  :root {
+    --primary: #1566A7; --primary-dark: #0E4F87; --primary-light: #E8F1F9;
+    --neutral-900: #1A1A1A; --neutral-700: #4A4A4A; --neutral-500: #7A7A7A;
+    --neutral-300: #C4C4C4; --neutral-100: #F5F5F5; --white: #FFFFFF;
+    --error: #D32F2F; --warning: #F57C00; --warning-bg: #FFF3E0;
+    --overlay-scrim: rgba(0,0,0,0.5);
+    --left-panel-width: 200px; --header-height: 56px; --field-height: 52px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Roboto', sans-serif;
+    background: #E0E0E0; min-height: 100vh;
+    display: flex; align-items: flex-start; justify-content: center; padding: 20px;
+  }
+  .device-frame {
+    width: 768px; min-height: 1024px; background: var(--neutral-100);
+    border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .status-bar {
+    height: 28px; background: var(--white); display: flex; align-items: center;
+    justify-content: space-between; padding: 0 16px; font-size: 11px; font-weight: 600;
+    color: var(--neutral-900); flex-shrink: 0; border-bottom: 1px solid var(--neutral-300);
+  }
+  .state-tabs {
+    display: flex; background: var(--neutral-100); border-bottom: 1px solid var(--neutral-300);
+    padding: 8px 16px 0; gap: 4px; flex-shrink: 0; flex-wrap: wrap;
+  }
+  .state-tab {
+    padding: 7px 12px; font-size: 11px; font-weight: 500; color: var(--neutral-500);
+    cursor: pointer; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none;
+  }
+  .state-tab.active { background: var(--white); color: var(--primary); border-color: var(--neutral-300); }
+  .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; position: relative; }
+  .screen.active { display: flex; }
+
+  /* Edit Mode Header — Cancel left, Confirm Change right */
+  .app-header {
+    height: var(--header-height); background: var(--white);
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.08);
+    display: flex; align-items: center; padding: 0 16px;
+    flex-shrink: 0; position: relative; z-index: 5;
+  }
+  .header-left { flex: 1; }
+  .header-center { flex: 2; text-align: center; font-size: 20px; font-weight: 600; color: var(--neutral-900); }
+  .header-right { flex: 1; display: flex; justify-content: flex-end; }
+  .cancel-btn { font-size: 15px; font-weight: 500; color: var(--primary); background: none; border: none; cursor: pointer; padding: 8px; }
+  .confirm-change-btn { height: 36px; padding: 0 14px; background: var(--primary); color: var(--white); border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+  /* Split Panel */
+  .split-panel { display: flex; flex: 1; overflow: hidden; }
+
+  /* Left Nav Panel — Edit Mode shows warning icons */
+  .left-nav {
+    width: var(--left-panel-width); background: var(--neutral-100);
+    border-right: 1px solid var(--neutral-300); flex-shrink: 0;
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .left-nav-hospital { padding: 12px 12px 8px; border-bottom: 1px solid var(--neutral-300); }
+  .hospital-name-label { font-size: 12px; font-weight: 600; color: var(--neutral-900); display: flex; align-items: center; justify-content: space-between; }
+  .treatment-type-label { font-size: 12px; font-weight: 400; color: var(--neutral-700); margin-top: 2px; }
+  .patient-summary-card { padding: 10px 12px; border-bottom: 1px solid var(--neutral-300); display: flex; flex-direction: column; gap: 3px; }
+  .psc-name { font-size: 14px; font-weight: 600; color: var(--neutral-900); line-height: 1.3; }
+  .psc-detail { font-size: 11px; color: var(--neutral-700); }
+  .psc-mrn { font-size: 11px; color: var(--neutral-500); }
+  .psc-hep { font-size: 10px; color: var(--neutral-500); }
+  .section-group-header { padding: 8px 12px 4px; font-size: 10px; font-weight: 500; color: var(--neutral-500); text-transform: uppercase; letter-spacing: 0.8px; }
+  .nav-item { padding: 10px 12px; font-size: 13px; font-weight: 400; color: var(--neutral-700); cursor: pointer; border-left: 3px solid transparent; min-height: 44px; display: flex; align-items: center; justify-content: space-between; line-height: 1.3; }
+  .nav-item:hover { background: var(--primary-light); }
+  .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; border-left-color: var(--primary); }
+  .nav-item .warn-icon { color: var(--warning); font-size: 13px; flex-shrink: 0; margin-left: 4px; }
+
+  /* Main Content */
+  .main-content { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+  /* Form Section */
+  .form-section { background: var(--white); border-radius: 8px; padding: 16px; box-shadow: 0px 1px 4px rgba(0,0,0,0.12); display: flex; flex-direction: column; gap: 12px; }
+  .section-header-label { font-size: 17px; font-weight: 600; color: var(--neutral-700); border-bottom: 1px solid var(--neutral-300); padding-bottom: 8px; margin-bottom: 4px; }
+
+  /* Fields */
+  .field-row { display: flex; gap: 12px; }
+  .field-group { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .field-wrapper { position: relative; height: var(--field-height); flex: 1; }
+  .field-wrapper.half { flex: 0 0 calc(50% - 6px); }
+  .text-input {
+    width: 100%; height: var(--field-height); border: 1px solid var(--neutral-300);
+    border-radius: 4px; padding: 18px 12px 6px; font-size: 16px;
+    color: var(--neutral-900); background: var(--white); outline: none;
+  }
+  .text-input.focused { border: 2px solid var(--primary); }
+  .text-input.filled { border: 1px solid var(--neutral-300); }
+  .text-input.error-state { border: 2px solid var(--error); background: #FFF8F8; }
+  .text-input::placeholder { color: var(--neutral-500); font-style: italic; font-size: 14px; }
+  .field-label-float { position: absolute; top: 6px; left: 13px; font-size: 11px; font-weight: 500; color: var(--neutral-500); pointer-events: none; }
+  .field-label-float.active { color: var(--primary); }
+  .field-label-float.error-color { color: var(--error); }
+  .req { color: var(--error); }
+
+  /* Inline Error */
+  .inline-error {
+    display: flex; align-items: flex-start; gap: 5px; margin-top: 3px;
+    padding: 0 2px;
+  }
+  .inline-error-icon { font-size: 12px; color: var(--warning); flex-shrink: 0; margin-top: 1px; }
+  .inline-error-text { font-size: 12px; color: var(--error); line-height: 1.4; }
+  .inline-error-text.warn-text { color: var(--warning); }
+
+  /* Select Field */
+  .select-field { width: 100%; height: var(--field-height); border: 1px solid var(--neutral-300); border-radius: 4px; padding: 18px 36px 6px 12px; font-size: 16px; color: var(--neutral-500); background: var(--white); cursor: pointer; font-style: italic; display: flex; align-items: center; position: relative; }
+  .select-field.has-value { color: var(--neutral-900); font-style: normal; }
+  .select-field.error-state { border: 2px solid var(--error); }
+  .chevron { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--neutral-500); }
+  .history-icon { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--primary); cursor: pointer; font-style: normal; }
+
+  /* Gender Toggle */
+  .toggle-container { display: flex; flex-direction: column; gap: 4px; }
+  .toggle-label { font-size: 11px; font-weight: 500; color: var(--neutral-500); margin-left: 1px; }
+  .gender-toggle { height: 36px; border: 1.5px solid var(--primary); border-radius: 999px; display: flex; overflow: hidden; width: 180px; }
+  .toggle-opt { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .toggle-opt.selected { background: var(--primary); color: var(--white); }
+  .toggle-opt.unselected { background: var(--white); color: var(--primary); }
+
+  /* Edit mode indicator banner */
+  .edit-mode-banner {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; background: var(--warning-bg);
+    border: 1px solid var(--warning); border-radius: 8px;
+    border-left: 4px solid var(--warning); font-size: 13px; color: var(--neutral-900);
+  }
+
+  /* Confirm Change Dialog */
+  .overlay-scrim { position: absolute; inset: 0; background: var(--overlay-scrim); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .dialog-box { background: var(--white); border-radius: 12px; padding: 24px; width: 86%; max-width: 380px; box-shadow: 0px 8px 24px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 16px; }
+  .dialog-title { font-size: 17px; font-weight: 600; color: var(--neutral-900); text-align: center; }
+  .dialog-body { font-size: 14px; color: var(--neutral-700); text-align: center; line-height: 1.5; }
+  .dialog-actions { display: flex; gap: 12px; }
+  .btn-secondary { flex: 1; height: 48px; background: var(--white); color: var(--primary); border: 1.5px solid var(--primary); border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn-primary-full { flex: 1; height: 48px; background: var(--primary); color: var(--white); border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+
+  /* Spec Panel */
+  .spec-panel { background: var(--neutral-100); border-top: 2px solid var(--primary); padding: 10px 16px; font-size: 11px; color: var(--neutral-700); flex-shrink: 0; }
+  .spec-panel h4 { font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .spec-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 3px; }
+  .spec-label { font-weight: 600; color: var(--neutral-900); }
+  .token-chip { display: inline-block; background: var(--white); border: 1px solid var(--neutral-300); border-radius: 3px; padding: 1px 5px; font-size: 10px; font-family: 'Courier New', monospace; color: var(--primary); margin: 1px; }
+</style>
+</head>
+<body>
+<div class="device-frame">
+  <div class="status-bar">
+    <span style="font-weight:700;">13:31 PM</span>
+    <span style="font-size:11px;color:var(--neutral-700);">PATH Lite</span>
+    <div style="display:flex;gap:6px;font-size:11px;"><span>●●●</span><span>WiFi</span><span>89%</span></div>
+  </div>
+  <div class="state-tabs">
+    <div class="state-tab active" onclick="showState('validation',this)">Validation Error</div>
+    <div class="state-tab" onclick="showState('confirmdialog',this)">Confirm Change Dialog</div>
+  </div>
+
+  <!-- VALIDATION ERROR STATE (Primary state of SCR-007) -->
+  <div class="screen active" id="state-validation">
+    <!-- Edit Mode Header: Cancel left / Confirm Change right -->
+    <div class="app-header">
+      <div class="header-left"><button class="cancel-btn">Cancel</button></div>
+      <div class="header-center">Patient Details</div>
+      <div class="header-right"><button class="confirm-change-btn">Confirm Change</button></div>
+    </div>
+    <div class="split-panel">
+      <!-- Left Nav — warning icons on error sections -->
+      <div class="left-nav">
+        <div class="left-nav-hospital">
+          <div class="hospital-name-label">KAISER SUNNYSIDE MEDICAL CENTER</div>
+          <div class="treatment-type-label">Hemodialysis</div>
+        </div>
+        <div class="patient-summary-card">
+          <div class="psc-name">Mathi, Nirai T.</div>
+          <div class="psc-detail">Male · 26 yrs</div>
+          <div class="psc-mrn" style="font-size:10px;">01/01/2000</div>
+          <div class="psc-mrn">MRN: 5000</div>
+          <div class="psc-hep">HBsAg: Unknown (02/26/2026)</div>
+          <div class="psc-hep">HBsAb: Immuno10</div>
+        </div>
+        <div class="section-group-header">HD Billing</div>
+        <!-- Patient Details has errors — shows warning icon -->
+        <div class="nav-item active">
+          <span>Patient Details</span>
+          <span class="warn-icon">⚠</span>
+        </div>
+        <div class="nav-item">
+          <span>Primary Care Nurse Report</span>
+          <span class="warn-icon">⚠</span>
+        </div>
+        <div class="nav-item">Order</div>
+        <div class="nav-item">
+          <span>Wait Time (Pre and Post)</span>
+        </div>
+        <div class="nav-item">
+          <span>Treatment</span>
+          <span class="warn-icon">⚠</span>
+        </div>
+        <div class="nav-item">ACOI Questions</div>
+        <div class="nav-item">Cancel Billing</div>
+        <div class="nav-item">Review and Submit</div>
+      </div>
+
+      <!-- Main Content — auto-focused on first error field -->
+      <div class="main-content">
+        <!-- Edit mode banner -->
+        <div class="edit-mode-banner">
+          <span style="font-size:16px;color:var(--warning);">⚠</span>
+          <span><strong>Edit Mode</strong> — AI found 2 errors. First error field is focused. Correct values and tap Confirm Change.</span>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header-label">Demographics &amp; Admission</div>
+
+          <!-- MRN — OK -->
+          <div class="field-wrapper">
+            <input class="text-input filled" value="5000" style="padding-top:18px;" readonly/>
+            <span class="field-label-float active">Medical Record Number (MRN)<span class="req">*</span></span>
+          </div>
+
+          <!-- First Name — OK -->
+          <div class="field-row">
+            <div class="field-wrapper">
+              <input class="text-input filled" value="Nirai" style="padding-top:18px;"/>
+              <span class="field-label-float active">Patient First Name<span class="req">*</span></span>
+            </div>
+            <div class="field-wrapper half">
+              <input class="text-input filled" value="Test" style="padding-top:18px;"/>
+              <span class="field-label-float active">Middle Initial / Name</span>
+            </div>
+          </div>
+
+          <!-- Last Name — OK -->
+          <div class="field-wrapper">
+            <input class="text-input filled" value="Mathi" style="padding-top:18px;"/>
+            <span class="field-label-float active">Patient Last Name<span class="req">*</span></span>
+          </div>
+
+          <!-- DOB — ERROR (auto-focused, first error field per UXR-108) -->
+          <div>
+            <div class="field-wrapper">
+              <input class="text-input error-state focused" value="02/26/2026" style="padding-top:18px;"/>
+              <span class="field-label-float error-color">DOB<span class="req">*</span></span>
+            </div>
+            <div class="inline-error">
+              <span class="inline-error-icon">⚠</span>
+              <span class="inline-error-text warn-text">Date must be between 02/24/2025 - 02/26/2026</span>
+            </div>
+          </div>
+
+          <!-- Admission Number — OK -->
+          <div class="field-wrapper">
+            <input class="text-input" placeholder="[Enter]"/>
+            <span class="field-label-float">Admission / Encounter Number</span>
+          </div>
+
+          <!-- Gender — OK -->
+          <div class="toggle-container">
+            <div class="toggle-label">Gender<span class="req">*</span></div>
+            <div class="gender-toggle">
+              <div class="toggle-opt selected">Male</div>
+              <div class="toggle-opt unselected">Female</div>
+            </div>
+          </div>
+
+          <!-- Treatment Location — OK -->
+          <div style="position:relative;" class="field-wrapper">
+            <div class="select-field has-value"><span>Bedside</span><span class="chevron">›</span></div>
+            <span class="field-label-float active">Treatment Location<span class="req">*</span></span>
+          </div>
+
+          <!-- Room Number — OK -->
+          <div class="field-wrapper">
+            <input class="text-input filled" value="968" style="padding-top:18px;"/>
+            <span class="field-label-float active">Room Number<span class="req">*</span></span>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header-label">Clinical Intake</div>
+          <div><span style="font-size:14px;font-weight:500;color:var(--primary);cursor:pointer;">⬇ Import Hepatitis B result from CWOW</span></div>
+
+          <!-- HBsAg — ERROR (second error) -->
+          <div>
+            <div style="position:relative;" class="field-wrapper">
+              <div class="select-field error-state has-value"><span>Unknown</span><span class="history-icon">↺</span><span class="chevron">›</span></div>
+              <span class="field-label-float error-color">HBsAg<span class="req">*</span></span>
+            </div>
+            <div class="inline-error">
+              <span class="inline-error-icon">⚠</span>
+              <span class="inline-error-text">A confirmed value (Positive or Negative) is required for HBsAg</span>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-wrapper">
+              <input class="text-input error-state" value="02/26/2026" style="padding-top:18px;"/>
+              <span class="field-label-float error-color">Date Drawn</span>
+            </div>
+            <div style="position:relative;" class="field-wrapper">
+              <div class="select-field has-value"><span>Hospital</span><span class="chevron">›</span></div>
+              <span class="field-label-float active">Source</span>
+            </div>
+          </div>
+          <div style="margin-top:4px;padding-left:2px;">
+            <div class="inline-error">
+              <span class="inline-error-icon">⚠</span>
+              <span class="inline-error-text warn-text">Date must be between 02/24/2025 - 02/26/2026</span>
+            </div>
+          </div>
+
+          <!-- HBsAb — OK -->
+          <div style="margin-top:8px;position:relative;" class="field-wrapper">
+            <div class="select-field has-value"><span>Immuno10</span><span class="history-icon">↺</span><span class="chevron">›</span></div>
+            <span class="field-label-float active">HBsAb<span class="req">*</span></span>
+          </div>
+          <div class="field-row">
+            <div class="field-wrapper">
+              <input class="text-input" placeholder="[mm/dd/yyyy]"/>
+              <span class="field-label-float">Date Drawn</span>
+            </div>
+            <div style="position:relative;" class="field-wrapper">
+              <div class="select-field"><span>[Select]</span><span class="chevron">›</span></div>
+              <span class="field-label-float">Source</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-007 / Validation Error — UXR-108, UXR-404, UXR-601, FR-066, FR-067</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Header</span>: Cancel (left) · "Patient Details" (center) · Confirm Change (right, primary button)</div>
+        <div><span class="spec-label">Auto-focus</span>: First erroneous field (DOB) scrolled into view and focused (UXR-108)</div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">InlineError</span>: <span class="token-chip">⚠ 12px #F57C00</span> + <span class="token-chip">12px #D32F2F text</span> below field · 4px gap</div>
+        <div><span class="spec-label">Error field border</span>: <span class="token-chip">2px #D32F2F</span> · label color <span class="token-chip">#D32F2F</span></div>
+        <div><span class="spec-label">Left nav ⚠</span>: Sections with errors show amber ⚠ icon (UXR-504)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM CHANGE DIALOG STATE -->
+  <div class="screen" id="state-confirmdialog">
+    <div class="app-header">
+      <div class="header-left"><button class="cancel-btn">Cancel</button></div>
+      <div class="header-center">Patient Details</div>
+      <div class="header-right"><button class="confirm-change-btn">Confirm Change</button></div>
+    </div>
+    <div class="split-panel" style="filter:brightness(0.65);pointer-events:none;">
+      <div class="left-nav">
+        <div class="left-nav-hospital"><div class="hospital-name-label">KAISER SUNNYSIDE MEDICAL CENTER</div><div class="treatment-type-label">Hemodialysis</div></div>
+        <div class="patient-summary-card"><div class="psc-name">Mathi, Nirai T.</div><div class="psc-mrn">MRN: 5000</div></div>
+        <div class="section-group-header">HD Billing</div>
+        <div class="nav-item active"><span>Patient Details</span><span class="warn-icon">⚠</span></div>
+        <div class="nav-item">Review and Submit</div>
+      </div>
+      <div class="main-content">
+        <div class="form-section">
+          <div class="section-header-label">Demographics &amp; Admission</div>
+          <div class="field-wrapper"><input class="text-input filled" value="5000" style="padding-top:18px;" readonly/><span class="field-label-float active">MRN<span class="req">*</span></span></div>
+          <div class="field-wrapper"><input class="text-input filled" value="01/03/2000" style="padding-top:18px;"/><span class="field-label-float active">DOB<span class="req">*</span></span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Confirm Change Dialog (from hospital change during edit) -->
+    <div class="overlay-scrim">
+      <div class="dialog-box">
+        <div style="text-align:center;font-size:32px;">✏️</div>
+        <div class="dialog-title">Confirm Change?</div>
+        <div class="dialog-body">You are about to update the patient record for Nirai Mathi (MRN: 5000). All changed fields will be re-validated. Do you want to proceed?</div>
+        <div class="dialog-actions">
+          <button class="btn-secondary">Cancel</button>
+          <button class="btn-primary-full">Confirm Change</button>
+        </div>
+      </div>
+    </div>
+    <div class="spec-panel">
+      <h4>SCR-007 / Confirm Change Dialog — FR-103, FR-104</h4>
+      <div class="spec-row">
+        <div><span class="spec-label">Trigger</span>: Tap "Confirm Change" in header after correcting fields</div>
+        <div><span class="spec-label">Dialog</span>: Shows patient name + MRN for context · Cancel returns to edit · Confirm Change triggers re-validation</div>
+      </div>
+      <div class="spec-row" style="margin-top:4px;">
+        <div><span class="spec-label">On confirm</span>: If all fields valid → returns to SCR-009 Review and Submit · If still invalid → stays in edit mode</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showState(id, tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('state-' + id).classList.add('active');
+  tab.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=768, initial-scale=1.0">
+<title>SCR-001 - Login Screen | PATH Lite</title>
+<style>
+  /* Design Tokens */
+  :root {
+    --primary: #1566A7;
+    --primary-dark: #0E4F87;
+    --primary-light: #E8F1F9;
+    --brand-teal: #4DB6AC;
+    --neutral-900: #1A1A1A;
+    --neutral-700: #4A4A4A;
+    --neutral-500: #7A7A7A;
+    --neutral-300: #C4C4C4;
+    --neutral-100: #F5F5F5;
+    --white: #FFFFFF;
+    --error: #D32F2F;
+    --shadow-card: 0px 1px 4px rgba(0,0,0,0.12);
+    --shadow-header: 0px 2px 4px rgba(0,0,0,0.08);
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 20px;
+    --spacing-xxl: 24px;
+    --header-height: 56px;
+    --field-height: 52px;
+    --button-height: 48px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Roboto', sans-serif;
+    background: #E0E0E0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .device-frame {
+    width: 768px;
+    min-height: 1024px;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    height: 28px;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--neutral-900);
+    border-bottom: 1px solid var(--neutral-300);
+  }
+  .status-bar .time { font-weight: 700; }
+  .status-bar .indicators { display: flex; gap: 6px; align-items: center; }
+
+  /* Screen Variants Tabs */
+  .state-tabs {
+    display: flex;
+    background: var(--neutral-100);
+    border-bottom: 1px solid var(--neutral-300);
+    padding: 8px 16px 0;
+    gap: 4px;
+  }
+  .state-tab {
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--neutral-500);
+    cursor: pointer;
+    border-radius: 6px 6px 0 0;
+    border: 1px solid transparent;
+    border-bottom: none;
+    background: transparent;
+  }
+  .state-tab.active {
+    background: var(--white);
+    color: var(--primary);
+    border-color: var(--neutral-300);
+    border-bottom: 1px solid var(--white);
+  }
+
+  /* Screen Container */
+  .screen { display: none; flex: 1; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* Login Layout */
+  .login-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 32px;
+    background: var(--white);
+  }
+
+  /* Logo Area */
+  .logo-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 48px;
+  }
+  .logo-icon {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 12px;
+  }
+  .logo-wordmark {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 3px;
+    line-height: 1;
+  }
+  .logo-sub {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--neutral-500);
+    letter-spacing: 4px;
+    margin-top: 2px;
+  }
+
+  /* Form Container */
+  .login-form {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Text Field */
+  .field-wrapper {
+    position: relative;
+    height: var(--field-height);
+  }
+  .field-label {
+    position: absolute;
+    top: 14px;
+    left: 12px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--neutral-500);
+    pointer-events: none;
+    transition: all 0.15s ease;
+    background: var(--white);
+    padding: 0 4px;
+  }
+  .field-label.floated {
+    top: -8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--primary);
+  }
+  .field-label.required::after {
+    content: ' *';
+    color: var(--error);
+  }
+  .text-input {
+    width: 100%;
+    height: var(--field-height);
+    border: 1px solid var(--neutral-300);
+    border-radius: var(--radius-xs);
+    padding: 12px;
+    font-size: 16px;
+    color: var(--neutral-900);
+    background: var(--white);
+    outline: none;
+  }
+  .text-input.focused {
+    border: 2px solid var(--primary);
+  }
+  .text-input.filled {
+    border: 1px solid var(--neutral-300);
+  }
+  .text-input.error {
+    border: 2px solid var(--error);
+  }
+  .text-input.filled + .field-label,
+  .text-input.focused + .field-label {
+    top: -8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--primary);
+  }
+  .show-hide {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: var(--primary);
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* Need Help Link */
+  .need-help-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -4px;
+  }
+  .ghost-link {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--primary);
+    text-decoration: none;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px 0;
+  }
+
+  /* Login Button */
+  .btn-primary {
+    width: 100%;
+    height: var(--button-height);
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.15s;
+  }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-primary.disabled {
+    background: #EEEEEE;
+    color: #9E9E9E;
+    cursor: not-allowed;
+  }
+
+  /* Error Message */
+  .error-message {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background: #FFEBEE;
+    border: 1px solid #FFCDD2;
+    border-radius: var(--radius-xs);
+    border-left: 4px solid var(--error);
+  }
+  .error-message span {
+    font-size: 14px;
+    color: var(--error);
+    font-weight: 400;
+  }
+
+  /* Annotation Labels */
+  .annotation {
+    position: absolute;
+    background: #FFF9C4;
+    border: 1px solid #F9A825;
+    border-radius: 4px;
+    font-size: 10px;
+    padding: 2px 6px;
+    color: #5D4037;
+    white-space: nowrap;
+    z-index: 10;
+  }
+
+  /* Spec panel */
+  .spec-panel {
+    background: var(--neutral-100);
+    border-top: 2px solid var(--primary);
+    padding: 16px;
+    font-size: 11px;
+    color: var(--neutral-700);
+  }
+  .spec-panel h4 { font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .spec-row { display: flex; gap: 32px; flex-wrap: wrap; margin-bottom: 4px; }
+  .spec-item { display: flex; flex-direction: column; gap: 2px; }
+  .spec-label { font-weight: 600; color: var(--neutral-900); }
+  .spec-value { color: var(--neutral-700); }
+  .token-chip {
+    display: inline-block;
+    background: var(--white);
+    border: 1px solid var(--neutral-300);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-family: 'Courier New', monospace;
+    color: var(--primary);
+    margin: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="device-frame">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">11:58 AM</span>
+    <span style="font-size:12px;font-weight:600;color:var(--neutral-700)">PATH Lite</span>
+    <div class="indicators">
+      <span>●●●</span>
+      <span>WiFi</span>
+      <span>96%</span>
+    </div>
+  </div>
+
+  <!-- State Tabs -->
+  <div class="state-tabs">
+    <div class="state-tab active" onclick="showState('default', this)">Default</div>
+    <div class="state-tab" onclick="showState('error', this)">Error</div>
+    <div class="state-tab" onclick="showState('loading', this)">Loading</div>
+  </div>
+
+  <!-- DEFAULT STATE -->
+  <div class="screen active" id="state-default">
+    <div class="login-screen">
+      <div class="logo-area">
+        <!-- PATH Lite Snowflake SVG Logo -->
+        <svg class="logo-icon" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="36" cy="36" r="36" fill="#E8F1F9"/>
+          <!-- Central hub -->
+          <circle cx="36" cy="36" r="6" fill="#1566A7"/>
+          <!-- 6 arms -->
+          <line x1="36" y1="36" x2="36" y2="10" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="36" y2="62" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="13.4" y2="49" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="58.6" y2="23" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="13.4" y2="23" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="58.6" y2="49" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <!-- Teal petal tips -->
+          <circle cx="36" cy="10" r="4" fill="#4DB6AC"/>
+          <circle cx="36" cy="62" r="4" fill="#4DB6AC"/>
+          <circle cx="13.4" cy="49" r="4" fill="#4DB6AC"/>
+          <circle cx="58.6" cy="23" r="4" fill="#4DB6AC"/>
+          <circle cx="13.4" cy="23" r="4" fill="#4DB6AC"/>
+          <circle cx="58.6" cy="49" r="4" fill="#4DB6AC"/>
+        </svg>
+        <div class="logo-wordmark">PATH</div>
+        <div class="logo-sub">LITE</div>
+      </div>
+
+      <div class="login-form">
+        <!-- Username Field -->
+        <div class="field-wrapper">
+          <input class="text-input focused" type="text" value="" style="padding-top:18px;"/>
+          <div class="field-label floated">Username</div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="field-wrapper">
+          <input class="text-input" type="password" placeholder="Password" style="color:var(--neutral-500);"/>
+          <div class="show-hide">Show</div>
+        </div>
+
+        <!-- Need Help -->
+        <div class="need-help-row">
+          <button class="ghost-link">Need Help?</button>
+        </div>
+
+        <!-- Login Button (disabled - no input yet) -->
+        <button class="btn-primary disabled">Login</button>
+      </div>
+    </div>
+
+    <div class="spec-panel">
+      <h4>SCR-001 / Default — Component Specs</h4>
+      <div class="spec-row">
+        <div class="spec-item"><span class="spec-label">Screen</span><span class="spec-value">SCR-001 Login</span></div>
+        <div class="spec-item"><span class="spec-label">State</span><span class="spec-value">Default (no input)</span></div>
+        <div class="spec-item"><span class="spec-label">Viewport</span><span class="spec-value">768×1024px (Portrait)</span></div>
+        <div class="spec-item"><span class="spec-label">UXR</span><span class="spec-value">UXR-401, UXR-402, UXR-602</span></div>
+      </div>
+      <div class="spec-row" style="margin-top:8px;">
+        <div class="spec-item"><span class="spec-label">Login Button</span><span><span class="token-chip">#EEEEEE bg</span><span class="token-chip">#9E9E9E text</span> Disabled until both fields filled</span></div>
+        <div class="spec-item"><span class="spec-label">Logo</span><span><span class="token-chip">#1566A7 primary</span><span class="token-chip">#4DB6AC teal</span></span></div>
+        <div class="spec-item"><span class="spec-label">Layout</span><span class="spec-value">Vertically centered; max-width 400px form</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ERROR STATE -->
+  <div class="screen" id="state-error">
+    <div class="login-screen">
+      <div class="logo-area">
+        <svg class="logo-icon" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="36" cy="36" r="36" fill="#E8F1F9"/>
+          <circle cx="36" cy="36" r="6" fill="#1566A7"/>
+          <line x1="36" y1="36" x2="36" y2="10" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="36" y2="62" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="13.4" y2="49" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="58.6" y2="23" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="13.4" y2="23" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="58.6" y2="49" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="36" cy="10" r="4" fill="#4DB6AC"/>
+          <circle cx="36" cy="62" r="4" fill="#4DB6AC"/>
+          <circle cx="13.4" cy="49" r="4" fill="#4DB6AC"/>
+          <circle cx="58.6" cy="23" r="4" fill="#4DB6AC"/>
+          <circle cx="13.4" cy="23" r="4" fill="#4DB6AC"/>
+          <circle cx="58.6" cy="49" r="4" fill="#4DB6AC"/>
+        </svg>
+        <div class="logo-wordmark">PATH</div>
+        <div class="logo-sub">LITE</div>
+      </div>
+
+      <div class="login-form">
+        <!-- Error Message (UXR-602) -->
+        <div class="error-message">
+          <span>⚠</span>
+          <span>Invalid username or password</span>
+        </div>
+
+        <!-- Username Field (retained value per UXR-602) -->
+        <div class="field-wrapper">
+          <input class="text-input error" type="text" value="mounisha.tanadars" style="padding-top:18px;"/>
+          <div class="field-label floated" style="color:var(--error);">Username</div>
+        </div>
+
+        <!-- Password Field (cleared per UXR-602) -->
+        <div class="field-wrapper">
+          <input class="text-input error" type="password" placeholder="Password" style="color:var(--neutral-500);"/>
+          <div class="show-hide">Show</div>
+        </div>
+
+        <!-- Need Help -->
+        <div class="need-help-row">
+          <button class="ghost-link">Need Help?</button>
+        </div>
+
+        <!-- Login Button (enabled - username has value) -->
+        <button class="btn-primary">Login</button>
+      </div>
+    </div>
+
+    <div class="spec-panel">
+      <h4>SCR-001 / Error — Component Specs (UXR-602)</h4>
+      <div class="spec-row">
+        <div class="spec-item"><span class="spec-label">Error Message</span><span class="spec-value">"Invalid username or password" — inline above fields</span></div>
+        <div class="spec-item"><span class="spec-label">Username Field</span><span class="spec-value">Retains entered value</span></div>
+        <div class="spec-item"><span class="spec-label">Password Field</span><span class="spec-value">Cleared (empty)</span></div>
+      </div>
+      <div class="spec-row" style="margin-top:6px;">
+        <div class="spec-item"><span class="spec-label">Field Border</span><span><span class="token-chip">2px #D32F2F</span> Error state</span></div>
+        <div class="spec-item"><span class="spec-label">Error bg</span><span><span class="token-chip">#FFEBEE</span><span class="token-chip">border-left 4px #D32F2F</span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING STATE -->
+  <div class="screen" id="state-loading">
+    <div class="login-screen" style="position:relative;">
+      <div class="logo-area">
+        <svg class="logo-icon" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="36" cy="36" r="36" fill="#E8F1F9"/>
+          <circle cx="36" cy="36" r="6" fill="#1566A7"/>
+          <line x1="36" y1="36" x2="36" y2="10" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="36" y2="62" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="13.4" y2="49" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="58.6" y2="23" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="13.4" y2="23" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <line x1="36" y1="36" x2="58.6" y2="49" stroke="#1566A7" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="36" cy="10" r="4" fill="#4DB6AC"/>
+          <circle cx="36" cy="62" r="4" fill="#4DB6AC"/>
+          <circle cx="13.4" cy="49" r="4" fill="#4DB6AC"/>
+          <circle cx="58.6" cy="23" r="4" fill="#4DB6AC"/>
+          <circle cx="13.4" cy="23" r="4" fill="#4DB6AC"/>
+          <circle cx="58.6" cy="49" r="4" fill="#4DB6AC"/>
+        </svg>
+        <div class="logo-wordmark">PATH</div>
+        <div class="logo-sub">LITE</div>
+      </div>
+
+      <div class="login-form">
+        <div class="field-wrapper">
+          <input class="text-input filled" type="text" value="mounisha.tanadars" style="padding-top:18px;" disabled/>
+          <div class="field-label floated">Username</div>
+        </div>
+        <div class="field-wrapper">
+          <input class="text-input filled" type="password" value="••••••••" disabled/>
+          <div class="show-hide" style="color:var(--neutral-300);">Show</div>
+        </div>
+        <div class="need-help-row">
+          <button class="ghost-link" style="color:var(--neutral-300);">Need Help?</button>
+        </div>
+        <button class="btn-primary" style="display:flex;align-items:center;justify-content:center;gap:10px;" disabled>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="8" stroke="rgba(255,255,255,0.4)" stroke-width="2.5"/>
+            <path d="M10 2a8 8 0 0 1 8 8" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" from="0 10 10" to="360 10 10" dur="0.8s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+          Signing In...
+        </button>
+      </div>
+
+      <!-- Loading Overlay -->
+      <div style="position:absolute;inset:0;background:rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center;border-radius:8px;"></div>
+    </div>
+
+    <div class="spec-panel">
+      <h4>SCR-001 / Loading — Component Specs</h4>
+      <div class="spec-row">
+        <div class="spec-item"><span class="spec-label">Login Button</span><span class="spec-value">Spinner replaces label; fields disabled</span></div>
+        <div class="spec-item"><span class="spec-label">Transition</span><span class="spec-value">→ SCR-002 Hospital Selection on success</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showState(stateId, tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('state-' + stateId).classList.add('active');
+  tab.classList.add('active');
+}
+</script>
+</body>
+</html>
