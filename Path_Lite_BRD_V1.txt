@@ -106,7 +106,7 @@ If patient exists:
 - Form fields filled using AI solution
 
 If patient does not exist:
-- Nurse adds new treatment
+- Nurse can add new patient with MRN and other details
 - Redirect to treatment page for manual/AI entry
 
 
@@ -135,21 +135,65 @@ Section 2: Clinical Intake
 
 An AI Voice Icon must be present to activate conversational mode.
 
+Section 3: UI/UX Requirements
+- Application MUST be responsive across different screen sizes (tablets: 7-inch to 12.9-inch)
+- Application MUST support both portrait and landscape orientations
+- Primary theme color: #1566A7 (Blue)
+- Consistent color scheme throughout the application
+- Touch-friendly UI elements with minimum 44x44pt tap targets
+- Clear visual hierarchy and readability in clinical lighting conditions
 
 6. AI Conversational Workflow
-When AI is activated:
-- AI asks structured question
-- Nurse responds via voice
-- Speech converted to text
-- Text validated
-- Field mapped
-- Next question triggered
 
-Example:
-AI: "Please provide Medical Record Number."
+Form Entry Flow:
+1. Form opens and Text-to-Speech (TTS) is automatically activated
+2. AI asks first structured question using TTS
+3. Nurse responds via voice
+4. Speech-to-Text (STT) converts voice to text
+5. LLM cleans and extracts relevant data from response
+6. Cleaned data is validated
+7. Field is mapped and filled
+8. Next question is triggered
+
+Detailed Workflow:
+When AI is activated:
+- Text-to-Speech reads question aloud
+- Nurse responds via voice
+- Speech-to-Text converts response to text
+- LLM processes response to extract clean data
+- Cleaned text is validated against field rules
+- Field is mapped with extracted value
+- Next question is triggered
+
+Example 1 - Simple Response:
+AI (TTS): "Please provide Medical Record Number."
 Nurse: "5000"
+STT Output: "5000"
+LLM Cleaning: "5000" (no cleaning needed)
 System validates numeric format and fills MRN field.
 
+Example 2 - Conversational Response:
+AI (TTS): "What is the patient's first name?"
+Nurse: "Patient name is Chaman"
+STT Output: "Patient name is Chaman"
+LLM Cleaning: "Chaman" (extracts only the name)
+System validates alphabetic format and fills First Name field.
+
+Example 3 - Complex Response:
+AI (TTS): "What is the patient's date of birth?"
+Nurse: "The patient was born on January 15th, 1980"
+STT Output: "The patient was born on January 15th, 1980"
+LLM Cleaning: "01/15/1980" (extracts and formats date)
+System validates date format and fills DOB field.
+
+LLM Data Cleaning Rules:
+- Extract only the relevant answer from conversational responses
+- Remove filler words: "the", "is", "was", "patient", "name", etc.
+- Standardize date formats to MM/DD/YYYY
+- Normalize text casing (proper case for names)
+- Remove punctuation except where required (dates, decimals)
+- Preserve numeric values exactly as spoken
+- Handle common speech patterns: "uh", "um", "like"
 
 7. Field Validation Requirements
 
@@ -161,7 +205,6 @@ Mandatory Fields:
 Optional Fields:
 - May be skipped
 - Must be stored as NULL or predefined default value
-
 
 8. Post Speech-to-Text Validation Layer
 After speech conversion, system must perform:
@@ -188,7 +231,6 @@ Examples:
 If validation fails:
 - AI must request corrected input
 
-
 9. Clarification Handling Using NLP
 If nurse says:
 - "Repeat"
@@ -199,7 +241,6 @@ System must:
 - Detect clarification intent
 - Rephrase or repeat question
 - Continue same field context
-
 
 10. No-Response Handling Protocol
 If nurse does not respond:
@@ -212,7 +253,6 @@ After 3 failed attempts:
 - Save partial data
 - Notify nurse of session closure
 
-
 11. Session Continuity & Resume
 If AI session closes before completion:
 - Save partial data
@@ -223,17 +263,136 @@ When reopened:
 - Resume from first unanswered question
 - Do not restart from beginning
 
+12. Review & Continue Flow
 
-12. Confirmation & Edit Screen
-After all mandatory fields are filled:
-- Display structured summary page
-- Provide edit option
-- Allow manual edits
-- Re-validate edited fields
-- Save only after confirmation
+Button Behavior:
+Initially:
+- Review button – Enabled
+- Continue button – Disabled
 
+Continue should only be enabled after:
+- Review passes
+- Validation errors resolved
 
-13. Functional Requirements Summary
+13. AI-Driven Review Flow
+
+When nurse says:
+- "Please review the form"
+
+System Should:
+- Trigger the same backend logic as Review button
+
+Perform:
+- Schema validation
+- Data type validation
+- Regex validation
+- Required field validation
+
+Identify:
+- Field-level errors
+- Warning messages
+- Mismatched values
+
+AI Should:
+- Verbally summarize errors
+- Indicate which section contains errors
+- Ask nurse if they want to edit
+
+Example:
+Nurse: "Please review the form"
+AI (TTS): "I found 2 errors. In Demographics section, Date of Birth format is invalid. In Clinical Intake section, HBsAb value is missing. Would you like to edit these fields?"
+
+14. Error Correction Flow
+
+If nurse responds:
+- "Yes, edit"
+
+System should:
+- Navigate to first erroneous field
+- Auto-focus that field
+- AI should re-ask only that specific question
+- Nurse provides corrected answer
+- Speech → Text → LLM Cleaning → Validation → Update field
+
+After corrections:
+- Automatically return to Review screen
+- Trigger validation again
+
+Example:
+Nurse: "Yes, edit"
+AI (TTS): "Let's correct the Date of Birth. What is the patient's date of birth?"
+Nurse: "January 15th, 1980"
+STT Output: "January 15th, 1980"
+LLM Cleaning: "01/15/1980"
+System validates and updates DOB field.
+AI (TTS): "Date of Birth updated. Moving to next error. What is the HBsAb immune value?"
+
+15. Validation Success Flow
+
+If all validations pass:
+AI should say:
+- "All fields are valid. Do you want to submit?"
+- Wait for response
+
+If nurse says:
+- "Submit"
+
+System should:
+- Save form
+- Generate report
+
+Example:
+AI (TTS): "All fields are valid. Do you want to submit?"
+Nurse: "Submit"
+System saves form and generates report.
+AI (TTS): "Form submitted successfully. Report is being generated."
+
+16. Continue Button Logic
+
+After review:
+AI should ask:
+- "Do you want to continue?"
+
+If nurse says:
+- "Continue"
+
+System should:
+- Enable Continue button
+- Trigger Continue action
+
+After Continue:
+- Show two buttons:
+  - View Report
+  - Submit
+
+Example:
+AI (TTS): "Review complete. Do you want to continue?"
+Nurse: "Continue"
+System enables Continue button and shows View Report and Submit buttons.
+
+17. Report & Final Submission Flow
+
+View Report:
+- Opens generated report based on submitted form data
+- AI should wait for user instruction
+
+If nurse says:
+- "Report looks fine, submit"
+
+System should:
+- Trigger final submission action
+- Save to database
+- Generate confirmation
+
+Example:
+Nurse: "View report"
+System displays generated report.
+AI (TTS): "Report is displayed. Please review and let me know if you want to submit."
+Nurse: "Report looks fine, submit"
+System triggers final submission.
+AI (TTS): "Form submitted successfully. Patient record has been saved."
+
+18. Functional Requirements Summary
 - Secure Login (Mock, no database for Phase 1)
 - Hospital Selection
 - Patient Recall Search
@@ -246,18 +405,34 @@ After all mandatory fields are filled:
 - Session Resume
 - Confirmation Screen
 
-
 15. Technical Architecture Overview
 
-Frontend (Mobile App):
-- React Native (cross-platform)
+Frontend (Mobile App - Android / IOS):
+- React Native (cross-platform responsive)
+- Responsive design for screen sizes: 7-inch to 12.9-inch tablets
+- Portrait and landscape orientation support
+- Theme: Primary color #1566A7 (Blue)
+- Text-to-Speech: react-native-tts
+- Speech-to-Text: @react-native-voice/voice
 - Microphone integration
 - Local state management
 - Offline cache for partial sessions
 
+Frontend (Web Application):
+- React.js (responsive design for tablets and iPads)
+- Web Speech API for microphone integration
+- State management (Redux/Context API)
+- Browser session storage for partial sessions
+
 Backend:
 - RESTful API (FastAPI)
 - AI Orchestration Service (Azure OpenAI API gpt-5-mini)
+- LLM Data Cleaning Service (extracts clean answers from conversational responses)
 - Rule Engine
 - Validation Engine
 - Session Management Service
+
+AI Services:
+- Text-to-Speech: react-native-tts (device-native)
+- Speech-to-Text: @react-native-voice/voice (device-native)
+- LLM Processing: Azure OpenAI GPT-5-mini for data extraction and cleaning
