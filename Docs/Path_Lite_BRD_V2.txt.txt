@@ -263,7 +263,18 @@ When reopened:
 - Resume from first unanswered question
 - Do not restart from beginning
 
-12. Review & Continue Flow
+12. Confirmation & Edit Screen
+
+After all mandatory fields are filled:
+- Display structured summary page
+- User must be redirected to the Review accordion/tab
+- Left panel should reflect navigation state clearly
+- Provide edit option
+- Allow manual edits
+- Re-validate edited fields
+- Save only after confirmation
+
+13. Review & Continue Flow
 
 Button Behavior:
 Initially:
@@ -418,12 +429,6 @@ Frontend (Mobile App - Android / IOS):
 - Local state management
 - Offline cache for partial sessions
 
-Frontend (Web Application):
-- React.js (responsive design for tablets and iPads)
-- Web Speech API for microphone integration
-- State management (Redux/Context API)
-- Browser session storage for partial sessions
-
 Backend:
 - RESTful API (FastAPI)
 - AI Orchestration Service (Azure OpenAI API gpt-5-mini)
@@ -436,3 +441,55 @@ AI Services:
 - Text-to-Speech: react-native-tts (device-native)
 - Speech-to-Text: @react-native-voice/voice (device-native)
 - LLM Processing: Azure OpenAI GPT-5-mini for data extraction and cleaning
+
+19. Non-Functional Requirements
+
+Performance:
+- Response latency < 2 seconds
+- Voice-to-text conversion < 1 second
+- AI processing and data extraction < 1 second
+- Form validation < 500ms
+
+Usability:
+- Simple conversational interface
+- Minimal learning curve for nurses
+- Clear audio feedback for all interactions
+- Intuitive error messaging
+
+Security:
+- HIPAA-compliant architecture
+- Encrypted data transmission
+- Secure session management
+- Audit trail for all data access
+
+Compatibility:
+- Responsive for iPad (7-inch to 12.9-inch)
+- iOS and Android support
+- Portrait and landscape orientation
+- Works with standard tablet microphones
+
+Scalability:
+- Support future PATH Full integration
+- Extensible architecture for additional treatment types
+- Modular design for feature expansion
+
+20. Success Criteria
+
+Prototype is successful if:
+
+• Nurse can complete form using voice
+• AI correctly maps voice to fields
+• Confirmation step works
+• UI works in iPad resolution
+• Customer approves prototype
+• Voice interaction latency meets < 2 second requirement
+• All mandatory fields are enforced
+• Session resume functionality works correctly
+
+21. Out of Scope
+
+• Production deployment
+• Full PATH Lite replacement
+• Integration with live hospital systems
+
+Prototype only.
