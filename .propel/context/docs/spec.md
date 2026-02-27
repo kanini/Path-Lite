@@ -15,30 +15,32 @@ Transform the PATH Lite mobile application from manual form-based data entry to 
 
 ## Feature Scope
 
-**Note**: This is a **prototype phase** to validate AI-driven conversational data entry approach before production deployment.
+**Note**: This is a **prototype phase using mock data only (no database)** to validate AI-driven conversational data entry approach before production deployment.
 
 ### In Scope
 - Cross-platform mobile application (iOS & Android) with responsive design for 7-12.9 inch tablets
-- Secure nurse authentication and hospital selection workflow (mock data)
-- Patient recall search with MRN-based validation (mock data)
-- AI-powered conversational data entry for Hemodialysis treatment workflow
+- Secure nurse authentication and hospital selection workflow using hardcoded mock credentials and mock hospital list (no database)
+- Patient recall search with MRN-based validation using hardcoded mock patient data (no database)
+- AI-powered conversational data entry for Hemodialysis treatment workflow with mock form submissions stored in local MMKV storage
 - Voice interaction using Text-to-Speech (TTS) and Speech-to-Text (STT)
 - LLM-based data extraction and cleaning from conversational responses
 - Multi-layer validation engine (schema, data type, regex, business rules)
 - Natural language clarification handling and retry mechanisms
-- Session persistence and resume capability
+- Session persistence and resume capability using local MMKV storage for mock data
 - AI-driven review and error correction workflow
-- Confirmation screen with report generation
-- Audit logging for compliance tracking
+- Confirmation screen with report generation from mock data
+- Audit logging for compliance tracking stored as mock data in local MMKV storage (no database)
 
 ### Out of Scope (Phase 1 - Prototype)
 - Production deployment
 - Production EHR system integration
 - Full PATH Lite feature replacement
 - Live hospital system connectivity
+- Real database integration (all data is mock data stored locally)
+- Real patient data (all patient records are hardcoded mock data)
 - Non-Hemodialysis treatment types
 - Multi-language support
-- Offline voice processing (requires internet connectivity)
+- Offline voice processing (requires internet connectivity for Azure OpenAI)
 
 ### Success Criteria
 - [ ] Nurse can complete form using voice interaction end-to-end
@@ -56,14 +58,14 @@ Transform the PATH Lite mobile application from manual form-based data entry to 
 
 ### Authentication & Access Control
 - FR-001: [DETERMINISTIC] System MUST provide secure login functionality with username and password authentication
-- FR-002: [DETERMINISTIC] System MUST validate credentials against mock authentication data and deny access for invalid credentials
+- FR-002: [DETERMINISTIC] System MUST validate credentials against hardcoded mock authentication data (no database) and deny access for invalid credentials
 - FR-003: [DETERMINISTIC] System MUST redirect authenticated users to Hospital Selection screen upon successful login
 - FR-004: [DETERMINISTIC] System MUST implement session timeout after 30 minutes of inactivity
 
 ### Hospital & Patient Management
 - FR-005: [DETERMINISTIC] System MUST display searchable list of hospitals for nurse selection
 - FR-006: [DETERMINISTIC] System MUST redirect to Patient Dashboard after hospital selection
-- FR-007: [DETERMINISTIC] System MUST display all patients (Active/Completed) for selected hospital
+- FR-007: [DETERMINISTIC] System MUST display all mock patients (Active/Completed) for selected hospital from hardcoded mock data (no database)
 - FR-008: [DETERMINISTIC] System MUST provide "Add New" button to initiate new patient entry workflow
 - FR-009: [DETERMINISTIC] System MUST display Hemodialysis as treatment type option in Phase 1
 
@@ -71,9 +73,9 @@ Transform the PATH Lite mobile application from manual form-based data entry to 
 - FR-010: [DETERMINISTIC] System MUST provide Patient Recall Search popup with fields: First Name, Last Name, MRN, DOB, Admission/Encounter Number
 - FR-011: [DETERMINISTIC] System MUST enforce MRN as mandatory field for search execution
 - FR-012: [DETERMINISTIC] System MUST enable Search button only when minimum two fields are entered including MRN
-- FR-013: [DETERMINISTIC] System MUST search existing patient records based on provided criteria
-- FR-014: [DETERMINISTIC] System MUST redirect to treatment page with prefilled data if patient exists
-- FR-015: [DETERMINISTIC] System MUST allow new patient creation with MRN and details if patient does not exist
+- FR-013: [DETERMINISTIC] System MUST search hardcoded mock patient records (no database) based on provided criteria
+- FR-014: [DETERMINISTIC] System MUST redirect to treatment page with prefilled mock data if mock patient exists in hardcoded list
+- FR-015: [DETERMINISTIC] System MUST allow new mock patient creation with MRN and details stored in local MMKV storage (no database)
 
 ### AI Conversational Interface
 - FR-016: [AI-CANDIDATE] System MUST activate Text-to-Speech (TTS) automatically when form opens
@@ -170,11 +172,11 @@ Transform the PATH Lite mobile application from manual form-based data entry to 
 - FR-077: [DETERMINISTIC] System MUST display View Report and Submit buttons after Continue action
 
 ### Report Generation & Final Submission
-- FR-078: [DETERMINISTIC] System MUST generate report based on submitted form data
+- FR-078: [DETERMINISTIC] System MUST generate report based on submitted mock form data
 - FR-079: [DETERMINISTIC] System MUST display generated report when View Report button is clicked
 - FR-080: [AI-CANDIDATE] System MUST wait for user instruction after displaying report
 - FR-081: [AI-CANDIDATE] System MUST detect final submission intent when nurse says "Report looks fine, submit"
-- FR-082: [DETERMINISTIC] System MUST save form data to local storage upon final submission
+- FR-082: [DETERMINISTIC] System MUST save mock form data to local MMKV storage (no database) upon final submission
 - FR-083: [DETERMINISTIC] System MUST generate submission confirmation
 - FR-084: [AI-CANDIDATE] System MUST announce successful submission via TTS: "Form submitted successfully. Patient record has been saved."
 
@@ -191,11 +193,11 @@ Transform the PATH Lite mobile application from manual form-based data entry to 
 - FR-092: [DETERMINISTIC] System MUST display AI voice icon with clear visual states (active/inactive/listening)
 
 ### Audit & Compliance
-- FR-093: [DETERMINISTIC] System MUST log all user actions with timestamp, user ID, and action type
-- FR-094: [DETERMINISTIC] System MUST log all data modifications with before/after values
-- FR-095: [DETERMINISTIC] System MUST log all validation failures with error details
-- FR-096: [DETERMINISTIC] System MUST log all AI interactions including questions asked and responses received
-- FR-097: [DETERMINISTIC] System MUST maintain audit trail for compliance and troubleshooting purposes
+- FR-093: [DETERMINISTIC] System MUST log all user actions with timestamp, user ID, and action type in local MMKV storage as mock audit data (no database)
+- FR-094: [DETERMINISTIC] System MUST log all data modifications with before/after values in local MMKV storage as mock audit data (no database)
+- FR-095: [DETERMINISTIC] System MUST log all validation failures with error details in local MMKV storage as mock audit data (no database)
+- FR-096: [DETERMINISTIC] System MUST log all AI interactions including questions asked and responses received in local MMKV storage as mock audit data (no database)
+- FR-097: [DETERMINISTIC] System MUST maintain mock audit trail in local MMKV storage for compliance and troubleshooting purposes (no database)
 
 ## Non-Functional Requirements
 
@@ -255,9 +257,9 @@ Transform the PATH Lite mobile application from manual form-based data entry to 
 
 - **System Actor: Azure OpenAI API** - External AI service that processes conversational responses, performs LLM-based data cleaning, and extracts structured information from natural language input.
 
-- **System Actor: Mock Authentication Service** - Mock service that validates nurse credentials against predefined mock data and manages session tokens.
+- **System Actor: Mock Authentication Service** - Hardcoded mock service that validates nurse credentials against predefined mock data (no database) and manages session tokens.
 
-- **System Actor: Mock Patient Data Store** - Local mock data store that maintains sample patient records, treatment history, and form submissions for Phase 1 testing.
+- **System Actor: Mock Patient Data Store** - Local MMKV storage that maintains hardcoded sample patient records, treatment history, and form submissions for Phase 1 testing (no database).
 
 ### Use Case Specifications
 
@@ -273,7 +275,7 @@ Transform the PATH Lite mobile application from manual form-based data entry to 
   2. System displays login screen with username and password fields
   3. Nurse enters credentials
   4. System validates credentials with Mock Authentication Service
-  5. Mock Authentication Service confirms valid credentials against predefined mock data
+  5. Mock Authentication Service confirms valid credentials against hardcoded mock data (no database)
   6. System creates session token
   7. System redirects nurse to Hospital Selection screen
 - **Extensions/Alternatives**:
@@ -357,9 +359,9 @@ UC002 ..> Context : <<include>>
   2. Nurse enters minimum two fields including MRN (mandatory)
   3. System enables Search button
   4. Nurse clicks Search button
-  5. System queries Mock Patient Data Store with search criteria
-  6. Mock Patient Data Store returns matching patient record from sample data
-  7. System redirects to treatment page with prefilled patient data
+  5. System queries hardcoded mock patient list in local storage (no database) with search criteria
+  6. Mock Patient Data Store returns matching patient record from hardcoded sample data
+  7. System redirects to treatment page with prefilled mock patient data
 - **Extensions/Alternatives**:
   - 2a. Nurse enters less than two fields
     - 2a1. System keeps Search button disabled
@@ -560,8 +562,8 @@ Correct --> AI
   9. Nurse reviews report
   10. Nurse says "Report looks fine, submit"
   11. System detects submission intent
-  12. System saves form data to Mock Patient Data Store
-  13. Mock Patient Data Store confirms successful save to local storage
+  12. System saves mock form data to local MMKV storage (no database)
+  13. Mock Patient Data Store confirms successful save to local MMKV storage
   14. System generates submission confirmation
   15. AI announces via TTS: "Form submitted successfully. Patient record has been saved."
   16. System redirects to Patient Dashboard
@@ -571,10 +573,10 @@ Correct --> AI
     - 10a2. System returns to form editing mode
     - 10a3. Nurse corrects fields
     - 10a4. Return to UC-005 for review
-  - 12a. Local storage save fails
+  - 12a. Local MMKV storage save fails
     - 12a1. System receives error from Mock Patient Data Store
     - 12a2. System displays error message
-    - 12a3. System retains form data locally
+    - 12a3. System retains mock form data in memory
     - 12a4. System prompts nurse to retry submission
   - 5a. Nurse skips report review
     - 5a1. Nurse clicks Submit button directly
@@ -717,10 +719,10 @@ UC007 ..> Continue : <<include>>
 **Rationale**: Risk mitigation through phased rollout, resource constraints, validation of AI approach before broader expansion
 **Impact**: Form schema, validation rules, and AI question flow are specific to Hemodialysis; extensibility architecture required for future phases
 
-### C-003: No Production EHR Integration
-**Constraint**: Phase 1 will not integrate with production Electronic Health Record (EHR) systems or live hospital databases
-**Rationale**: Regulatory compliance requirements, data security protocols, and pilot validation phase
-**Impact**: Patient data will be stored in local mock data store using device storage; data migration/integration strategy required for production deployment
+### C-003: No Production EHR Integration or Database
+**Constraint**: Phase 1 will not integrate with production Electronic Health Record (EHR) systems, live hospital databases, or any database system - all data is mock data only
+**Rationale**: Regulatory compliance requirements, data security protocols, pilot validation phase, and prototype simplicity
+**Impact**: All patient data, hospital data, user data, and audit logs are hardcoded mock data or stored in local MMKV storage; no database queries or connections; data migration/integration strategy required for production deployment
 
 ### C-004: Internet Connectivity Requirement
 **Constraint**: AI conversational features require active internet connection for Azure OpenAI API access
@@ -748,6 +750,6 @@ UC007 ..> Continue : <<include>>
 **Validation**: Review Azure SLA agreements; implement monitoring and alerting for API performance
 
 ### A-005: Mock Patient Data Availability for Recall Search
-**Assumption**: Mock patient records contain representative MRN, name, DOB, and admission data for effective recall search testing
-**Rationale**: Patient recall search functionality depends on realistic mock data for Phase 1 validation
-**Validation**: Ensure mock data set includes diverse patient scenarios; validate search functionality with sample data
+**Assumption**: Hardcoded mock patient records contain representative MRN, name, DOB, and admission data for effective recall search testing (no database)
+**Rationale**: Patient recall search functionality depends on realistic hardcoded mock data for Phase 1 validation
+**Validation**: Ensure hardcoded mock data set includes diverse patient scenarios; validate search functionality with sample data stored in local MMKV storage
