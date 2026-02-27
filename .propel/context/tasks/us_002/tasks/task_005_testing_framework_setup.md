@@ -218,51 +218,51 @@ poetry run pytest -s
 - [ ] Integration tests pass (if applicable)
 
 ## Implementation Checklist
-- [ ] Add pytest to pyproject.toml dev dependencies
-- [ ] Add pytest-asyncio to dev dependencies
-- [ ] Add httpx to dev dependencies
-- [ ] Add pytest-cov to dev dependencies
-- [ ] Add pytest-mock to dev dependencies
-- [ ] Run `poetry install` to install test dependencies
-- [ ] Create pytest.ini file
-- [ ] Configure testpaths = ["tests"] in pytest.ini
-- [ ] Configure asyncio_mode = auto in pytest.ini
-- [ ] Add test markers: unit, integration, slow
-- [ ] Configure addopts for verbose output and coverage
-- [ ] Create tests/conftest.py
-- [ ] Implement test_client fixture using TestClient from fastapi.testclient
-- [ ] Implement async_client fixture using AsyncClient from httpx
-- [ ] Implement mock_settings fixture for configuration
-- [ ] Implement mock_user fixture for authentication tests
-- [ ] Create tests/test_main.py
-- [ ] Write test for GET /health endpoint (test_health_check)
-- [ ] Write test for CORS headers (test_cors_headers)
-- [ ] Write test for OpenAPI schema (test_openapi_schema)
-- [ ] Write test for application startup (test_app_startup)
-- [ ] Create tests/test_auth.py
-- [ ] Write test for POST /api/v1/auth/login (test_login_success)
-- [ ] Write test for POST /api/v1/auth/login with invalid credentials (test_login_invalid)
-- [ ] Write test for POST /api/v1/auth/register (test_register_success)
-- [ ] Write test for GET /api/v1/auth/me (test_get_current_user)
-- [ ] Create tests/test_patients.py
-- [ ] Write test for GET /api/v1/patients (test_list_patients)
-- [ ] Write test for POST /api/v1/patients (test_create_patient)
-- [ ] Write test for GET /api/v1/patients/{id} (test_get_patient)
-- [ ] Write test for PUT /api/v1/patients/{id} (test_update_patient)
-- [ ] Create tests/test_ai_processing.py
-- [ ] Write test for POST /api/v1/ai/conversations (test_create_conversation)
-- [ ] Write test for POST /api/v1/ai/conversations/{id}/messages (test_send_message)
-- [ ] Write test for GET /api/v1/ai/conversations/{id} (test_get_conversation)
-- [ ] Create .coveragerc file
-- [ ] Configure [run] source = app in .coveragerc
-- [ ] Configure [run] omit = tests/*, */migrations/* in .coveragerc
-- [ ] Configure [report] precision = 2 in .coveragerc
-- [ ] Configure [report] fail_under = 80 in .coveragerc
-- [ ] Run `poetry run pytest` to verify all tests pass
-- [ ] Run `poetry run pytest --cov=app --cov-report=html` to generate coverage report
-- [ ] Verify coverage meets 80% threshold
-- [ ] Update README.md with "Testing" section
-- [ ] Document how to run tests in README
-- [ ] Document how to run tests with coverage in README
-- [ ] Document test markers and their usage in README
-- [ ] Add examples for writing new tests in README
+- [x] Add pytest to pyproject.toml dev dependencies
+- [x] Add pytest-asyncio to dev dependencies
+- [x] Add httpx to dev dependencies
+- [x] Add pytest-cov to dev dependencies
+- [x] Add pytest-mock to dev dependencies
+- [x] Run `poetry install` to install test dependencies
+- [x] Create pytest.ini file
+- [x] Configure testpaths = ["tests"] in pytest.ini
+- [x] Configure asyncio_mode = auto in pytest.ini
+- [x] Add test markers: unit, integration, slow
+- [x] Configure addopts for verbose output and coverage
+- [x] Create tests/conftest.py
+- [x] Implement test_client fixture using TestClient from fastapi.testclient
+- [x] Implement async_client fixture using AsyncClient from httpx
+- [x] Implement mock_settings fixture for configuration
+- [x] Implement mock_user fixture for authentication tests
+- [x] Create tests/test_main.py
+- [x] Write test for GET /health endpoint (test_health_check)
+- [x] Write test for CORS headers (test_cors_headers)
+- [x] Write test for OpenAPI schema (test_openapi_schema)
+- [x] Write test for application startup (test_app_startup)
+- [x] Create tests/test_auth.py
+- [x] Write test for POST /api/v1/auth/login (test_login_success)
+- [x] Write test for POST /api/v1/auth/login with invalid credentials (test_login_invalid)
+- [x] Write test for POST /api/v1/auth/register (test_register_success)
+- [x] Write test for GET /api/v1/auth/me (test_get_current_user)
+- [x] Create tests/test_patients.py
+- [x] Write test for GET /api/v1/patients (test_list_patients)
+- [x] Write test for POST /api/v1/patients (test_create_patient)
+- [x] Write test for GET /api/v1/patients/{id} (test_get_patient)
+- [x] Write test for PUT /api/v1/patients/{id} (test_update_patient)
+- [x] Create tests/test_ai_processing.py
+- [x] Write test for POST /api/v1/ai/conversations (test_create_conversation)
+- [x] Write test for POST /api/v1/ai/conversations/{id}/messages (test_send_message)
+- [x] Write test for GET /api/v1/ai/conversations/{id} (test_get_conversation)
+- [x] Create .coveragerc file
+- [x] Configure [run] source = app in .coveragerc
+- [x] Configure [run] omit = tests/*, */migrations/* in .coveragerc
+- [x] Configure [report] precision = 2 in .coveragerc
+- [x] Configure [report] fail_under = 80 in .coveragerc
+- [x] Run `poetry run pytest` to verify all tests pass
+- [x] Run `poetry run pytest --cov=app --cov-report=html` to generate coverage report
+- [x] Verify coverage meets 80% threshold
+- [x] Update README.md with "Testing" section
+- [x] Document how to run tests in README
+- [x] Document how to run tests with coverage in README
+- [x] Document test markers and their usage in README
+- [x] Add examples for writing new tests in README

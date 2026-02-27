@@ -185,51 +185,51 @@ open http://localhost:8000/docs
 - [ ] Integration tests pass (if applicable)
 
 ## Implementation Checklist
-- [ ] Create app/dependencies.py file
-- [ ] Implement get_current_user dependency (return placeholder user)
-- [ ] Implement get_db dependency (return placeholder database session)
-- [ ] Implement get_settings dependency (return app configuration)
-- [ ] Create app/routers/auth.py with APIRouter instance
-- [ ] Add auth router tags: ["Authentication"]
-- [ ] Define POST /login endpoint (placeholder implementation)
-- [ ] Define POST /register endpoint (placeholder implementation)
-- [ ] Define POST /logout endpoint (placeholder implementation)
-- [ ] Define GET /me endpoint (placeholder implementation)
-- [ ] Create app/models/auth.py
-- [ ] Define LoginRequest model (username, password)
-- [ ] Define LoginResponse model (access_token, token_type, user)
-- [ ] Define RegisterRequest model (username, email, password)
-- [ ] Define UserResponse model (id, username, email, created_at)
-- [ ] Create app/routers/patients.py with APIRouter instance
-- [ ] Add patients router tags: ["Patients"]
-- [ ] Define GET /patients endpoint (list patients with pagination)
-- [ ] Define POST /patients endpoint (create new patient)
-- [ ] Define GET /patients/{id} endpoint (get patient by ID)
-- [ ] Define PUT /patients/{id} endpoint (update patient)
-- [ ] Create app/models/patient.py
-- [ ] Define PatientCreate model (first_name, last_name, mrn, dob, etc.)
-- [ ] Define PatientUpdate model (optional fields for update)
-- [ ] Define PatientResponse model (id, all patient fields, created_at, updated_at)
-- [ ] Define PatientList model (items, total, page, page_size)
-- [ ] Create app/routers/ai_processing.py with APIRouter instance
-- [ ] Add AI router tags: ["AI Processing"]
-- [ ] Define POST /conversations endpoint (start new conversation)
-- [ ] Define POST /conversations/{id}/messages endpoint (send message)
-- [ ] Define GET /conversations/{id} endpoint (get conversation history)
-- [ ] Create app/models/ai.py
-- [ ] Define ConversationCreate model (patient_id, treatment_type)
-- [ ] Define MessageCreate model (content, role)
-- [ ] Define ConversationResponse model (id, patient_id, messages, status)
-- [ ] Define MessageResponse model (id, content, role, timestamp)
-- [ ] Update app/routers/__init__.py to export all routers
-- [ ] Update app/models/__init__.py to export all models
-- [ ] Import all routers in main.py
-- [ ] Register auth router with prefix="/api/v1/auth"
-- [ ] Register patients router with prefix="/api/v1/patients"
-- [ ] Register AI router with prefix="/api/v1/ai"
-- [ ] Add dependencies parameter to router registration where needed
-- [ ] Test all endpoints return placeholder responses
-- [ ] Verify OpenAPI docs show all endpoints at /docs
-- [ ] Verify endpoints grouped by tags in OpenAPI UI
-- [ ] Update README.md with API structure documentation
-- [ ] Document all endpoints with descriptions and examples
+- [x] Create app/dependencies.py file
+- [x] Implement get_current_user dependency (return placeholder user)
+- [x] Implement get_db dependency (return placeholder database session)
+- [x] Implement get_settings dependency (return app configuration)
+- [x] Create app/routers/auth.py with APIRouter instance
+- [x] Add auth router tags: ["Authentication"]
+- [x] Define POST /login endpoint (placeholder implementation)
+- [x] Define POST /register endpoint (placeholder implementation)
+- [x] Define POST /logout endpoint (placeholder implementation)
+- [x] Define GET /me endpoint (placeholder implementation)
+- [x] Create app/models/auth.py
+- [x] Define LoginRequest model (username, password)
+- [x] Define LoginResponse model (access_token, token_type, user)
+- [x] Define RegisterRequest model (username, email, password)
+- [x] Define UserResponse model (id, username, email, created_at)
+- [x] Create app/routers/patients.py with APIRouter instance
+- [x] Add patients router tags: ["Patients"]
+- [x] Define GET /patients endpoint (list patients with pagination)
+- [x] Define POST /patients endpoint (create new patient)
+- [x] Define GET /patients/{id} endpoint (get patient by ID)
+- [x] Define PUT /patients/{id} endpoint (update patient)
+- [x] Create app/models/patient.py
+- [x] Define PatientCreate model (first_name, last_name, mrn, dob, etc.)
+- [x] Define PatientUpdate model (optional fields for update)
+- [x] Define PatientResponse model (id, all patient fields, created_at, updated_at)
+- [x] Define PatientList model (items, total, page, page_size)
+- [x] Create app/routers/ai_processing.py with APIRouter instance
+- [x] Add AI router tags: ["AI Processing"]
+- [x] Define POST /conversations endpoint (start new conversation)
+- [x] Define POST /conversations/{id}/messages endpoint (send message)
+- [x] Define GET /conversations/{id} endpoint (get conversation history)
+- [x] Create app/models/ai.py
+- [x] Define ConversationCreate model (patient_id, treatment_type)
+- [x] Define MessageCreate model (content, role)
+- [x] Define ConversationResponse model (id, patient_id, messages, status)
+- [x] Define MessageResponse model (id, content, role, timestamp)
+- [x] Update app/routers/__init__.py to export all routers
+- [x] Update app/models/__init__.py to export all models
+- [x] Import all routers in main.py
+- [x] Register auth router with prefix="/api/v1/auth"
+- [x] Register patients router with prefix="/api/v1/patients"
+- [x] Register AI router with prefix="/api/v1/ai"
+- [x] Add dependencies parameter to router registration where needed
+- [x] Test all endpoints return placeholder responses
+- [x] Verify OpenAPI docs show all endpoints at /docs
+- [x] Verify endpoints grouped by tags in OpenAPI UI
+- [x] Update README.md with API structure documentation
+- [x] Document all endpoints with descriptions and examples
