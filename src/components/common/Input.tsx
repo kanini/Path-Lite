@@ -61,7 +61,7 @@ const Input: React.FC<InputProps> = ({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           secureTextEntry={isSecure}
-          placeholder={placeholder}
+          placeholder={hasValue ? '' : placeholder}
           placeholderTextColor={colors.neutral500}
           accessibilityLabel={label}
           accessibilityHint={mandatory ? 'Required field' : undefined}
@@ -115,18 +115,17 @@ const styles = StyleSheet.create({
     ...typography.labelSm,
     color: colors.neutral500,
     position: 'absolute',
-    top: spacing.lg,
+    top: spacing.xs,
     left: spacing.md,
+    fontSize: 11,
+    backgroundColor: colors.white,
+    paddingHorizontal: 2,
   },
   labelFocused: {
     color: colors.primary,
-    top: spacing.xs,
-    fontSize: 10,
   },
   labelFilled: {
     color: colors.primary,
-    top: spacing.xs,
-    fontSize: 10,
   },
   labelError: {
     color: colors.error,

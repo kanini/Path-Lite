@@ -20,9 +20,12 @@ import {
   EmptyPatientState,
   AddNewPatientButton,
   TreatmentTypeSelector,
+  PatientSearchModal,
+  PatientSearchBar,
 } from '../../components/patient';
 import type {PatientWithStatus} from '../../services/patientService';
 import type {TreatmentType} from '../../components/patient';
+import type {Patient} from '../../models/Patient';
 
 interface PatientSection {
   title: string;
@@ -43,10 +46,49 @@ const PatientDashboardScreen: React.FC = () => {
   } = usePatientList();
 
   const [showTreatmentSelector, setShowTreatmentSelector] = useState(false);
+  const [showPatientSearch, setShowPatientSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filterPatients = (patients: PatientWithStatus[]): PatientWithStatus[] => {
+    if (!searchQuery.trim()) {
+      return patients;
+    }
+    
+    const query = searchQuery.toLowerCase().trim();
+    console.log('Search query:', query);
+    console.log('Searching in patients:', patients.map(p => ({
+      mrn: p.mrn, 
+      firstName: p.firstName, 
+      lastName: p.lastName,
+      fullName: `${p.firstName} ${p.lastName}`.toLowerCase()
+    })));
+    
+    const filtered = patients.filter(patient => {
+      const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
+      const reverseName = `${patient.lastName} ${patient.firstName}`.toLowerCase();
+      const mrn = patient.mrn.toLowerCase();
+      
+      const matches = fullName.includes(query) || 
+             reverseName.includes(query) || 
+             mrn.includes(query);
+      
+      if (matches) {
+        console.log('Match found:', {mrn: patient.mrn, firstName: patient.firstName, lastName: patient.lastName});
+      }
+      
+      return matches;
+    });
+    
+    console.log('Filtered results:', filtered.length);
+    return filtered;
+  };
+
+  const filteredActivePatients = filterPatients(activePatients);
+  const filteredCompletedPatients = filterPatients(completedPatients);
 
   const sections: PatientSection[] = [
-    {title: 'Active', data: activePatients},
-    {title: 'Completed', data: completedPatients},
+    {title: 'Active', data: filteredActivePatients},
+    {title: 'Completed', data: filteredCompletedPatients},
   ].filter(section => section.data.length > 0);
 
   const handlePatientPress = (patient: PatientWithStatus) => {
@@ -59,11 +101,27 @@ const PatientDashboardScreen: React.FC = () => {
 
   const handleTreatmentTypeSelect = (type: TreatmentType) => {
     setShowTreatmentSelector(false);
-    console.log('Selected treatment type:', type);
+    if (type === 'Hemodialysis') {
+      setShowPatientSearch(true);
+    }
   };
 
   const handleTreatmentTypeCancel = () => {
     setShowTreatmentSelector(false);
+  };
+
+  const handlePatientSelected = (patient: Patient) => {
+    setShowPatientSearch(false);
+    navigation.navigate('TreatmentForm', {mrn: patient.mrn});
+  };
+
+  const handleCreateNewTreatment = () => {
+    setShowPatientSearch(false);
+    navigation.navigate('TreatmentForm', undefined);
+  };
+
+  const handleSearchModalClose = () => {
+    setShowPatientSearch(false);
   };
 
   const renderSectionHeader = ({section}: {section: PatientSection}) => (
@@ -103,6 +161,11 @@ const PatientDashboardScreen: React.FC = () => {
             testID="add-new-button"
           />
         </View>
+        <PatientSearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          testID="patient-search-bar"
+        />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
@@ -121,6 +184,11 @@ const PatientDashboardScreen: React.FC = () => {
           testID="add-new-button"
         />
       </View>
+      <PatientSearchBar
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        testID="patient-search-bar"
+      />
       <PatientListTabs
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -130,7 +198,11 @@ const PatientDashboardScreen: React.FC = () => {
         sections={sections}
         renderItem={renderPatientCard}
         renderSectionHeader={renderSectionHeader}
-        keyExtractor={item => item.mrn}
+        keyExtractor={item => 
+          item.treatmentSession 
+            ? `${item.mrn}-${item.treatmentSession.sessionId}` 
+            : `${item.mrn}-${item.lastUpdated.getTime()}`
+        }
         contentContainerStyle={
           sections.length === 0 ? styles.emptyListContent : styles.listContent
         }
@@ -150,6 +222,12 @@ const PatientDashboardScreen: React.FC = () => {
         onSelect={handleTreatmentTypeSelect}
         onCancel={handleTreatmentTypeCancel}
         testID="treatment-type-selector"
+      />
+      <PatientSearchModal
+        visible={showPatientSearch}
+        onClose={handleSearchModalClose}
+        onPatientSelected={handlePatientSelected}
+        onCreateNew={handleCreateNewTreatment}
       />
     </View>
   );

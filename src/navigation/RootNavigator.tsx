@@ -7,6 +7,7 @@ import {PatientProvider} from '../context/PatientContext';
 import LoginScreen from '../screens/auth/LoginScreen';
 import HospitalSelectionScreen from '../screens/hospital/HospitalSelectionScreen';
 import PatientDashboardScreen from '../screens/dashboard/PatientDashboardScreen';
+import TreatmentFormScreen from '../screens/treatment/TreatmentFormScreen';
 import type {RootStackParamList} from './types';
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -28,6 +29,10 @@ function RootNavigator(): React.JSX.Element {
               <Stack.Screen
                 name="PatientDashboard"
                 component={PatientDashboardScreen}
+              />
+              <Stack.Screen
+                name="TreatmentForm"
+                component={TreatmentFormScreen}
               />
             </Stack.Navigator>
           </NavigationContainer>

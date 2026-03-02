@@ -197,23 +197,23 @@ npm run lint
 - [x] **[Mobile Tasks]** Permission manifests validated against task requirements
 
 ## Implementation Checklist
-- [ ] Create `PatientSearchModal.tsx` with TypeScript interfaces
-- [ ] Define state for form fields: firstName, lastName, mrn, dob, admissionNumber
-- [ ] Implement modal visibility control with Modal component
-- [ ] Add 5 Input fields using existing Input component
-- [ ] Implement MRN numeric validation with regex `/^\d*$/`
-- [ ] Display error "MRN must be numeric" for invalid MRN
-- [ ] Implement conditional button enabling logic (MRN + 1 other field)
-- [ ] Add helper text "Minimum 2 fields including MRN required"
-- [ ] Style modal with overlay, centered card, proper spacing
-- [ ] Add close button and backdrop dismiss functionality
-- [ ] Implement onSearch callback with form data
-- [ ] Add accessibility labels and hints for all inputs
-- [ ] Test keyboard navigation and focus management
-- [ ] Create patient component barrel export file
-- [ ] Update main components index.ts
-- [ ] Verify iOS and Android compilation succeeds
-- [ ] Test on both platforms with different screen sizes
+- [x] Create `PatientSearchModal.tsx` with TypeScript interfaces
+- [x] Define state for form fields: firstName, lastName, mrn, dob, admissionNumber
+- [x] Implement modal visibility control with Modal component
+- [x] Add 5 Input fields using existing Input component
+- [x] Implement MRN numeric validation with regex `/^\d*$/`
+- [x] Display error "MRN must be numeric" for invalid MRN
+- [x] Implement conditional button enabling logic (MRN + 1 other field)
+- [x] Add helper text "Minimum 2 fields including MRN required"
+- [x] Style modal with overlay, centered card, proper spacing
+- [x] Add close button and backdrop dismiss functionality
+- [x] Implement onSearch callback with form data
+- [x] Add accessibility labels and hints for all inputs
+- [x] Test keyboard navigation and focus management
+- [x] Create patient component barrel export file
+- [x] Update main components index.ts
+- [x] Verify iOS and Android compilation succeeds
+- [x] Test on both platforms with different screen sizes
 - **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
 - **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
 - **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation

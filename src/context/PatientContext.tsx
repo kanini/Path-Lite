@@ -11,6 +11,7 @@ import type {PatientWithStatus} from '../services/patientService';
 import {patientStorage} from '../storage/PatientStorage';
 import {patientService} from '../services/patientService';
 import {useHospital} from './HospitalContext';
+import {MOCK_PATIENT_DASHBOARD_DATA} from '../data/mockPatientDashboard';
 
 interface PatientContextType {
   patients: PatientWithStatus[];
@@ -52,12 +53,29 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({
     try {
       setError(null);
       const allPatients = await patientStorage.getAllPatients();
+      
+      // Merge mock data with real patient data
+      const mockPatientMRNs = MOCK_PATIENT_DASHBOARD_DATA.map(p => p.mrn);
+      const realPatientMRNs = allPatients.map(p => p.mrn);
+      
+      // Filter out mock patients that have been replaced by real data
+      const mockPatientsToKeep = MOCK_PATIENT_DASHBOARD_DATA.filter(
+        mockPatient => !realPatientMRNs.includes(mockPatient.mrn)
+      );
+      
+      // Combine real patients with remaining mock patients
       const sessions: TreatmentSession[] = [];
-      const enrichedPatients = patientService.enrichPatientsWithStatus(
+      const enrichedRealPatients = patientService.enrichPatientsWithStatus(
         allPatients,
         sessions,
       );
-      setPatients(enrichedPatients);
+      
+      // Merge both lists
+      const allCombinedPatients = [...enrichedRealPatients, ...mockPatientsToKeep];
+      console.log('Total patients loaded:', allCombinedPatients.length);
+      console.log('Real patients:', enrichedRealPatients.map(p => ({mrn: p.mrn, firstName: p.firstName, lastName: p.lastName})));
+      console.log('Mock patients kept:', mockPatientsToKeep.map(p => ({mrn: p.mrn, firstName: p.firstName, lastName: p.lastName})));
+      setPatients(allCombinedPatients);
     } catch (err) {
       console.error('Error loading patients:', err);
       setError('Failed to load patients');
@@ -75,12 +93,26 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({
       setIsRefreshing(true);
       setError(null);
       const allPatients = await patientStorage.getAllPatients();
+      
+      // Merge mock data with real patient data
+      const mockPatientMRNs = MOCK_PATIENT_DASHBOARD_DATA.map(p => p.mrn);
+      const realPatientMRNs = allPatients.map(p => p.mrn);
+      
+      // Filter out mock patients that have been replaced by real data
+      const mockPatientsToKeep = MOCK_PATIENT_DASHBOARD_DATA.filter(
+        mockPatient => !realPatientMRNs.includes(mockPatient.mrn)
+      );
+      
+      // Combine real patients with remaining mock patients
       const sessions: TreatmentSession[] = [];
-      const enrichedPatients = patientService.enrichPatientsWithStatus(
+      const enrichedRealPatients = patientService.enrichPatientsWithStatus(
         allPatients,
         sessions,
       );
-      setPatients(enrichedPatients);
+      
+      // Merge both lists
+      const allCombinedPatients = [...enrichedRealPatients, ...mockPatientsToKeep];
+      setPatients(allCombinedPatients);
     } catch (err) {
       console.error('Error refreshing patients:', err);
       setError('Failed to refresh patients');

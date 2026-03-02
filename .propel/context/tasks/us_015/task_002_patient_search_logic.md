@@ -208,27 +208,27 @@ npm run lint
 - [x] **[Mobile Tasks]** Permission manifests validated against task requirements
 
 ## Implementation Checklist
-- [ ] Create PatientSearchService.ts with async search wrapper
-- [ ] Implement progress tracking (0%, 25%, 50%, 75%, 100%) with 500ms total delay
-- [ ] Create PatientSearchProgress component with branded overlay
-- [ ] Add "PATH is retrieving data for matching patient" message
-- [ ] Implement animated progress bar using Animated API
-- [ ] Style progress overlay with brand colors (primary, brandTeal)
-- [ ] Create PatientSearchResults component for multiple matches
-- [ ] Display patient cards with Name, MRN, DOB, Gender
-- [ ] Implement selectable list with radio/checkmark UI
-- [ ] Add "Select" button to confirm patient choice
-- [ ] Update PatientSearchModal to integrate search flow
-- [ ] Show progress overlay on search button press
-- [ ] Handle single match: close modal, call onPatientSelected
-- [ ] Handle multiple matches: show PatientSearchResults
-- [ ] Handle no matches: show error with "Create New Treatment" button
-- [ ] Define onPatientSelected callback prop
-- [ ] Define onCreateNew callback prop
-- [ ] Test all three search result scenarios
-- [ ] Verify progress animation timing and smoothness
-- [ ] Test on iOS and Android devices
-- [ ] Verify accessibility for result selection
+- [x] Create PatientSearchService.ts with async search wrapper
+- [x] Implement progress tracking (0%, 25%, 50%, 75%, 100%) with 500ms total delay
+- [x] Create PatientSearchProgress component with branded overlay
+- [x] Add "PATH is retrieving data for matching patient" message
+- [x] Implement animated progress bar using Animated API
+- [x] Style progress overlay with brand colors (primary, brandTeal)
+- [x] Create PatientSearchResults component for multiple matches
+- [x] Display patient cards with Name, MRN, DOB, Gender
+- [x] Implement selectable list with radio/checkmark UI
+- [x] Add "Select" button to confirm patient choice
+- [x] Update PatientSearchModal to integrate search flow
+- [x] Show progress overlay on search button press
+- [x] Handle single match: close modal, call onPatientSelected
+- [x] Handle multiple matches: show PatientSearchResults
+- [x] Handle no matches: show error with "Create New Treatment" button
+- [x] Define onPatientSelected callback prop
+- [x] Define onCreateNew callback prop
+- [x] Test all three search result scenarios
+- [x] Verify progress animation timing and smoothness
+- [x] Test on iOS and Android devices
+- [x] Verify accessibility for result selection
 - **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
 - **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
 - **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation

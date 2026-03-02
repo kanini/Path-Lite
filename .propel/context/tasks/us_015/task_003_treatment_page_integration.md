@@ -214,27 +214,27 @@ npm run lint
 - [x] **[Mobile Tasks]** Permission manifests validated against task requirements
 
 ## Implementation Checklist
-- [ ] Create navigation.ts with TreatmentFormParams interface
-- [ ] Define RootStackParamList with all screen routes
-- [ ] Create TreatmentFormScreen component with navigation typing
-- [ ] Add form fields: First Name, Last Name, MRN, DOB, Gender, Admission Number, Room Number, Treatment Location
-- [ ] Implement prefill logic using route.params.patient
-- [ ] Handle empty form state when no patient data provided
-- [ ] Update PatientDashboardScreen with modal state management
-- [ ] Add "Add New" button handler to show PatientSearchModal
-- [ ] Implement onPatientSelected callback with navigation to TreatmentForm
-- [ ] Implement onCreateNew callback with navigation to empty TreatmentForm
-- [ ] Implement onClose callback to hide modal
-- [ ] Update AppNavigator with TreatmentForm screen route
-- [ ] Configure screen options (title, header)
-- [ ] Add "Save Treatment" button with validation
-- [ ] Implement form submission handler (placeholder)
-- [ ] Test complete flow: Add New → Search → Prefill → Save
-- [ ] Test complete flow: Add New → Search → No Match → Create New → Empty Form
-- [ ] Test complete flow: Add New → Search → Multiple Matches → Select → Prefill
-- [ ] Verify navigation back to PatientDashboard after save
-- [ ] Test on iOS and Android devices
-- [ ] Verify form prefill with all patient data fields
+- [x] Create navigation.ts with TreatmentFormParams interface
+- [x] Define RootStackParamList with all screen routes
+- [x] Create TreatmentFormScreen component with navigation typing
+- [x] Add form fields: First Name, Last Name, MRN, DOB, Gender, Admission Number, Room Number, Treatment Location
+- [x] Implement prefill logic using route.params.patient
+- [x] Handle empty form state when no patient data provided
+- [x] Update PatientDashboardScreen with modal state management
+- [x] Add "Add New" button handler to show PatientSearchModal
+- [x] Implement onPatientSelected callback with navigation to TreatmentForm
+- [x] Implement onCreateNew callback with navigation to empty TreatmentForm
+- [x] Implement onClose callback to hide modal
+- [x] Update AppNavigator with TreatmentForm screen route
+- [x] Configure screen options (title, header)
+- [x] Add "Save Treatment" button with validation
+- [x] Implement form submission handler (placeholder)
+- [x] Test complete flow: Add New → Search → Prefill → Save
+- [x] Test complete flow: Add New → Search → No Match → Create New → Empty Form
+- [x] Test complete flow: Add New → Search → Multiple Matches → Select → Prefill
+- [x] Verify navigation back to PatientDashboard after save
+- [x] Test on iOS and Android devices
+- [x] Verify form prefill with all patient data fields
 - **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
 - **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
 - **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation

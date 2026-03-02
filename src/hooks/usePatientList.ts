@@ -17,7 +17,7 @@ interface UsePatientListResult {
 
 export const usePatientList = (currentUserId?: string): UsePatientListResult => {
   const {patients, isLoading, isRefreshing, error, refreshPatients} = usePatients();
-  const [activeTab, setActiveTab] = useState<TabType>('my-patients');
+  const [activeTab, setActiveTab] = useState<TabType>('all-patients');
 
   const filteredPatients = useMemo(() => {
     if (activeTab === 'my-patients' && currentUserId) {

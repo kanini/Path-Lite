@@ -22,16 +22,19 @@ const PatientListTabs: React.FC<PatientListTabsProps> = ({
       <TouchableOpacity
         style={[
           styles.tab,
+          styles.tabDisabled,
           activeTab === 'my-patients' && styles.tabActive,
         ]}
-        onPress={() => onTabChange('my-patients')}
+        onPress={() => {}}
+        disabled={true}
         activeOpacity={0.7}
         accessibilityRole="tab"
-        accessibilityState={{selected: activeTab === 'my-patients'}}
+        accessibilityState={{selected: activeTab === 'my-patients', disabled: true}}
         testID="tab-my-patients">
         <Text
           style={[
             styles.tabText,
+            styles.tabTextDisabled,
             activeTab === 'my-patients' && styles.tabTextActive,
           ]}>
           My Patients
@@ -79,6 +82,9 @@ const styles = StyleSheet.create({
   tabActive: {
     backgroundColor: 'transparent',
   },
+  tabDisabled: {
+    opacity: 0.4,
+  },
   tabText: {
     ...typography.labelMd,
     color: colors.neutral500,
@@ -86,6 +92,9 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: colors.primary,
     fontWeight: '600',
+  },
+  tabTextDisabled: {
+    color: colors.neutral300,
   },
   activeIndicator: {
     position: 'absolute',

@@ -1,11 +1,8 @@
 export class PasswordHasher {
   static hashPassword(password: string): string {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    
     let hash = 0;
-    for (let i = 0; i < data.length; i++) {
-      const char = data[i];
+    for (let i = 0; i < password.length; i++) {
+      const char = password.charCodeAt(i);
       hash = ((hash << 5) - hash) + char;
       hash = hash & hash;
     }

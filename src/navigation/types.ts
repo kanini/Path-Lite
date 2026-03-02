@@ -3,6 +3,7 @@ export type RootStackParamList = {
   Login: undefined;
   HospitalSelection: undefined;
   PatientDashboard: undefined;
+  TreatmentForm: {mrn?: string} | undefined;
 };
 
 export type RootStackNavigationProp = import('@react-navigation/stack').StackNavigationProp<RootStackParamList>;

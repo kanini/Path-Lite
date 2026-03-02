@@ -183,6 +183,24 @@ export const MOCK_PATIENTS: Patient[] = [
     hbsAbDate: new Date('2024-02-20'),
     hbsAbSource: SourceType.Hospital,
   },
+  {
+    schemaVersion: SCHEMA_VERSION,
+    mrn: '5000',
+    firstName: 'Nirai',
+    middleName: 'T',
+    lastName: 'Mathi',
+    dob: new Date('2000-01-01'),
+    gender: Gender.Male,
+    admissionNumber: 'ADM011',
+    treatmentLocation: TreatmentLocation.Bedside,
+    roomNumber: '501',
+    hbsAgStatus: HBsAgStatus.Negative,
+    hbsAgDate: new Date('2024-03-01'),
+    hbsAgSource: SourceType.Hospital,
+    hbsAbValue: 180,
+    hbsAbDate: new Date('2024-03-01'),
+    hbsAbSource: SourceType.Hospital,
+  },
 ];
 
 export const findPatientByMRN = (mrn: string): Patient | undefined => {
@@ -197,11 +215,17 @@ export const searchPatients = (criteria: {
   admissionNumber?: string;
 }): Patient[] => {
   return MOCK_PATIENTS.filter(patient => {
-    if (criteria.mrn && patient.mrn !== criteria.mrn) return false;
+    if (criteria.mrn && !patient.mrn.toLowerCase().includes(criteria.mrn.toLowerCase())) return false;
     if (criteria.firstName && !patient.firstName.toLowerCase().includes(criteria.firstName.toLowerCase())) return false;
     if (criteria.lastName && !patient.lastName.toLowerCase().includes(criteria.lastName.toLowerCase())) return false;
-    if (criteria.admissionNumber && patient.admissionNumber !== criteria.admissionNumber) return false;
-    if (criteria.dob && patient.dob.getTime() !== criteria.dob.getTime()) return false;
+    if (criteria.admissionNumber && !patient.admissionNumber.toLowerCase().includes(criteria.admissionNumber.toLowerCase())) return false;
+    if (criteria.dob) {
+      const searchDate = new Date(criteria.dob);
+      const patientDate = new Date(patient.dob);
+      searchDate.setHours(0, 0, 0, 0);
+      patientDate.setHours(0, 0, 0, 0);
+      if (searchDate.getTime() !== patientDate.getTime()) return false;
+    }
     return true;
   });
 };
