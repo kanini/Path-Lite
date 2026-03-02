@@ -122,27 +122,27 @@ npx react-native run-android
 - [x] Export includes schema version, timestamp, and record count
 
 ## Implementation Checklist
-- [ ] Create ExportMetadata.ts interface with fields: schemaVersion, exportTimestamp, recordCount, exportType
-- [ ] Create DataExportService.ts with exportPatients(): string method
-- [ ] Implement exportPatients: get all Patient records from PHIStorage using getAllKeys()
-- [ ] Filter keys to get only patient records (keys starting with "patient_")
-- [ ] Retrieve each patient record and add to patients array
-- [ ] Create export metadata: schemaVersion="1.0", exportTimestamp=new Date().toISOString(), recordCount=patients.length, exportType="patients"
-- [ ] Construct JSON export structure: { metadata, data: patients }
-- [ ] Validate JSON structure using JSONValidator before returning
-- [ ] Handle empty storage: if patients.length === 0, return { metadata, data: [], warning: "No data available to export" }
-- [ ] Create DataExportService.ts with exportTreatmentSessions(): string method
-- [ ] Implement exportTreatmentSessions: get all TreatmentSession records from PHIStorage
-- [ ] For each session, retrieve associated Patient record using session.patientMrn
-- [ ] Create nested structure: { session: {...sessionData}, patient: {...patientData} }
-- [ ] Create export metadata for sessions
-- [ ] Construct JSON export structure with nested sessions and patients
-- [ ] Create JSONValidator.ts with validateExportStructure(jsonString: string): boolean method
-- [ ] Implement validateExportStructure: parse JSON, check metadata fields exist, check data array exists
-- [ ] Write unit tests for exportPatients with 5 patient records (should return valid JSON with count=5)
-- [ ] Write unit tests for exportPatients with empty storage (should return empty array with warning)
-- [ ] Write unit tests for exportTreatmentSessions with nested patient data (should include patient details)
-- [ ] Write unit tests for JSONValidator.validateExportStructure with valid export (should return true)
-- [ ] Write unit tests for JSONValidator.validateExportStructure with invalid JSON (should return false)
+- [x] Create ExportMetadata.ts interface with fields: schemaVersion, exportTimestamp, recordCount, exportType
+- [x] Create DataExportService.ts with exportPatients(): string method
+- [x] Implement exportPatients: get all Patient records from PHIStorage using getAllKeys()
+- [x] Filter keys to get only patient records (keys starting with "patient_")
+- [x] Retrieve each patient record and add to patients array
+- [x] Create export metadata: schemaVersion="1.0", exportTimestamp=new Date().toISOString(), recordCount=patients.length, exportType="patients"
+- [x] Construct JSON export structure: { metadata, data: patients }
+- [x] Validate JSON structure using JSONValidator before returning
+- [x] Handle empty storage: if patients.length === 0, return { metadata, data: [], warning: "No data available to export" }
+- [x] Create DataExportService.ts with exportTreatmentSessions(): string method
+- [x] Implement exportTreatmentSessions: get all TreatmentSession records from PHIStorage
+- [x] For each session, retrieve associated Patient record using session.patientMrn
+- [x] Create nested structure: { session: {...sessionData}, patient: {...patientData} }
+- [x] Create export metadata for sessions
+- [x] Construct JSON export structure with nested sessions and patients
+- [x] Create JSONValidator.ts with validateExportStructure(jsonString: string): boolean method
+- [x] Implement validateExportStructure: parse JSON, check metadata fields exist, check data array exists
+- [x] Write unit tests for exportPatients with 5 patient records (should return valid JSON with count=5)
+- [x] Write unit tests for exportPatients with empty storage (should return empty array with warning)
+- [x] Write unit tests for exportTreatmentSessions with nested patient data (should include patient details)
+- [x] Write unit tests for JSONValidator.validateExportStructure with valid export (should return true)
+- [x] Write unit tests for JSONValidator.validateExportStructure with invalid JSON (should return false)
 - [ ] **[Mobile Tasks - MANDATORY]** Verify export generates valid JSON on both iOS and Android
 - [ ] **[Mobile Tasks - MANDATORY]** Test export with large datasets (100+ records) for performance

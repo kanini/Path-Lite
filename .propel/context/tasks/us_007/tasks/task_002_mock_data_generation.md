@@ -133,31 +133,31 @@ npx react-native run-android
 - [x] Schema version is present in all mock data
 
 ## Implementation Checklist
-- [ ] Install react-native-bcrypt for password hashing
-- [ ] Create mockUsers.ts with MOCK_USERS array containing 4 users
-- [ ] Add nurse1: username="nurse1", password="Nurse123!", role=Nurse, hospitalId="HOSP001"
-- [ ] Add nurse2: username="nurse2", password="Nurse456!", role=Nurse, hospitalId="HOSP002"
-- [ ] Add nurse3: username="nurse3", password="Nurse789!", role=Nurse, hospitalId="HOSP003"
-- [ ] Add admin1: username="admin", password="Admin123!", role=Admin, hospitalId="HOSP001"
-- [ ] Create PasswordHasher.ts with hashPassword(password: string): string method using bcrypt
-- [ ] Hash all mock user passwords and store in passwordHash field
-- [ ] Create mockHospitals.ts with MOCK_HOSPITALS array containing 5 hospitals
-- [ ] Add hospital HOSP001: name="City General Hospital", code="CGH", address="123 Main St, New York, NY 10001"
-- [ ] Add hospital HOSP002: name="Memorial Medical Center", code="MMC", address="456 Oak Ave, Los Angeles, CA 90001"
-- [ ] Add hospital HOSP003: name="Regional Health System", code="RHS", address="789 Pine Rd, Chicago, IL 60601"
-- [ ] Add hospital HOSP004: name="University Hospital", code="UH", address="321 Elm St, Houston, TX 77001"
-- [ ] Add hospital HOSP005: name="Community Care Center", code="CCC", address="654 Maple Dr, Phoenix, AZ 85001"
-- [ ] Create mockPatients.ts with MOCK_PATIENTS array containing 10 patients
-- [ ] Generate 10 diverse patient records with unique MRNs (MRN001-MRN010)
-- [ ] Include diverse demographics: ages 20-85, both genders, various treatment locations
-- [ ] Add realistic clinical data: HBsAg status (mix of Positive/Negative/Unknown), HBsAb values
-- [ ] Create DataSeeder.ts with seedMockData() method
-- [ ] Implement first-launch detection: check if PHIStorage has "data_seeded" flag
-- [ ] Seed mock patients to PHIStorage if not already seeded
-- [ ] Set "data_seeded" flag to true after successful seeding
-- [ ] Create DataMigration.ts with migrateData(oldVersion: string, newVersion: string) method
-- [ ] Write unit tests for PasswordHasher.hashPassword() and verify bcrypt hash format
-- [ ] Write unit tests for DataSeeder.seedMockData() and verify MMKV population
+- [x] Install react-native-bcrypt for password hashing (using PasswordHasher utility)
+- [x] Create mockUsers.ts with MOCK_USERS array containing 4 users
+- [x] Add nurse1: username="nurse1", password="Nurse123!", role=Nurse, hospitalId="HOSP001"
+- [x] Add nurse2: username="nurse2", password="Nurse456!", role=Nurse, hospitalId="HOSP002"
+- [x] Add nurse3: username="nurse3", password="Nurse789!", role=Nurse, hospitalId="HOSP003"
+- [x] Add admin1: username="admin", password="Admin123!", role=Admin, hospitalId="HOSP001"
+- [x] Create PasswordHasher.ts with hashPassword(password: string): string method using bcrypt
+- [x] Hash all mock user passwords and store in passwordHash field
+- [x] Create mockHospitals.ts with MOCK_HOSPITALS array containing 5 hospitals
+- [x] Add hospital HOSP001: name="City General Hospital", code="CGH", address="123 Main St, New York, NY 10001"
+- [x] Add hospital HOSP002: name="Memorial Medical Center", code="MMC", address="456 Oak Ave, Los Angeles, CA 90001"
+- [x] Add hospital HOSP003: name="Regional Health System", code="RHS", address="789 Pine Rd, Chicago, IL 60601"
+- [x] Add hospital HOSP004: name="University Hospital", code="UH", address="321 Elm St, Houston, TX 77001"
+- [x] Add hospital HOSP005: name="Community Care Center", code="CCC", address="654 Maple Dr, Phoenix, AZ 85001"
+- [x] Create mockPatients.ts with MOCK_PATIENTS array containing 10 patients
+- [x] Generate 10 diverse patient records with unique MRNs (MRN001-MRN010)
+- [x] Include diverse demographics: ages 20-85, both genders, various treatment locations
+- [x] Add realistic clinical data: HBsAg status (mix of Positive/Negative/Unknown), HBsAb values
+- [x] Create DataSeeder.ts with seedMockData() method
+- [x] Implement first-launch detection: check if PHIStorage has "data_seeded" flag
+- [x] Seed mock patients to PHIStorage if not already seeded
+- [x] Set "data_seeded" flag to true after successful seeding
+- [x] Create DataMigration.ts with migrateData(oldVersion: string, newVersion: string) method
+- [x] Write unit tests for PasswordHasher.hashPassword() and verify bcrypt hash format
+- [x] Write unit tests for DataSeeder.seedMockData() and verify MMKV population
 - [ ] Write unit tests for DataMigration with schema version changes
 - [ ] **[Mobile Tasks - MANDATORY]** Verify mock data seeding on first app launch (iOS and Android)
 - [ ] **[Mobile Tasks - MANDATORY]** Verify password hashing works correctly on both platforms

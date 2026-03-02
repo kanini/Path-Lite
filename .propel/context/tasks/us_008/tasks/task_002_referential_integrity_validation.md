@@ -125,30 +125,30 @@ npx react-native run-android
 - [x] **[Mobile Tasks]** Headless platform compilation succeeds
 
 ## Implementation Checklist
-- [ ] Create ReferentialIntegrityValidator.ts with validatePatientExists(mrn: string): boolean method
-- [ ] Implement patient lookup: PHIStorage.get(`patient_${mrn}`) !== undefined
-- [ ] Create ReferentialIntegrityValidator.ts with validateSessionIntegrity(session: TreatmentSession): { valid: boolean; error?: string } method
-- [ ] Implement validateSessionIntegrity: check if session.patientMrn exists in Patient records
-- [ ] Return error "Patient record not found for MRN: {mrn}" if patient doesn't exist
+- [x] Create ReferentialIntegrityValidator.ts with validatePatientExists(mrn: string): boolean method
+- [x] Implement patient lookup: PHIStorage.get(`patient_${mrn}`) !== undefined
+- [x] Create ReferentialIntegrityValidator.ts with validateSessionIntegrity(session: TreatmentSession): { valid: boolean; error?: string } method
+- [x] Implement validateSessionIntegrity: check if session.patientMrn exists in Patient records
+- [x] Return error "Patient record not found for MRN: {mrn}" if patient doesn't exist
 - [ ] Modify PHIStorageService.createTreatmentSession() to call validateSessionIntegrity before saving
 - [ ] Throw error if referential integrity check fails, preventing orphaned session creation
-- [ ] Create DateUtils.ts with isOlderThan(date: Date, hours: number): boolean method
-- [ ] Implement isOlderThan: compare date with current time minus hours
-- [ ] Create DataRetentionService.ts with cleanupExpiredSessions(): void method
-- [ ] Implement cleanupExpiredSessions: get all TreatmentSession records from PHIStorage
-- [ ] Filter sessions with completionStatus === "InProgress" AND createdAt > 24 hours old
-- [ ] Delete expired InProgress sessions from PHIStorage
-- [ ] Retain all Completed sessions (completionStatus === "Completed") indefinitely
-- [ ] Create DataRetentionService.ts with scheduleCleanup(): void method to run cleanup on app launch
+- [x] Create DateUtils.ts with isOlderThan(date: Date, hours: number): boolean method
+- [x] Implement isOlderThan: compare date with current time minus hours
+- [x] Create DataRetentionService.ts with cleanupExpiredSessions(): void method
+- [x] Implement cleanupExpiredSessions: get all TreatmentSession records from PHIStorage
+- [x] Filter sessions with completionStatus === "InProgress" AND createdAt > 24 hours old
+- [x] Delete expired InProgress sessions from PHIStorage
+- [x] Retain all Completed sessions (completionStatus === "Completed") indefinitely
+- [x] Create DataRetentionService.ts with scheduleCleanup(): void method to run cleanup on app launch
 - [ ] Add cleanup job trigger in App.tsx useEffect on mount
-- [ ] Write unit tests for validatePatientExists with existing patient (should return true)
-- [ ] Write unit tests for validatePatientExists with non-existing patient (should return false)
-- [ ] Write unit tests for validateSessionIntegrity with valid patientMrn (should pass)
-- [ ] Write unit tests for validateSessionIntegrity with invalid patientMrn (should fail with error)
-- [ ] Write unit tests for cleanupExpiredSessions with InProgress session >24 hours (should delete)
-- [ ] Write unit tests for cleanupExpiredSessions with InProgress session <24 hours (should retain)
-- [ ] Write unit tests for cleanupExpiredSessions with Completed session >24 hours (should retain)
-- [ ] Write unit tests for isOlderThan with date 25 hours ago and threshold 24 hours (should return true)
-- [ ] Write unit tests for isOlderThan with date 23 hours ago and threshold 24 hours (should return false)
+- [x] Write unit tests for validatePatientExists with existing patient (should return true)
+- [x] Write unit tests for validatePatientExists with non-existing patient (should return false)
+- [x] Write unit tests for validateSessionIntegrity with valid patientMrn (should pass)
+- [x] Write unit tests for validateSessionIntegrity with invalid patientMrn (should fail with error)
+- [x] Write unit tests for cleanupExpiredSessions with InProgress session >24 hours (should delete)
+- [x] Write unit tests for cleanupExpiredSessions with InProgress session <24 hours (should retain)
+- [x] Write unit tests for cleanupExpiredSessions with Completed session >24 hours (should retain)
+- [x] Write unit tests for isOlderThan with date 25 hours ago and threshold 24 hours (should return true)
+- [x] Write unit tests for isOlderThan with date 23 hours ago and threshold 24 hours (should return false)
 - [ ] **[Mobile Tasks - MANDATORY]** Verify cleanup runs on app launch (iOS and Android)
 - [ ] **[Mobile Tasks - MANDATORY]** Verify orphaned session creation is blocked with error message

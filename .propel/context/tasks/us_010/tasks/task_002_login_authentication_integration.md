@@ -197,24 +197,24 @@ python -m uvicorn main:app --reload
 - [x] **[Mobile Tasks]** Permission manifests validated against task requirements
 
 ## Implementation Checklist
-- [ ] Create `src/constants/api.ts` with BASE_URL and AUTH_ENDPOINTS constants
-- [ ] Create `src/utils/api.ts` with fetch wrapper supporting timeout, error handling, and retry logic
-- [ ] Create `src/types/auth.ts` with LoginRequest, LoginResponse, User, AuthState interfaces
-- [ ] Create `src/services/auth/authService.ts` with login method calling backend API
-- [ ] Create `src/context/AuthContext.tsx` with authentication state management
-- [ ] Update `src/components/auth/LoginForm.tsx` to integrate authService.login()
-- [ ] Update `src/screens/auth/LoginScreen.tsx` to navigate on successful authentication
-- [ ] Update `src/navigation/RootNavigator.tsx` to wrap with AuthContext provider
-- [ ] Update `src/services/index.ts` to export authService
-- [ ] Update `src/types/index.ts` to export auth types
-- [ ] Update `src/utils/index.ts` to export api utility
-- [ ] Update `src/constants/index.ts` to export api constants
+- [x] Create `src/constants/api.ts` with BASE_URL and AUTH_ENDPOINTS constants
+- [x] Create `src/utils/api.ts` with fetch wrapper supporting timeout, error handling, and retry logic
+- [x] Create `src/types/auth.ts` with LoginRequest, LoginResponse, User, AuthState interfaces
+- [x] Create `src/services/auth/authService.ts` with login method calling backend API
+- [x] Create `src/context/AuthContext.tsx` with authentication state management
+- [x] Update `src/components/auth/LoginForm.tsx` to integrate authService.login()
+- [x] Update `src/screens/auth/LoginScreen.tsx` to navigate on successful authentication
+- [x] Update `src/navigation/RootNavigator.tsx` to wrap with AuthContext provider
+- [x] Update `src/services/index.ts` to export authService
+- [x] Update `src/types/index.ts` to export auth types
+- [x] Update `src/utils/index.ts` to export api utility
+- [x] Update `src/constants/index.ts` to export api constants
 - [ ] Test successful login flow (valid credentials → navigate to Hospital Selection)
 - [ ] Test invalid credentials error (display "Invalid username or password", clear password field)
-- [ ] Test empty fields validation (display "Username and password are required")
+- [x] Test empty fields validation (display "Username and password are required")
 - [ ] Test network timeout error (display "Connection timeout. Please try again.")
 - [ ] Test network failure error (display appropriate error message)
-- [ ] Test loading state (button disabled, loading indicator visible)
+- [x] Test loading state (button disabled, loading indicator visible)
 - [ ] Test retry mechanism for network failures (exponential backoff, max 3 retries)
 - [ ] Verify session token is stored after successful authentication
 - [ ] Verify navigation to Hospital Selection screen with token

@@ -127,7 +127,7 @@ node scripts/setup.js
 - [ ] Platform-specific wrappers work on Windows, macOS, Linux
 - [ ] package.json setup command executes correctly
 - [ ] **[Mobile Tasks]** Pod install executes successfully on macOS
-- [ ] **[Mobile Tasks]** Android Gradle sync is documented
+- [x] **[Mobile Tasks]** Android Gradle sync is documented (Server README)
 
 ## Implementation Checklist
 - [ ] Create `/scripts/utils/logger.js` with colored console output
