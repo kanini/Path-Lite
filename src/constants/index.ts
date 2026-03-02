@@ -1,1 +1,1 @@
-export {};
+export {API_CONFIG, AUTH_ENDPOINTS, PATIENT_ENDPOINTS, HOSPITAL_ENDPOINTS} from './api';
