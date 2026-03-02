@@ -192,25 +192,25 @@ npm run lint
 - [ ] **[Mobile Tasks]** Permission manifests validated against task requirements
 
 ## Implementation Checklist
-- [ ] Create AddNewPatientButton component with TypeScript interface
-- [ ] Apply design tokens for button styling (primary color, typography, spacing)
-- [ ] Create TreatmentTypeSelector component with dropdown/action sheet
-- [ ] Implement treatment type options list (Hemodialysis for Phase 1)
-- [ ] Add modal visibility state management
-- [ ] Implement tap handler for Add New button
-- [ ] Configure modal navigation in RootNavigator
-- [ ] Add navigation to Patient Recall Search modal (placeholder for now)
-- [ ] Integrate AddNewPatientButton in PatientDashboardScreen header
-- [ ] Connect treatment type selection to navigation flow
-- [ ] Test Add New button tap on iOS
-- [ ] Test Add New button tap on Android
-- [ ] Verify treatment type selector displays correctly
-- [ ] Test treatment type selection and navigation
-- [ ] Verify modal dismissal on cancel/back
-- [ ] Ensure 44×44pt minimum touch target for button (UXR-202)
-- [ ] Validate color contrast for button (UXR-201)
-- [ ] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
-- [ ] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
-- [ ] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
-- [ ] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements
+- [x] Create AddNewPatientButton component with TypeScript interface
+- [x] Apply design tokens for button styling (primary color, typography, spacing)
+- [x] Create TreatmentTypeSelector component with dropdown/action sheet
+- [x] Implement treatment type options list (Hemodialysis for Phase 1)
+- [x] Add modal visibility state management
+- [x] Implement tap handler for Add New button
+- [x] Configure modal navigation in RootNavigator
+- [x] Add navigation to Patient Recall Search modal (placeholder for now)
+- [x] Integrate AddNewPatientButton in PatientDashboardScreen header
+- [x] Connect treatment type selection to navigation flow
+- [x] Test Add New button tap on iOS
+- [x] Test Add New button tap on Android
+- [x] Verify treatment type selector displays correctly
+- [x] Test treatment type selection and navigation
+- [x] Verify modal dismissal on cancel/back
+- [x] Ensure 44×44pt minimum touch target for button (UXR-202)
+- [x] Validate color contrast for button (UXR-201)
+- [x] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
+- [x] **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
+- [x] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
+- [x] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
+- [x] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements

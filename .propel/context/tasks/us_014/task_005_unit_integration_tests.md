@@ -236,29 +236,29 @@ npx tsc --noEmit
 - [ ] **[Mobile Tasks]** Permission manifests validated against task requirements
 
 ## Implementation Checklist
-- [ ] Install @testing-library/react-native and @testing-library/jest-native
-- [ ] Configure Jest for React Native in jest.config.js
-- [ ] Create mock patient data fixtures
-- [ ] Create test helper utilities
-- [ ] Write PatientCard component tests (rendering, props, tap handling)
-- [ ] Write StatusBadge component tests (all five variants, colors)
-- [ ] Write PatientListTabs tests (tab switching, active state)
-- [ ] Write EmptyPatientState tests (rendering, button tap)
-- [ ] Write AddNewPatientButton tests (tap handling, modal trigger)
-- [ ] Write TreatmentTypeSelector tests (modal display, selection)
-- [ ] Write usePatientList hook tests (filtering, sorting, refresh)
-- [ ] Write patientService tests (filtering logic, grouping, status)
-- [ ] Write patientStorage tests (CRUD operations, error handling)
-- [ ] Write PatientDashboardScreen integration tests (full flow)
-- [ ] Create snapshot tests for all components
-- [ ] Test tab switching with data filtering
-- [ ] Test patient card navigation
-- [ ] Test Add New flow
-- [ ] Test pull-to-refresh
-- [ ] Test empty state display
-- [ ] Achieve minimum 80% code coverage
-- [ ] Verify all tests pass on CI/CD pipeline
-- [ ] Document test patterns and conventions
-- [ ] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
-- [ ] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
-- [ ] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements
+- [x] Install @testing-library/react-native and @testing-library/jest-native
+- [x] Configure Jest for React Native in jest.config.js
+- [x] Create mock patient data fixtures
+- [x] Create test helper utilities
+- [x] Write PatientCard component tests (rendering, props, tap handling)
+- [x] Write StatusBadge component tests (all five variants, colors)
+- [x] Write PatientListTabs tests (tab switching, active state)
+- [x] Write EmptyPatientState tests (rendering, button tap)
+- [x] Write AddNewPatientButton tests (tap handling, modal trigger)
+- [x] Write TreatmentTypeSelector tests (modal display, selection)
+- [x] Write usePatientList hook tests (filtering, sorting, refresh)
+- [x] Write patientService tests (filtering logic, grouping, status)
+- [x] Write patientStorage tests (CRUD operations, error handling)
+- [x] Write PatientDashboardScreen integration tests (full flow)
+- [x] Create snapshot tests for all components
+- [x] Test tab switching with data filtering
+- [x] Test patient card navigation
+- [x] Test Add New flow
+- [x] Test pull-to-refresh
+- [x] Test empty state display
+- [x] Achieve minimum 80% code coverage
+- [x] Verify all tests pass on CI/CD pipeline
+- [x] Document test patterns and conventions
+- [x] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
+- [x] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
+- [x] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements
