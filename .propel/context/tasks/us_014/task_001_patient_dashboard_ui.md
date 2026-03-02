@@ -215,22 +215,22 @@ npm run lint
 - [ ] **[Mobile Tasks]** Permission manifests validated against task requirements
 
 ## Implementation Checklist
-- [ ] Create PatientCard component with proper TypeScript interfaces
-- [ ] Implement StatusBadge component with five status variants
-- [ ] Create PatientListTabs component with active/inactive states
-- [ ] Implement EmptyPatientState component
-- [ ] Update PatientDashboardScreen with tab navigation and patient list
-- [ ] Add navigation handling for patient tap gesture
-- [ ] Apply design tokens for colors, typography, spacing
-- [ ] Implement responsive layout for 7-12.9 inch tablets
-- [ ] Add section headers for Active/Completed patients
-- [ ] Configure navigation routes in RootNavigator
-- [ ] Test on iOS simulator/device
-- [ ] Test on Android emulator/device
-- [ ] Verify 44×44pt minimum touch targets (UXR-202)
-- [ ] Validate color contrast ratios (UXR-201)
-- [ ] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
-- [ ] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
-- [ ] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
-- [ ] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements
+- [x] Create PatientCard component with proper TypeScript interfaces
+- [x] Implement StatusBadge component with five status variants
+- [x] Create PatientListTabs component with active/inactive states
+- [x] Implement EmptyPatientState component
+- [x] Update PatientDashboardScreen with tab navigation and patient list
+- [x] Add navigation handling for patient tap gesture
+- [x] Apply design tokens for colors, typography, spacing
+- [x] Implement responsive layout for 7-12.9 inch tablets
+- [x] Add section headers for Active/Completed patients
+- [x] Configure navigation routes in RootNavigator
+- [x] Test on iOS simulator/device
+- [x] Test on Android emulator/device
+- [x] Verify 44×44pt minimum touch targets (UXR-202)
+- [x] Validate color contrast ratios (UXR-201)
+- [x] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
+- [x] **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
+- [x] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
+- [x] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
+- [x] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements

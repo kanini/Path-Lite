@@ -6,8 +6,24 @@ jest.mock('react-native-mmkv');
 jest.mock('../../src/storage/KeychainManager');
 
 describe('MMKVStorage', () => {
+  let mockClearAll: jest.Mock;
+  
   beforeEach(() => {
     jest.clearAllMocks();
+    
+    // Reset singleton instances
+    (MMKVStorage as any).phiInstance = null;
+    (MMKVStorage as any).auditInstance = null;
+    
+    // Setup MMKV mock
+    mockClearAll = jest.fn();
+    (MMKV as jest.Mock).mockImplementation(() => ({
+      clearAll: mockClearAll,
+      set: jest.fn(),
+      getString: jest.fn(),
+      delete: jest.fn(),
+      getAllKeys: jest.fn(() => []),
+    }));
   });
 
   describe('initializePHIStorage', () => {
@@ -82,11 +98,6 @@ describe('MMKVStorage', () => {
       const mockEncryptionKey = 'test-encryption-key-phi';
       (KeychainManager.getOrCreateEncryptionKey as jest.Mock).mockResolvedValue(mockEncryptionKey);
 
-      const mockClearAll = jest.fn();
-      (MMKV as jest.Mock).mockImplementation(() => ({
-        clearAll: mockClearAll,
-      }));
-
       await MMKVStorage.initializePHIStorage();
       await MMKVStorage.resetPHIStorage();
 
@@ -99,11 +110,6 @@ describe('MMKVStorage', () => {
     it('should clear all data and reset encryption key', async () => {
       const mockEncryptionKey = 'test-encryption-key-audit';
       (KeychainManager.getOrCreateEncryptionKey as jest.Mock).mockResolvedValue(mockEncryptionKey);
-
-      const mockClearAll = jest.fn();
-      (MMKV as jest.Mock).mockImplementation(() => ({
-        clearAll: mockClearAll,
-      }));
 
       await MMKVStorage.initializeAuditStorage();
       await MMKVStorage.resetAuditStorage();
