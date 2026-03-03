@@ -17,6 +17,7 @@ interface InputProps extends TextInputProps {
   mandatory?: boolean;
   secureTextEntry?: boolean;
   showPasswordToggle?: boolean;
+  highlighted?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -25,6 +26,7 @@ const Input: React.FC<InputProps> = ({
   mandatory = false,
   secureTextEntry = false,
   showPasswordToggle = false,
+  highlighted = false,
   value,
   onChangeText,
   placeholder,
@@ -43,6 +45,7 @@ const Input: React.FC<InputProps> = ({
           styles.inputContainer,
           isFocused ? styles.inputContainerFocused : null,
           error ? styles.inputContainerError : null,
+          highlighted ? styles.inputContainerHighlighted : null,
         ]}>
         <Text
           style={[
@@ -110,6 +113,11 @@ const styles = StyleSheet.create({
   inputContainerError: {
     borderWidth: 2,
     borderColor: colors.error,
+  },
+  inputContainerHighlighted: {
+    borderWidth: 2,
+    borderColor: '#6366F1',
+    backgroundColor: '#EEF2FF',
   },
   label: {
     ...typography.labelSm,

@@ -55,7 +55,7 @@ class PatientService {
     );
 
     if (patientSessions.length === 0) {
-      return patient.dob;
+      return patient.createdAt || patient.dob;
     }
 
     const latestSession = patientSessions.sort(

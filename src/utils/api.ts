@@ -137,6 +137,9 @@ class ApiClient {
     token?: string,
   ): Promise<ApiResponse<T>> {
     try {
+      console.log('[ApiClient] POST request to:', `${this.baseUrl}${endpoint}`);
+      console.log('[ApiClient] Request data:', JSON.stringify(data, null, 2));
+      
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
@@ -145,6 +148,7 @@ class ApiClient {
         headers.Authorization = `Bearer ${token}`;
       }
 
+      console.log('[ApiClient] Making fetch request...');
       const response = await this.retryRequest(() =>
         this.fetchWithTimeout(`${this.baseUrl}${endpoint}`, {
           method: 'POST',
@@ -153,9 +157,15 @@ class ApiClient {
         }),
       );
 
+      console.log('[ApiClient] Response status:', response.status);
+      console.log('[ApiClient] Response ok:', response.ok);
+      
       const responseData = await this.handleResponse<T>(response);
+      console.log('[ApiClient] Response data:', JSON.stringify(responseData, null, 2));
       return {data: responseData};
     } catch (error) {
+      console.error('[ApiClient] POST request failed:', error);
+      console.error('[ApiClient] Error details:', JSON.stringify(error, null, 2));
       return {
         error: error as ApiError,
       };

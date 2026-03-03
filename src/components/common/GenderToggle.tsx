@@ -11,6 +11,7 @@ interface GenderToggleProps {
   onChange: (gender: Gender) => void;
   mandatory?: boolean;
   testID?: string;
+  highlighted?: boolean;
 }
 
 const GenderToggle: React.FC<GenderToggleProps> = ({
@@ -18,13 +19,14 @@ const GenderToggle: React.FC<GenderToggleProps> = ({
   onChange,
   mandatory = false,
   testID,
+  highlighted = false,
 }) => {
   return (
     <View style={styles.container} testID={testID}>
       <Text style={styles.label}>
         Gender{mandatory && <Text style={styles.required}> *</Text>}
       </Text>
-      <View style={styles.toggleContainer}>
+      <View style={[styles.toggleContainer, highlighted && styles.toggleContainerHighlighted]}>
         <TouchableOpacity
           style={[
             styles.toggleOption,
@@ -85,12 +87,16 @@ const styles = StyleSheet.create({
   },
   toggleContainer: {
     flexDirection: 'row',
-    height: 36,
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.neutral300,
+    borderRadius: borderRadius.xs,
     overflow: 'hidden',
     width: 180,
+  },
+  toggleContainerHighlighted: {
+    borderWidth: 2,
+    borderColor: '#6366F1',
+    backgroundColor: '#EEF2FF',
   },
   toggleOption: {
     flex: 1,

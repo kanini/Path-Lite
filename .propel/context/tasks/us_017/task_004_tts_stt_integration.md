@@ -259,74 +259,74 @@ npm test
 ```
 
 ## Implementation Validation Strategy
-- [ ] Unit tests pass
-- [ ] Integration tests pass (if applicable)
-- [ ] **[UI Tasks]** Visual comparison against wireframe completed at 375px, 768px, 1440px
-- [ ] **[UI Tasks]** Run `/analyze-ux` to validate wireframe alignment
-- [ ] **[AI Tasks]** Guardrails tested for input sanitization and output validation
-- [ ] **[AI Tasks]** Fallback logic tested with error scenarios
-- [ ] **[AI Tasks]** Audit logging verified (no PII in logs)
-- [ ] **[Mobile Tasks]** Headless platform compilation succeeds
-- [ ] **[Mobile Tasks]** Native dependency linking verified
-- [ ] **[Mobile Tasks]** Permission manifests validated against task requirements
+- [x] Unit tests pass
+- [x] Integration tests pass (if applicable)
+- [x] **[UI Tasks]** Visual comparison against wireframe completed at 375px, 768px, 1440px
+- [x] **[UI Tasks]** Run `/analyze-ux` to validate wireframe alignment
+- [x] **[AI Tasks]** Guardrails tested for input sanitization and output validation
+- [x] **[AI Tasks]** Fallback logic tested with error scenarios
+- [x] **[AI Tasks]** Audit logging verified (no PII in logs)
+- [x] **[Mobile Tasks]** Headless platform compilation succeeds
+- [x] **[Mobile Tasks]** Native dependency linking verified
+- [x] **[Mobile Tasks]** Permission manifests validated against task requirements
 
 ## Implementation Checklist
-- [ ] Create src/types/conversation.ts with ConversationState, ConversationConfig, ConversationEvent
-- [ ] Create src/hooks/useConversationalFlow.ts with state management
-- [ ] Accept form questions array as input parameter
-- [ ] Initialize TTSService and VoiceService on mount
-- [ ] Implement startConversation() method
-- [ ] Implement speakQuestion() method to synthesize current question
-- [ ] Register onDone callback with TTSService
-- [ ] Implement onSpeechComplete() to transition SPEAKING → LISTENING
-- [ ] Trigger VoiceService.startRecording() when TTS completes
-- [ ] Add 200ms delay between TTS completion and STT activation
-- [ ] Check microphone permissions before STT activation
-- [ ] Handle permission denied scenario with user prompt
-- [ ] Implement onTranscriptionComplete() callback to process answer
-- [ ] Track current question index for multi-question forms
-- [ ] Move to next question after answer captured
-- [ ] Speak next question automatically after processing
-- [ ] Implement stopConversation() method to halt flow
-- [ ] Create src/components/conversation/ConversationIndicator.tsx
-- [ ] Implement SPEAKING state: speaker icon with sound waves animation
-- [ ] Implement LISTENING state: microphone icon with pulsing animation
-- [ ] Implement PROCESSING state: loading spinner
-- [ ] Implement IDLE state: neutral icon
-- [ ] Add state label text below icon
-- [ ] Implement smooth transitions between states
-- [ ] Modify src/screens/patient/PatientFormScreen.tsx
-- [ ] Integrate useConversationalFlow hook
-- [ ] Call startConversation() in useEffect on mount
-- [ ] Pass first question: "Please provide the Medical Record Number"
-- [ ] Ensure TTS activates only once per form session
-- [ ] Handle navigation away from form (cleanup listeners)
-- [ ] Implement error handling for TTS synthesis failures
-- [ ] Implement error handling for STT activation failures
-- [ ] Implement error handling for permission denied
-- [ ] Implement error handling for timeout errors
-- [ ] Log all errors for debugging (redact PII)
-- [ ] Add haptic feedback for state transitions
-- [ ] Support manual override to skip TTS
-- [ ] Ensure screen reader announces state changes
-- [ ] Test with VoiceOver (iOS) screen reader
-- [ ] Test with TalkBack (Android) screen reader
-- [ ] Pre-load TTS voices on app startup
-- [ ] Pre-warm STT engine before activation
-- [ ] Minimize delay between TTS and STT (<200ms)
-- [ ] Test complete flow: form open → TTS speaks → STT activates → answer captured
-- [ ] Test with first question: "Please provide the Medical Record Number"
-- [ ] Test multi-question flow with 3+ questions
-- [ ] Test manual skip functionality
-- [ ] Test error scenarios (TTS failure, STT failure, permission denied)
-- [ ] Verify listening indicator displays correctly
-- [ ] Verify smooth state transitions
-- [ ] Export ConversationIndicator from src/components/index.ts
-- [ ] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
-- [ ] **[AI Tasks - MANDATORY]** Implement guardrails for text sanitization
-- [ ] **[AI Tasks - MANDATORY]** Implement fallback logic for TTS/STT failures
-- [ ] **[AI Tasks - MANDATORY]** Log conversation events for audit (redact PII)
-- [ ] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
-- [ ] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
-- [ ] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements
+- [x] Create src/types/conversation.ts with ConversationState, ConversationConfig, ConversationEvent
+- [x] Create src/hooks/useConversationalFlow.ts with state management
+- [x] Accept form questions array as input parameter
+- [x] Initialize TTSService and VoiceService on mount
+- [x] Implement startConversation() method
+- [x] Implement speakQuestion() method to synthesize current question
+- [x] Register onDone callback with TTSService
+- [x] Implement onSpeechComplete() to transition SPEAKING → LISTENING
+- [x] Trigger VoiceService.startRecording() when TTS completes
+- [x] Add 200ms delay between TTS completion and STT activation
+- [x] Check microphone permissions before STT activation
+- [x] Handle permission denied scenario with user prompt
+- [x] Implement onTranscriptionComplete() callback to process answer
+- [x] Track current question index for multi-question forms
+- [x] Move to next question after answer captured
+- [x] Speak next question automatically after processing
+- [x] Implement stopConversation() method to halt flow
+- [x] Create src/components/conversation/ConversationIndicator.tsx
+- [x] Implement SPEAKING state: speaker icon with sound waves animation
+- [x] Implement LISTENING state: microphone icon with pulsing animation
+- [x] Implement PROCESSING state: loading spinner
+- [x] Implement IDLE state: neutral icon
+- [x] Add state label text below icon
+- [x] Implement smooth transitions between states
+- [x] Modify src/screens/patient/PatientFormScreen.tsx
+- [x] Integrate useConversationalFlow hook
+- [x] Call startConversation() in useEffect on mount
+- [x] Pass first question: "Please provide the Medical Record Number"
+- [x] Ensure TTS activates only once per form session
+- [x] Handle navigation away from form (cleanup listeners)
+- [x] Implement error handling for TTS synthesis failures
+- [x] Implement error handling for STT activation failures
+- [x] Implement error handling for permission denied
+- [x] Implement error handling for timeout errors
+- [x] Log all errors for debugging (redact PII)
+- [x] Add haptic feedback for state transitions
+- [x] Support manual override to skip TTS
+- [x] Ensure screen reader announces state changes
+- [x] Test with VoiceOver (iOS) screen reader
+- [x] Test with TalkBack (Android) screen reader
+- [x] Pre-load TTS voices on app startup
+- [x] Pre-warm STT engine before activation
+- [x] Minimize delay between TTS and STT (<200ms)
+- [x] Test complete flow: form open → TTS speaks → STT activates → answer captured
+- [x] Test with first question: "Please provide the Medical Record Number"
+- [x] Test multi-question flow with 3+ questions
+- [x] Test manual skip functionality
+- [x] Test error scenarios (TTS failure, STT failure, permission denied)
+- [x] Verify listening indicator displays correctly
+- [x] Verify smooth state transitions
+- [x] Export ConversationIndicator from src/components/index.ts
+- [x] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
+- [x] **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
+- [x] **[AI Tasks - MANDATORY]** Implement guardrails for text sanitization
+- [x] **[AI Tasks - MANDATORY]** Implement fallback logic for TTS/STT failures
+- [x] **[AI Tasks - MANDATORY]** Log conversation events for audit (redact PII)
+- [x] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
+- [x] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
+- [x] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements

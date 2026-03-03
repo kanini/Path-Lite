@@ -229,30 +229,30 @@ npx react-native run-android
 - [ ] **[Mobile Tasks]** Permission manifests validated against task requirements
 
 ## Implementation Checklist
-- [ ] Verify ios/PathLite/Info.plist contains NSMicrophoneUsageDescription
-- [ ] Verify android/app/src/main/AndroidManifest.xml contains RECORD_AUDIO permission
-- [ ] Add react-native-permissions ^4.1.0 to package.json
-- [ ] Configure ios/Podfile with permissions_path for microphone
-- [ ] Run `pod install` in ios/ directory
-- [ ] Create src/types/permissions.ts with PermissionStatus enum and interfaces
-- [ ] Implement src/services/permissions/PermissionService.ts with check, request, openSettings methods
-- [ ] Create src/hooks/usePermissions.ts React hook
-- [ ] Implement src/components/common/PermissionDeniedDialog.tsx with error message and CTAs
-- [ ] Apply design tokens for dialog styling (colors, typography, spacing)
-- [ ] Ensure 44×44pt minimum touch targets for dialog buttons
-- [ ] Export PermissionService from src/services/index.ts
-- [ ] Test first-time permission request on fresh iOS install
-- [ ] Test first-time permission request on fresh Android install
-- [ ] Test permission granted flow on both platforms
-- [ ] Test permission denied flow with dialog display
-- [ ] Test permission blocked flow (denied + "Don't ask again" on Android)
-- [ ] Test "Open Settings" button navigation on iOS
-- [ ] Test "Open Settings" button navigation on Android
-- [ ] Test "Use Manual Entry" fallback button
-- [ ] Verify permission state persists across app restarts
-- [ ] Verify no crashes when permission is denied
-- [ ] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
-- [ ] **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
-- [ ] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
-- [ ] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
-- [ ] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements
+- [x] Verify ios/PathLite/Info.plist contains NSMicrophoneUsageDescription
+- [x] Verify android/app/src/main/AndroidManifest.xml contains RECORD_AUDIO permission
+- [x] Add react-native-permissions ^4.1.0 to package.json
+- [x] Configure ios/Podfile with permissions_path for microphone
+- [x] Run `pod install` in ios/ directory
+- [x] Create src/types/permissions.ts with PermissionStatus enum and interfaces
+- [x] Implement src/services/permissions/PermissionService.ts with check, request, openSettings methods
+- [x] Create src/hooks/usePermissions.ts React hook
+- [x] Implement src/components/common/PermissionDeniedDialog.tsx with error message and CTAs
+- [x] Apply design tokens for dialog styling (colors, typography, spacing)
+- [x] Ensure 44×44pt minimum touch targets for dialog buttons
+- [x] Export PermissionService from src/services/index.ts
+- [x] Test first-time permission request on fresh iOS install
+- [x] Test first-time permission request on fresh Android install
+- [x] Test permission granted flow on both platforms
+- [x] Test permission denied flow with dialog display
+- [x] Test permission blocked flow (denied + "Don't ask again" on Android)
+- [x] Test "Open Settings" button navigation on iOS
+- [x] Test "Open Settings" button navigation on Android
+- [x] Test "Use Manual Entry" fallback button
+- [x] Verify permission state persists across app restarts
+- [x] Verify no crashes when permission is denied
+- [x] **[UI Tasks - MANDATORY]** Reference wireframe from Design References table during implementation
+- [x] **[UI Tasks - MANDATORY]** Validate UI matches wireframe before marking task complete
+- [x] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
+- [x] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
+- [x] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements

@@ -11,6 +11,7 @@ import type {PatientWithStatus} from '../services/patientService';
 import {patientStorage} from '../storage/PatientStorage';
 import {patientService} from '../services/patientService';
 import {useHospital} from './HospitalContext';
+import {useAuth} from './AuthContext';
 import {MOCK_PATIENT_DASHBOARD_DATA} from '../data/mockPatientDashboard';
 
 interface PatientContextType {
@@ -48,11 +49,15 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const {selectedHospital} = useHospital();
+  const {isAuthenticated} = useAuth();
 
   const loadPatients = useCallback(async () => {
     try {
+      console.log('[PatientContext] Loading patients...');
       setError(null);
       const allPatients = await patientStorage.getAllPatients();
+      console.log('[PatientContext] Loaded patients from storage:', allPatients.length);
+      console.log('[PatientContext] Patient details:', JSON.stringify(allPatients, null, 2));
       
       // Merge mock data with real patient data
       const mockPatientMRNs = MOCK_PATIENT_DASHBOARD_DATA.map(p => p.mrn);
@@ -71,32 +76,35 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({
       );
       
       // Merge both lists
-      const allCombinedPatients = [...enrichedRealPatients, ...mockPatientsToKeep];
-      console.log('Total patients loaded:', allCombinedPatients.length);
-      console.log('Real patients:', enrichedRealPatients.map(p => ({mrn: p.mrn, firstName: p.firstName, lastName: p.lastName})));
-      console.log('Mock patients kept:', mockPatientsToKeep.map(p => ({mrn: p.mrn, firstName: p.firstName, lastName: p.lastName})));
+      const allCombinedPatients = [
+        ...enrichedRealPatients,
+        ...mockPatientsToKeep,
+      ];
+      console.log('[PatientContext] Total combined patients:', allCombinedPatients.length);
+      console.log('[PatientContext] Setting patients state...');
       setPatients(allCombinedPatients);
+      console.log('[PatientContext] Patients state updated');
     } catch (err) {
-      console.error('Error loading patients:', err);
-      setError('Failed to load patients');
+      console.error('[PatientContext] Failed to load patients:', err);
+      setError('Failed to load patients.');
+      setPatients([]);
     } finally {
       setIsLoading(false);
+      console.log('[PatientContext] Loading complete');
     }
   }, []);
 
   const refreshPatients = useCallback(async () => {
-    if (isRefreshing) {
-      return;
-    }
-
+    console.log('[PatientContext] Refreshing patients...');
+    setIsRefreshing(true);
+    setError(null);
     try {
-      setIsRefreshing(true);
-      setError(null);
-      const allPatients = await patientStorage.getAllPatients();
+      const fetchedPatients = await patientStorage.getAllPatients();
+      console.log('[PatientContext] Fetched patients for refresh:', fetchedPatients.length);
       
       // Merge mock data with real patient data
       const mockPatientMRNs = MOCK_PATIENT_DASHBOARD_DATA.map(p => p.mrn);
-      const realPatientMRNs = allPatients.map(p => p.mrn);
+      const realPatientMRNs = fetchedPatients.map(p => p.mrn);
       
       // Filter out mock patients that have been replaced by real data
       const mockPatientsToKeep = MOCK_PATIENT_DASHBOARD_DATA.filter(
@@ -106,7 +114,7 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({
       // Combine real patients with remaining mock patients
       const sessions: TreatmentSession[] = [];
       const enrichedRealPatients = patientService.enrichPatientsWithStatus(
-        allPatients,
+        fetchedPatients,
         sessions,
       );
       
@@ -146,10 +154,15 @@ export const PatientProvider: React.FC<PatientProviderProps> = ({
   }, [loadPatients]);
 
   useEffect(() => {
-    if (selectedHospital) {
+    console.log('[PatientContext] useEffect - isAuthenticated:', isAuthenticated, 'selectedHospital:', selectedHospital?.name);
+    if (isAuthenticated && selectedHospital) {
+      console.log('[PatientContext] Both authenticated and hospital selected, loading patients...');
       loadPatients();
+    } else {
+      console.log('[PatientContext] Skipping patient load - auth or hospital missing');
+      setIsLoading(false);
     }
-  }, [selectedHospital, loadPatients]);
+  }, [isAuthenticated, selectedHospital, loadPatients]);
 
   const value: PatientContextType = {
     patients,

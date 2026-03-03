@@ -29,7 +29,7 @@
 | Backend | FastAPI | 0.110+ |
 | Database | N/A | N/A |
 | Library | openai (Azure OpenAI SDK) | 1.0+ |
-| AI/ML | Azure OpenAI GPT-4o-mini | gpt-4o-mini-2024-07-18 |
+| AI/ML | Azure OpenAI GPT-5-mini | GPT-5-mini-2024-07-18 |
 
 **Note**: All code, and libraries, MUST be compatible with versions above.
 
@@ -52,7 +52,7 @@
 | **Mobile Framework** | N/A |
 
 ## Task Overview
-Install and configure Azure OpenAI Python SDK with GPT-4o-mini model for conversational data extraction. This task establishes the foundational AI infrastructure by setting up the Azure OpenAI client, configuring environment variables for secure credential management, implementing connection verification, and establishing retry logic with exponential backoff for API resilience. The configuration ensures HIPAA BAA compliance through Azure OpenAI Enterprise Agreement and validates connectivity with a test request.
+Install and configure Azure OpenAI Python SDK with GPT-5-mini model for conversational data extraction. This task establishes the foundational AI infrastructure by setting up the Azure OpenAI client, configuring environment variables for secure credential management, implementing connection verification, and establishing retry logic with exponential backoff for API resilience. The configuration ensures HIPAA BAA compliance through Azure OpenAI Enterprise Agreement and validates connectivity with a test request.
 
 ## Dependent Tasks
 - US_002 (FastAPI Backend Setup) - MUST be completed for backend infrastructure
@@ -67,7 +67,7 @@ Install and configure Azure OpenAI Python SDK with GPT-4o-mini model for convers
 
 ## Implementation Plan
 1. **Update Dependencies**: Add `openai>=1.0` to requirements.txt for Azure OpenAI SDK support
-2. **Configure Environment Variables**: Extend Settings class in config.py with Azure OpenAI endpoint, API key, deployment name (gpt-4o-mini-2024-07-18), and API version (2024-02-01)
+2. **Configure Environment Variables**: Extend Settings class in config.py with Azure OpenAI endpoint, API key, deployment name (GPT-5-mini-2024-07-18), and API version (2024-02-01)
 3. **Create Azure OpenAI Client Singleton**: Implement client initialization in azure_openai_client.py with connection pooling and timeout configuration
 4. **Implement Service Layer**: Create AzureOpenAIService in services/ with methods for connection verification, health check, and error handling
 5. **Add Retry Logic**: Implement exponential backoff retry decorator using tenacity library for transient failures (rate limiting, network errors)
@@ -141,7 +141,7 @@ curl http://localhost:8000/api/v1/health/azure-openai
 
 ## Implementation Checklist
 - [ ] Add `openai>=1.0` and `tenacity>=8.2.0` to requirements.txt
-- [ ] Extend Settings class in config.py with AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, AZURE_OPENAI_DEPLOYMENT (default: "gpt-4o-mini-2024-07-18"), AZURE_OPENAI_API_VERSION (default: "2024-02-01")
+- [ ] Extend Settings class in config.py with AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, AZURE_OPENAI_DEPLOYMENT (default: "GPT-5-mini-2024-07-18"), AZURE_OPENAI_API_VERSION (default: "2024-02-01")
 - [ ] Create app/services/ directory if not exists
 - [ ] Create app/services/__init__.py with service exports
 - [ ] Implement AzureOpenAI client initialization in app/core/azure_openai_client.py with singleton pattern
@@ -156,7 +156,7 @@ curl http://localhost:8000/api/v1/health/azure-openai
 - [ ] Create health check router in app/routers/health.py with /api/v1/health/azure-openai endpoint
 - [ ] Write unit tests for AzureOpenAIService.verify_connection() with mocked API responses
 - [ ] Write integration test for retry logic with simulated 429 rate limit errors
-- [ ] Verify AZURE_OPENAI_DEPLOYMENT uses "gpt-4o-mini-2024-07-18" model identifier
+- [ ] Verify AZURE_OPENAI_DEPLOYMENT uses "GPT-5-mini-2024-07-18" model identifier
 - [ ] Document Azure OpenAI BAA compliance verification steps in README
-- [ ] **[AI Tasks - MANDATORY]** Verify AIR-001 requirements are met (Azure OpenAI GPT-4o-mini integration)
+- [ ] **[AI Tasks - MANDATORY]** Verify AIR-001 requirements are met (Azure OpenAI GPT-5-mini integration)
 - [ ] **[AI Tasks - MANDATORY]** Verify AIR-002 requirements are met (structured output schema foundation established)

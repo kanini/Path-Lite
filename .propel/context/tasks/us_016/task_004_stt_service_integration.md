@@ -244,51 +244,51 @@ cd Server && python -m uvicorn main:app --reload
 ```
 
 ## Implementation Validation Strategy
-- [ ] Unit tests pass
-- [ ] Integration tests pass (if applicable)
-- [ ] **[AI Tasks]** Prompt templates validated with test inputs
-- [ ] **[AI Tasks]** Guardrails tested for input sanitization and output validation
-- [ ] **[AI Tasks]** Fallback logic tested with low-confidence/error scenarios
-- [ ] **[AI Tasks]** Token budget enforcement verified
-- [ ] **[AI Tasks]** Audit logging verified (no PII in logs)
-- [ ] **[Mobile Tasks]** Headless platform compilation succeeds
-- [ ] **[Mobile Tasks]** Native dependency linking verified
-- [ ] **[Mobile Tasks]** Permission manifests validated against task requirements
+- [x] Unit tests pass
+- [x] Integration tests pass (if applicable)
+- [x] **[AI Tasks]** Prompt templates validated with test inputs
+- [x] **[AI Tasks]** Guardrails tested for input sanitization and output validation
+- [x] **[AI Tasks]** Fallback logic tested with low-confidence/error scenarios
+- [x] **[AI Tasks]** Token budget enforcement verified
+- [x] **[AI Tasks]** Audit logging verified (no PII in logs)
+- [x] **[Mobile Tasks]** Headless platform compilation succeeds
+- [x] **[Mobile Tasks]** Native dependency linking verified
+- [x] **[Mobile Tasks]** Permission manifests validated against task requirements
 
 ## Implementation Checklist
-- [ ] Create src/types/transcription.ts with TranscriptionResult interface and enums
-- [ ] Implement src/services/voice/NoiseSuppressionConfig.ts with platform-specific settings
-- [ ] Set default noise suppression level to MEDIUM
-- [ ] Implement src/services/voice/VoiceService.ts with startRecording() and stopRecording()
-- [ ] Configure @react-native-voice/voice with noise suppression enabled
-- [ ] Handle onSpeechStart event to update UI state
-- [ ] Handle onSpeechResults event to capture transcription text
-- [ ] Handle onSpeechError event for error handling
-- [ ] Extract confidence score from native API results
-- [ ] Implement 5-second timeout for recording duration
-- [ ] Create src/utils/confidenceValidator.ts with validateConfidence() function
-- [ ] Set confidence threshold to 0.7 (70%)
-- [ ] Generate warning message for low-confidence results
-- [ ] Modify src/hooks/useVoiceInput.ts to integrate VoiceService
-- [ ] Call VoiceService.startRecording() in startListening() method
-- [ ] Call VoiceService.stopRecording() in stopListening() method
-- [ ] Handle transcription results and update state
-- [ ] Display low-confidence warning to user
-- [ ] Verify transcription completes in under 1 second (AC-4)
-- [ ] Test with clear speech on iOS physical device
-- [ ] Test with clear speech on Android device/emulator
-- [ ] Test with background noise to trigger low-confidence warning
-- [ ] Test with no speech (silent recording) to trigger error
-- [ ] Test with rapid tap events (debouncing)
-- [ ] Test timeout scenario (recording exceeds 5 seconds)
-- [ ] Verify permission denied error handling
-- [ ] Create Server/app/routers/voice.py placeholder for LLM pipeline
-- [ ] Document API contract for LLM cleaning endpoint
-- [ ] Add TODO comment for future backend integration
-- [ ] Export VoiceService from src/services/index.ts
-- [ ] **[AI Tasks - MANDATORY]** Implement guardrails for input sanitization
-- [ ] **[AI Tasks - MANDATORY]** Implement fallback logic for low-confidence scenarios
-- [ ] **[AI Tasks - MANDATORY]** Log transcription events for audit (redact PII)
-- [ ] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
-- [ ] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
-- [ ] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements
+- [x] Create src/types/transcription.ts with TranscriptionResult interface and enums
+- [x] Implement src/services/voice/NoiseSuppressionConfig.ts with platform-specific settings
+- [x] Set default noise suppression level to MEDIUM
+- [x] Implement src/services/voice/VoiceService.ts with startRecording() and stopRecording()
+- [x] Configure @react-native-voice/voice with noise suppression enabled
+- [x] Handle onSpeechStart event to update UI state
+- [x] Handle onSpeechResults event to capture transcription text
+- [x] Handle onSpeechError event for error handling
+- [x] Extract confidence score from native API results
+- [x] Implement 5-second timeout for recording duration
+- [x] Create src/utils/confidenceValidator.ts with validateConfidence() function
+- [x] Set confidence threshold to 0.7 (70%)
+- [x] Generate warning message for low-confidence results
+- [x] Modify src/hooks/useVoiceInput.ts to integrate VoiceService
+- [x] Call VoiceService.startRecording() in startListening() method
+- [x] Call VoiceService.stopRecording() in stopListening() method
+- [x] Handle transcription results and update state
+- [x] Display low-confidence warning to user
+- [x] Verify transcription completes in under 1 second (AC-4)
+- [x] Test with clear speech on iOS physical device
+- [x] Test with clear speech on Android device/emulator
+- [x] Test with background noise to trigger low-confidence warning
+- [x] Test with no speech (silent recording) to trigger error
+- [x] Test with rapid tap events (debouncing)
+- [x] Test timeout scenario (recording exceeds 5 seconds)
+- [x] Verify permission denied error handling
+- [x] Create Server/app/routers/voice.py placeholder for LLM pipeline
+- [x] Document API contract for LLM cleaning endpoint
+- [x] Add TODO comment for future backend integration
+- [x] Export VoiceService from src/services/index.ts
+- [x] **[AI Tasks - MANDATORY]** Implement guardrails for input sanitization
+- [x] **[AI Tasks - MANDATORY]** Implement fallback logic for low-confidence scenarios
+- [x] **[AI Tasks - MANDATORY]** Log transcription events for audit (redact PII)
+- [x] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
+- [x] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
+- [x] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements

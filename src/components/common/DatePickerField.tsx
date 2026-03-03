@@ -20,6 +20,7 @@ interface DatePickerFieldProps {
   mandatory?: boolean;
   error?: string;
   testID?: string;
+  highlighted?: boolean;
 }
 
 const DatePickerField: React.FC<DatePickerFieldProps> = ({
@@ -30,6 +31,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
   mandatory = false,
   error,
   testID,
+  highlighted = false,
 }) => {
   const [showPicker, setShowPicker] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
@@ -79,6 +81,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
         style={[
           styles.inputContainer,
           error ? styles.inputContainerError : null,
+          highlighted ? styles.inputContainerHighlighted : null,
         ]}
         onPress={handlePress}
         activeOpacity={0.7}
@@ -231,6 +234,11 @@ const styles = StyleSheet.create({
   inputContainerError: {
     borderWidth: 2,
     borderColor: colors.error,
+  },
+  inputContainerHighlighted: {
+    borderWidth: 2,
+    borderColor: '#6366F1',
+    backgroundColor: '#EEF2FF',
   },
   label: {
     ...typography.labelSm,

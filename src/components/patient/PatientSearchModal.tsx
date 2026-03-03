@@ -23,7 +23,7 @@ interface PatientSearchModalProps {
   visible: boolean;
   onClose: () => void;
   onPatientSelected?: (patient: Patient) => void;
-  onCreateNew?: () => void;
+  onCreateNew?: (searchCriteria: SearchFormData) => void;
 }
 
 type SearchState = 'idle' | 'searching' | 'results' | 'no-results';
@@ -134,7 +134,7 @@ const PatientSearchModal: React.FC<PatientSearchModalProps> = ({
   };
 
   const handleCreateNew = () => {
-    onCreateNew?.();
+    onCreateNew?.(formData);
     handleClose();
   };
 

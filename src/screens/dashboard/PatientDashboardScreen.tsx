@@ -115,9 +115,23 @@ const PatientDashboardScreen: React.FC = () => {
     navigation.navigate('TreatmentForm', {mrn: patient.mrn});
   };
 
-  const handleCreateNewTreatment = () => {
+  const handleCreateNewTreatment = (searchCriteria?: {
+    firstName: string;
+    lastName: string;
+    mrn: string;
+    dob: string;
+    admissionNumber: string;
+  }) => {
     setShowPatientSearch(false);
-    navigation.navigate('TreatmentForm', undefined);
+    navigation.navigate('TreatmentForm', {
+      searchCriteria: searchCriteria ? {
+        firstName: searchCriteria.firstName,
+        lastName: searchCriteria.lastName,
+        mrn: searchCriteria.mrn,
+        dob: searchCriteria.dob,
+        admissionNumber: searchCriteria.admissionNumber,
+      } : undefined,
+    });
   };
 
   const handleSearchModalClose = () => {
