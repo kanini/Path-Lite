@@ -6,6 +6,7 @@ import React, {
   useCallback,
 } from 'react';
 import {authService} from '../services/auth/authService';
+import {AuthStorage} from '../storage/AuthStorage';
 import type {User, AuthState} from '../types/auth';
 
 interface AuthContextType extends AuthState {
@@ -57,15 +58,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
 
         if (response.data) {
           console.log('[AuthContext] Login successful, user:', response.data.user);
+          
+          // Save token and user data to secure storage
+          await AuthStorage.saveToken(response.data.access_token);
+          await AuthStorage.saveUser(response.data.user);
+          
           setAuthState({
             user: response.data.user,
             token: response.data.access_token,
             isAuthenticated: true,
             isLoading: false,
           });
-
-          // TODO: Store token securely using react-native-keychain
-          // await Keychain.setGenericPassword('token', response.data.access_token);
 
           return {success: true};
         }
@@ -95,8 +98,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
         await authService.logout(authState.token);
       }
 
-      // TODO: Clear stored token
-      // await Keychain.resetGenericPassword();
+      // Clear stored auth data
+      await AuthStorage.clearAuth();
 
       setAuthState({
         user: null,
@@ -106,6 +109,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
       });
     } catch (error) {
       console.error('Logout error:', error);
+      
+      // Still clear local storage even if API call fails
+      await AuthStorage.clearAuth();
+      
       setAuthState({
         user: null,
         token: null,
@@ -122,21 +129,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
   }, []);
 
   useEffect(() => {
-    // TODO: Check for stored token on mount
-    // const loadStoredToken = async () => {
-    //   try {
-    //     const credentials = await Keychain.getGenericPassword();
-    //     if (credentials && credentials.password) {
-    //       const verifyResponse = await authService.verifyToken(credentials.password);
-    //       if (verifyResponse.data?.valid) {
-    //         // Token is valid, restore session
-    //       }
-    //     }
-    //   } catch (error) {
-    //     console.error('Error loading stored token:', error);
-    //   }
-    // };
-    // loadStoredToken();
+    const loadStoredAuth = async () => {
+      try {
+        console.log('[AuthContext] Checking for stored auth data...');
+        const token = await AuthStorage.getToken();
+        const user = await AuthStorage.getUser();
+        
+        if (token && user) {
+          console.log('[AuthContext] Found stored auth, verifying token...');
+          const verifyResponse = await authService.verifyToken(token);
+          
+          if (verifyResponse.data?.valid) {
+            console.log('[AuthContext] Token valid, restoring session');
+            setAuthState({
+              user,
+              token,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          } else {
+            console.log('[AuthContext] Token invalid, clearing storage');
+            await AuthStorage.clearAuth();
+          }
+        } else {
+          console.log('[AuthContext] No stored auth found');
+        }
+      } catch (error) {
+        console.error('[AuthContext] Error loading stored auth:', error);
+        await AuthStorage.clearAuth();
+      }
+    };
+    
+    loadStoredAuth();
   }, []);
 
   const value: AuthContextType = {
