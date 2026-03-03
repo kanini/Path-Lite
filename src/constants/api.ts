@@ -1,9 +1,9 @@
 export const API_CONFIG = {
   BASE_URL: __DEV__ 
-    ? 'http://localhost:8000' // Using adb reverse for port forwarding
-    : 'https://api.pathlite.com',
-  TIMEOUT: 10000, // Reduced to 10 seconds for faster feedback
-  MAX_RETRIES: 1, // Reduced retries during testing
+    ? 'http://10.0.2.2:8000' 
+    : 'https://path-lite-backend.onrender.com',
+  TIMEOUT: 30000,
+  MAX_RETRIES: 3,
   RETRY_DELAY: 1000,
 };
 
