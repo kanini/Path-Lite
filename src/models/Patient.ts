@@ -4,11 +4,11 @@ export interface Patient {
   schemaVersion: string;
   mrn: string;
   firstName: string;
-  middleName: string;
+  middleName: string | null;
   lastName: string;
   dob: Date;
   gender: Gender;
-  admissionNumber: string;
+  admissionNumber: string | null;
   treatmentLocation: TreatmentLocation;
   roomNumber: string;
   hbsAgStatus: HBsAgStatus;
@@ -17,4 +17,5 @@ export interface Patient {
   hbsAbValue: number | null;
   hbsAbDate: Date | null;
   hbsAbSource: SourceType | null;
+  createdAt?: Date;
 }

@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "info"
     RELOAD: bool = True
 
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8081"]
+    CORS_ORIGINS: List[str] = ["*"]  # Allow all origins in development
 
     SECRET_KEY: str = "dev-secret-key-do-not-use-in-production"
 

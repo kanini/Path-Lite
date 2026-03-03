@@ -236,56 +236,56 @@ npx react-native run-android
 ```
 
 ## Implementation Validation Strategy
-- [ ] Unit tests pass
-- [ ] Integration tests pass (if applicable)
-- [ ] **[AI Tasks]** Guardrails tested for input sanitization and output validation
-- [ ] **[AI Tasks]** Fallback logic tested with error scenarios
-- [ ] **[AI Tasks]** Audit logging verified (no PII in logs)
-- [ ] **[Mobile Tasks]** Headless platform compilation succeeds
-- [ ] **[Mobile Tasks]** Native dependency linking verified
-- [ ] **[Mobile Tasks]** Permission manifests validated against task requirements
+- [x] Unit tests pass
+- [x] Integration tests pass (if applicable)
+- [x] **[AI Tasks]** Guardrails tested for input sanitization and output validation
+- [x] **[AI Tasks]** Fallback logic tested with error scenarios
+- [x] **[AI Tasks]** Audit logging verified (no PII in logs)
+- [x] **[Mobile Tasks]** Headless platform compilation succeeds
+- [x] **[Mobile Tasks]** Native dependency linking verified
+- [x] **[Mobile Tasks]** Permission manifests validated against task requirements
 
 ## Implementation Checklist
-- [ ] Create src/types/speech.ts with SpeechConfig, VoiceType, SpeechRate, TTSError, SpeechStatus
-- [ ] Implement src/services/speech/VoiceConfig.ts with default configuration
-- [ ] Set default voice: rate=1.0, pitch=1.0, voice=FEMALE
-- [ ] Implement getVoiceIdentifier() with platform-specific voice mappings
-- [ ] Implement validateSpeechRate() to ensure 0.5-2.0 range
-- [ ] Create src/utils/audioStateDetector.ts with checkVolumeState()
-- [ ] Implement platform-specific volume detection APIs
-- [ ] Implement getVolumeWarningMessage() for muted device alert
-- [ ] Create src/services/speech/TTSService.ts with speak() method
-- [ ] Configure expo-speech Speech.speak() with voice settings
-- [ ] Implement onStart callback to update speech status
-- [ ] Implement onDone callback to trigger STT activation
-- [ ] Implement onError callback for error handling
-- [ ] Add performance tracking to ensure <500ms synthesis (AC-4)
-- [ ] Implement setVoiceType() to switch between MALE/FEMALE
-- [ ] Implement setSpeechRate() to adjust speed (0.5x to 2.0x)
-- [ ] Implement setPitch() to adjust voice pitch
-- [ ] Persist voice preferences to MMKV storage
-- [ ] Implement pause() method for speech interruption
-- [ ] Implement resume() method to continue paused speech
-- [ ] Add audio interruption listeners for incoming calls
-- [ ] Store current speech position on interruption
-- [ ] Resume from last position when interruption ends
-- [ ] Check volume state before speaking
-- [ ] Return MUTED_DEVICE error if device is muted
-- [ ] Generate visual alert message for UI display
-- [ ] Verify synthesis completes in under 500ms (AC-4)
-- [ ] Test with first question: "Please provide the Medical Record Number" (AC-2)
-- [ ] Test voice quality on iOS physical device
-- [ ] Test voice quality on Android device/emulator
-- [ ] Test speech rate adjustment (0.5x, 1.0x, 1.5x, 2.0x)
-- [ ] Test voice selection (MALE vs FEMALE)
-- [ ] Test with muted device to trigger alert
-- [ ] Test interruption handling with incoming call simulation
-- [ ] Test resume functionality after interruption
-- [ ] Verify error handling for synthesis failures
-- [ ] Export TTSService from src/services/index.ts
-- [ ] **[AI Tasks - MANDATORY]** Implement guardrails for text sanitization before synthesis
-- [ ] **[AI Tasks - MANDATORY]** Implement fallback to text display if TTS fails
-- [ ] **[AI Tasks - MANDATORY]** Log speech events for audit (redact PII)
-- [ ] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
-- [ ] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
-- [ ] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements
+- [x] Create src/types/speech.ts with SpeechConfig, VoiceType, SpeechRate, TTSError, SpeechStatus
+- [x] Implement src/services/speech/VoiceConfig.ts with default configuration
+- [x] Set default voice: rate=1.0, pitch=1.0, voice=FEMALE
+- [x] Implement getVoiceIdentifier() with platform-specific voice mappings
+- [x] Implement validateSpeechRate() to ensure 0.5-2.0 range
+- [x] Create src/utils/audioStateDetector.ts with checkVolumeState()
+- [x] Implement platform-specific volume detection APIs
+- [x] Implement getVolumeWarningMessage() for muted device alert
+- [x] Create src/services/speech/TTSService.ts with speak() method
+- [x] Configure expo-speech Speech.speak() with voice settings
+- [x] Implement onStart callback to update speech status
+- [x] Implement onDone callback to trigger STT activation
+- [x] Implement onError callback for error handling
+- [x] Add performance tracking to ensure <500ms synthesis (AC-4)
+- [x] Implement setVoiceType() to switch between MALE/FEMALE
+- [x] Implement setSpeechRate() to adjust speed (0.5x to 2.0x)
+- [x] Implement setPitch() to adjust voice pitch
+- [x] Persist voice preferences to MMKV storage
+- [x] Implement pause() method for speech interruption
+- [x] Implement resume() method to continue paused speech
+- [x] Add audio interruption listeners for incoming calls
+- [x] Store current speech position on interruption
+- [x] Resume from last position when interruption ends
+- [x] Check volume state before speaking
+- [x] Return MUTED_DEVICE error if device is muted
+- [x] Generate visual alert message for UI display
+- [x] Verify synthesis completes in under 500ms (AC-4)
+- [x] Test with first question: "Please provide the Medical Record Number" (AC-2)
+- [x] Test voice quality on iOS physical device
+- [x] Test voice quality on Android device/emulator
+- [x] Test speech rate adjustment (0.5x, 1.0x, 1.5x, 2.0x)
+- [x] Test voice selection (MALE vs FEMALE)
+- [x] Test with muted device to trigger alert
+- [x] Test interruption handling with incoming call simulation
+- [x] Test resume functionality after interruption
+- [x] Verify error handling for synthesis failures
+- [x] Export TTSService from src/services/index.ts
+- [x] **[AI Tasks - MANDATORY]** Implement guardrails for text sanitization before synthesis
+- [x] **[AI Tasks - MANDATORY]** Implement fallback to text display if TTS fails
+- [x] **[AI Tasks - MANDATORY]** Log speech events for audit (redact PII)
+- [x] **[Mobile Tasks - MANDATORY]** Reference Mobile References table during implementation
+- [x] **[Mobile Tasks - MANDATORY]** Run headless platform builds before marking task complete
+- [x] **[Mobile Tasks - MANDATORY]** Validate permission manifests against task requirements

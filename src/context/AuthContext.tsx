@@ -38,12 +38,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
 
   const login = useCallback(
     async (username: string, password: string): Promise<{success: boolean; error?: string}> => {
+      console.log('[AuthContext] Login attempt started for username:', username);
       setAuthState(prev => ({...prev, isLoading: true}));
 
       try {
+        console.log('[AuthContext] Calling authService.login...');
         const response = await authService.login(username, password);
+        console.log('[AuthContext] authService.login response:', JSON.stringify(response, null, 2));
 
         if (response.error) {
+          console.error('[AuthContext] Login failed with error:', response.error);
           setAuthState(prev => ({...prev, isLoading: false}));
           return {
             success: false,
@@ -52,6 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
         }
 
         if (response.data) {
+          console.log('[AuthContext] Login successful, user:', response.data.user);
           setAuthState({
             user: response.data.user,
             token: response.data.access_token,
@@ -65,11 +70,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
           return {success: true};
         }
 
+        console.warn('[AuthContext] Login response has no data and no error');
         return {
           success: false,
           error: 'Login failed',
         };
       } catch (error) {
+        console.error('[AuthContext] Login exception:', error);
         setAuthState(prev => ({...prev, isLoading: false}));
         return {
           success: false,

@@ -75,3 +75,75 @@ jest.mock('@react-navigation/stack', () => ({
     Screen: ({children}) => children,
   })),
 }));
+
+jest.mock('@react-native-voice/voice', () => {
+  const listeners = {};
+  return {
+    __esModule: true,
+    default: {
+      start: jest.fn(() => Promise.resolve()),
+      stop: jest.fn(() => Promise.resolve()),
+      destroy: jest.fn(() => Promise.resolve()),
+      removeAllListeners: jest.fn(),
+      isAvailable: jest.fn(() => Promise.resolve(true)),
+      isRecognizing: jest.fn(() => Promise.resolve(false)),
+      set onSpeechStart(fn) { listeners.onSpeechStart = fn; },
+      get onSpeechStart() { return listeners.onSpeechStart; },
+      set onSpeechEnd(fn) { listeners.onSpeechEnd = fn; },
+      get onSpeechEnd() { return listeners.onSpeechEnd; },
+      set onSpeechResults(fn) { listeners.onSpeechResults = fn; },
+      get onSpeechResults() { return listeners.onSpeechResults; },
+      set onSpeechError(fn) { listeners.onSpeechError = fn; },
+      get onSpeechError() { return listeners.onSpeechError; },
+      set onSpeechPartialResults(fn) { listeners.onSpeechPartialResults = fn; },
+      get onSpeechPartialResults() { return listeners.onSpeechPartialResults; },
+      _listeners: listeners,
+    },
+  };
+});
+
+jest.mock('react-native-permissions', () => {
+  const RESULTS = {
+    UNAVAILABLE: 'unavailable',
+    DENIED: 'denied',
+    LIMITED: 'limited',
+    GRANTED: 'granted',
+    BLOCKED: 'blocked',
+  };
+  const PERMISSIONS = {
+    IOS: { MICROPHONE: 'ios.permission.MICROPHONE' },
+    ANDROID: { RECORD_AUDIO: 'android.permission.RECORD_AUDIO' },
+  };
+  return {
+    RESULTS,
+    PERMISSIONS,
+    check: jest.fn(() => Promise.resolve(RESULTS.GRANTED)),
+    request: jest.fn(() => Promise.resolve(RESULTS.GRANTED)),
+    openSettings: jest.fn(() => Promise.resolve()),
+  };
+});
+
+jest.mock('expo-speech', () => ({
+  speak: jest.fn((text, options) => {
+    if (options?.onStart) setTimeout(() => options.onStart(), 0);
+    if (options?.onDone) setTimeout(() => options.onDone(), 10);
+  }),
+  stop: jest.fn(() => Promise.resolve()),
+  isSpeakingAsync: jest.fn(() => Promise.resolve(false)),
+  getAvailableVoicesAsync: jest.fn(() => Promise.resolve([])),
+}));
+
+jest.mock('@react-native-community/slider', () => {
+  const {View} = require('react-native');
+  const React = require('react');
+  return {
+    __esModule: true,
+    default: React.forwardRef((props, ref) =>
+      React.createElement(View, {
+        ...props,
+        ref,
+        testID: props.testID || 'slider',
+      }),
+    ),
+  };
+});

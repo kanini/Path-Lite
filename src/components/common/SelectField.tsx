@@ -12,6 +12,7 @@ interface SelectFieldProps {
   mandatory?: boolean;
   error?: string;
   testID?: string;
+  highlighted?: boolean;
 }
 
 const SelectField: React.FC<SelectFieldProps> = ({
@@ -22,6 +23,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
   mandatory = false,
   error,
   testID,
+  highlighted = false,
 }) => {
   const hasValue = value && value.length > 0;
 
@@ -31,6 +33,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
         style={[
           styles.selectContainer,
           error ? styles.selectContainerError : null,
+          highlighted ? styles.selectContainerHighlighted : null,
         ]}
         onPress={onPress}
         activeOpacity={0.7}
@@ -83,6 +86,11 @@ const styles = StyleSheet.create({
   selectContainerError: {
     borderWidth: 2,
     borderColor: colors.error,
+  },
+  selectContainerHighlighted: {
+    borderWidth: 2,
+    borderColor: '#6366F1',
+    backgroundColor: '#EEF2FF',
   },
   label: {
     ...typography.labelSm,
