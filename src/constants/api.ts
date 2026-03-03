@@ -1,7 +1,7 @@
 export const API_CONFIG = {
   BASE_URL: __DEV__ 
     ? 'http://10.0.2.2:8000' 
-    : 'https://api.pathlite.com',
+    : 'https://path-lite-backend.onrender.com',
   TIMEOUT: 30000,
   MAX_RETRIES: 3,
   RETRY_DELAY: 1000,
